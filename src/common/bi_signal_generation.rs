@@ -1,4 +1,5 @@
 use num_complex::Complex;
+use crate::common::generate_wave::generate_wave;
 
 /// Modulate a signal when when two signals are present
 ///

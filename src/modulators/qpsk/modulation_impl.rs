@@ -11,10 +11,10 @@ impl Modulation {
             samples_per_symbol,
             sample_rate,
 
-            signal_0: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, PI, PI),
-            signal_1: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, PI, 0.0),
-            signal_2: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 0.0, PI),
-            signal_3: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 0.0, 0.0),
+            signal_0: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0,1.0, PI, PI),
+            signal_1: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0,1.0, PI, 0.0),
+            signal_2: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 1.0,0.0, PI),
+            signal_3: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 1.0,0.0, 0.0),
         }
     }
 

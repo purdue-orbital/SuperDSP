@@ -8,8 +8,8 @@ use crate::common::generate_wave::generate_wave;
 
 impl Modulation {
     pub fn new(samples_per_symbol: usize, sample_rate: f32, message_signal: f32) -> Modulation {
-        let bpsk_zero_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 0.0, 0.0);
-        let bpsk_one_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, PI, 0.0);
+        let bpsk_zero_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0,1.0, 0.0, 0.0);
+        let bpsk_one_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 1.0,PI, 0.0);
 
         Modulation { samples_per_symbol, sample_rate, bpsk_one_signal, bpsk_zero_signal }
     }

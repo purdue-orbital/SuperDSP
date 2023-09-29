@@ -1,4 +1,4 @@
-//! Digital Signal Processing (DSP) is the hallmark and a widely studied field in radio
+//! Digital Signal Processing (RustDSP) is the hallmark and a widely studied field in radio
 //! communications and is
 
 use num_complex::Complex;
