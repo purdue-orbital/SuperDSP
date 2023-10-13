@@ -20,10 +20,10 @@ impl WtfECC {
     }
 
     pub fn encode_into(&mut self, data: &Bytes, b: &mut BytesMut, c: &mut BytesMut) {
-        data.iter().for_each(|byte| {
+        data.iter().for_each(|&byte| {
             b.put_u8(!byte);
             c.put_u8(byte ^ self.prev);
-            self.prev = *byte;
+            self.prev = byte;
         });
     }
 
