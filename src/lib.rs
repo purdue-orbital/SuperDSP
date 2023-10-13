@@ -54,16 +54,16 @@ impl Demodulators {
         self.qpsk = qpsk_demod::new(samples_per_symbol, sample_rate, message_signal);
     }
 
-    pub fn ask(&self, arr: Vec<Complex<f32>>) -> Vec<u8> {
+    pub fn ask(&self, arr: &[Complex<f32>]) -> Vec<u8> {
         self.ask.run(arr)
     }
-    pub fn fsk(&self, arr: Vec<Complex<f32>>) -> Vec<u8> {
+    pub fn fsk(&self, arr: &[Complex<f32>]) -> Vec<u8> {
         self.fsk.run(arr)
     }
-    pub fn bpsk(&self, arr: Vec<Complex<f32>>) -> Vec<u8> {
+    pub fn bpsk(&self, arr: &[Complex<f32>]) -> Vec<u8> {
         self.bpsk.run(arr)
     }
-    pub fn qpsk(&self, arr: Vec<Complex<f32>>) -> Vec<u8> {
+    pub fn qpsk(&self, arr: &[Complex<f32>]) -> Vec<u8> {
         self.qpsk.run(arr)
     }
 }

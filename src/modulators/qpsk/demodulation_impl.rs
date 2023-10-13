@@ -28,11 +28,11 @@ impl Demodulation {
     ///
     /// # Arguments
     /// * `arr` - Array of radio samples to
-    pub fn run(&self, arr: Vec<Complex<f32>>) -> Vec<u8>
+    pub fn run(&self, arr: &[Complex<f32>]) -> Vec<u8>
     {
         let mut to_return = vec![];
 
-        let out = self.constellation.evaluate(arr.as_slice());
+        let out = self.constellation.evaluate(arr);
 
         let mut bin = 0_u8;
         let mut counter = 0;

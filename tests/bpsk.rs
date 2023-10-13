@@ -67,7 +67,7 @@ lazy_static! {
 
 #[test]
 pub fn bpsk_byte_1() {
-    let test = DATA.instance.bpsk(DATA.signal_1byte.clone());
+    let test = DATA.instance.bpsk(DATA.signal_1byte.as_slice());
 
     let expected = BYTE_1;
 
@@ -86,7 +86,7 @@ pub fn bpsk_byte_1() {
 
 #[test]
 pub fn bpsk_byte_2() {
-    let test = DATA.instance.bpsk(DATA.signal_2bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_2bytes.as_slice());
 
     let expected = BYTES_2;
 
@@ -104,7 +104,7 @@ pub fn bpsk_byte_2() {
 
 #[test]
 pub fn bpsk_byte_4() {
-    let test = DATA.instance.bpsk(DATA.signal_4bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_4bytes.as_slice());
 
     let expected = BYTES_4;
 
@@ -122,7 +122,7 @@ pub fn bpsk_byte_4() {
 
 #[test]
 pub fn bpsk_byte_8() {
-    let test = DATA.instance.bpsk(DATA.signal_8bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_8bytes.as_slice());
 
     let expected = BYTES_8;
 
@@ -140,7 +140,7 @@ pub fn bpsk_byte_8() {
 
 #[test]
 pub fn bpsk_byte_16() {
-    let test = DATA.instance.bpsk(DATA.signal_16bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_16bytes.as_slice());
 
     let expected = BYTES_16;
 
@@ -158,7 +158,7 @@ pub fn bpsk_byte_16() {
 
 #[test]
 pub fn bpsk_byte_32() {
-    let test = DATA.instance.bpsk(DATA.signal_32bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_32bytes.as_slice());
 
     let expected = BYTES_32;
 
@@ -176,7 +176,7 @@ pub fn bpsk_byte_32() {
 
 #[test]
 pub fn bpsk_byte_64() {
-    let test = DATA.instance.bpsk(DATA.signal_64bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_64bytes.as_slice());
 
     let expected = BYTES_64;
 
@@ -194,7 +194,7 @@ pub fn bpsk_byte_64() {
 
 #[test]
 pub fn bpsk_byte_128() {
-    let test = DATA.instance.bpsk(DATA.signal_128bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_128bytes.as_slice());
 
     let expected = BYTES_128;
 
@@ -212,7 +212,7 @@ pub fn bpsk_byte_128() {
 
 #[test]
 pub fn bpsk_byte_256() {
-    let test = DATA.instance.bpsk(DATA.signal_256bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_256bytes.as_slice());
 
     let expected = BYTES_256;
 
@@ -230,7 +230,7 @@ pub fn bpsk_byte_256() {
 
 #[test]
 pub fn bpsk_byte_512() {
-    let test = DATA.instance.bpsk(DATA.signal_512bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_512bytes.as_slice());
 
     let expected = BYTES_512;
 
@@ -248,7 +248,7 @@ pub fn bpsk_byte_512() {
 
 #[test]
 pub fn bpsk_byte_1024() {
-    let test = DATA.instance.bpsk(DATA.signal_1024bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_1024bytes.as_slice());
 
     let expected = BYTES_1024;
 
@@ -266,7 +266,7 @@ pub fn bpsk_byte_1024() {
 
 #[test]
 pub fn bpsk_byte_2048() {
-    let test = DATA.instance.bpsk(DATA.signal_2048bytes.clone());
+    let test = DATA.instance.bpsk(DATA.signal_2048bytes.as_slice());
 
     let expected = BYTES_2048;
 
@@ -286,7 +286,7 @@ pub fn bpsk_byte_2048() {
 pub fn bpsk_partial_test() {
     let samples_per_symbol = (SAMPLE_RATE / BAUD_RATE) as usize;
 
-    let test = DATA.instance.bpsk(DATA.signal_2bytes.clone()[samples_per_symbol * 9..].to_owned())[0];
+    let test = DATA.instance.bpsk(&DATA.signal_2bytes.as_slice()[samples_per_symbol * 9..])[0];
     let expected = BYTES_2[1] - 128;
 
     assert_eq!(
