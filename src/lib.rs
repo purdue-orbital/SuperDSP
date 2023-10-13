@@ -3,11 +3,6 @@
 
 use num_complex::Complex;
 
-pub mod common;
-pub mod filters;
-pub mod ecc;
-pub mod modulators;
-
 use modulators::ask::structs::demodulation::Demodulation as ask_demod;
 use modulators::ask::structs::modulation::Modulation as ask_mod;
 use modulators::bpsk::structs::demodulation::Demodulation as bpsk_demod;
@@ -17,7 +12,10 @@ use modulators::fsk::structs::modulation::Modulation as fsk_mod;
 use modulators::qpsk::structs::demodulation::Demodulation as qpsk_demod;
 use modulators::qpsk::structs::modulation::Modulation as qpsk_mod;
 
-
+pub mod common;
+pub mod filters;
+pub mod ecc;
+pub mod modulators;
 
 pub struct Demodulators {
     ask: ask_demod,
@@ -38,8 +36,8 @@ impl Demodulators {
         let mut to_return = Demodulators {
             ask: ask_demod::new(0, 0.0, 0.0),
             fsk: fsk_demod::new(0, 0.0, 0.0),
-            bpsk: bpsk_demod::new(0, 0.0,0.0),
-            qpsk: qpsk_demod::new(0, 0.0),
+            bpsk: bpsk_demod::new(0, 0.0, 0.0),
+            qpsk: qpsk_demod::new(0, 0.0, 0.0),
         };
 
         to_return.update(samples_per_symbol, sample_rate);
@@ -53,7 +51,7 @@ impl Demodulators {
         self.ask = ask_demod::new(samples_per_symbol, sample_rate, message_signal);
         self.fsk = fsk_demod::new(samples_per_symbol, sample_rate, sample_rate / 2.0);
         self.bpsk = bpsk_demod::new(samples_per_symbol, sample_rate, message_signal);
-        self.qpsk = qpsk_demod::new(samples_per_symbol, sample_rate);
+        self.qpsk = qpsk_demod::new(samples_per_symbol, sample_rate, message_signal);
     }
 
     pub fn ask(&self, arr: Vec<Complex<f32>>) -> Vec<u8> {

@@ -47,9 +47,9 @@ impl Windowing {
         }
 
         // normalize one more time so its within the domain [-1,1]
-        let max = unsafe {arr.iter().max_by(|x,y| x.norm().total_cmp(&y.norm())).unwrap_unchecked().norm()};
+        let max = unsafe { arr.iter().max_by(|x, y| x.norm().total_cmp(&y.norm())).unwrap_unchecked().norm() };
 
-        for x in 0..arr.len(){
+        for x in 0..arr.len() {
             arr[x] /= max;
         }
 

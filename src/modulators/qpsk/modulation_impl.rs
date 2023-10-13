@@ -2,19 +2,29 @@ use std::f32::consts::PI;
 
 use num_complex::Complex;
 
+use crate::common::constellation::{Constellation, ConstellationPoint};
 use crate::modulators::qpsk::structs::modulation::Modulation;
-use crate::common::generate_wave::generate_wave;
 
 impl Modulation {
-    pub fn new(samples_per_symbol: usize, sample_rate: f32, message_signal: f32) -> Modulation {
+    pub fn new(samples_per_symbol: usize, sample_rate: f32, message_frequency: f32) -> Modulation {
+        let mut constellation = Constellation::new(message_frequency, sample_rate, samples_per_symbol);
+
+        // create points
+        let bin_zero = ConstellationPoint::new(0, PI, PI, 1.0, 1.0);
+        let bin_one = ConstellationPoint::new(1, PI, 0.0, 1.0, 1.0);
+        let bin_two = ConstellationPoint::new(2, 0.0, PI, 1.0, 1.0);
+        let bin_three = ConstellationPoint::new(3, 0.0, 0.0, 1.0, 1.0);
+
+        // add points
+        constellation.add_state(&bin_zero);
+        constellation.add_state(&bin_one);
+        constellation.add_state(&bin_two);
+        constellation.add_state(&bin_three);
+
         Modulation {
             samples_per_symbol,
             sample_rate,
-
-            signal_0: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0,1.0, PI, PI),
-            signal_1: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0,1.0, PI, 0.0),
-            signal_2: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 1.0,0.0, PI),
-            signal_3: generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 1.0,0.0, 0.0),
+            constellation,
         }
     }
 
@@ -23,27 +33,18 @@ impl Modulation {
     /// # Arguments
     /// * `bin` - String of binary bits (ONLY 1s & 0s) to modulate (AKA Symbols)
     pub fn run(&self, bin: &[u8]) -> Vec<Complex<f32>> {
-        // initialize vector
-        let mut to_return = Vec::with_capacity(bin.len() * self.samples_per_symbol);
+
+        // explode bin into bits
+        let mut corrected = vec![];
 
         for &x in bin {
-            for y in (0..8).step_by(2) {
-                let val = (x << y) >> 6;
-
-                to_return.extend(
-                    match val {
-                        1 => { self.signal_1.as_slice() }
-                        2 => { self.signal_2.as_slice() }
-                        3 => { self.signal_3.as_slice() }
-
-                        // defualt as 0
-                        _ => { self.signal_0.as_slice() }
-                    }
-                )
+            for y in (0..4).rev() {
+                // QPSK is going to encode two bits
+                corrected.push(((x >> (y * 2)) & 3) as u128);
             }
         }
 
-
-        to_return
+        // run
+        self.constellation.generate(corrected.as_slice())
     }
 }

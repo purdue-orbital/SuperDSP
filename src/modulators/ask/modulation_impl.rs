@@ -1,13 +1,13 @@
 use num_complex::Complex;
 
-use crate::modulators::ask::structs::modulation::Modulation;
 use crate::common::bi_signal_generation::bi_signal_modulation;
 use crate::common::generate_wave::generate_wave;
+use crate::modulators::ask::structs::modulation::Modulation;
 
 impl Modulation {
     pub fn new(samples_per_symbol: usize, sample_rate: f32, message_signal: f32) -> Modulation {
-        let ask_off_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 0.0,0.0, 0.0, 0.0);
-        let ask_on_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 0.0,0.0, 0.0);
+        let ask_off_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 0.0, 0.0, 0.0, 0.0);
+        let ask_on_signal = generate_wave(message_signal, sample_rate, samples_per_symbol as i32, 0, 1.0, 0.0, 0.0, 0.0);
 
         Modulation { samples_per_symbol, sample_rate, ask_on_signal, ask_off_signal }
     }

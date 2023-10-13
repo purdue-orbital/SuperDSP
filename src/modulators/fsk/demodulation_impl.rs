@@ -1,9 +1,9 @@
 use num_complex::Complex;
 use rand::distributions::uniform::SampleBorrow;
 
-use crate::modulators::fsk::structs::demodulation::Demodulation;
 use crate::common::bi_signal_demodulation::bi_signal_demodulation;
 use crate::common::goertzel_algorithm::GoertzelAlgorithm;
+use crate::modulators::fsk::structs::demodulation::Demodulation;
 
 impl Demodulation {
     pub fn new(samples_per_symbol: usize, sample_rate: f32, message_signal_2: f32) -> Demodulation {

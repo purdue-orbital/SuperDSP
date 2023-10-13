@@ -6,6 +6,6 @@ pub struct Modulation {
 
     // The rate the radio will sample at
     pub(crate) sample_rate: f32,
-    
-    pub(crate) constellation: Constellation
+
+    pub(crate) constellation: Constellation,
 }

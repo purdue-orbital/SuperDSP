@@ -1,9 +1,9 @@
 use num_complex::Complex;
 use once_cell::sync::Lazy;
 
+use rustdsp::common::generate_wave::generate_wave;
 use rustdsp::filters::fir;
 use rustdsp::filters::fir::shapes::WindowShapes;
-use rustdsp::common::generate_wave::generate_wave;
 
 // set wave settings
 static FFT_SIZE: usize = 124;
@@ -11,7 +11,7 @@ static SAMPLE_RATE: f32 = 1e6;
 static FREQUENCY: f32 = SAMPLE_RATE / 2.0;
 
 static SIGNAL: Lazy<Vec<Complex<f32>>> = Lazy::new(|| {
-    generate_wave(FREQUENCY, SAMPLE_RATE, FFT_SIZE as i32, 0, 1.0, 0.0, 0.0,0.0)
+    generate_wave(FREQUENCY, SAMPLE_RATE, FFT_SIZE as i32, 0, 1.0, 0.0, 0.0, 0.0)
 });
 
 fn vector_equal(arr1: Vec<Complex<f32>>, arr2: Vec<Complex<f32>>) -> bool {
@@ -65,11 +65,7 @@ fn test_hann() {
     let mut window = fir::Windowing::new(WindowShapes::Hann, FFT_SIZE, 1);
     let mut wave = SIGNAL.clone();
 
-    dbg!(wave.clone());
-
     window.run(wave.as_mut_slice());
-
-    dbg!(wave.clone());
 
     assert!(vector_equal(SIGNAL.clone(), wave));
 }

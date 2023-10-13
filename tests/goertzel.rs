@@ -1,5 +1,5 @@
-use rustdsp::Modulators;
 use rustdsp::common::goertzel_algorithm::GoertzelAlgorithm;
+use rustdsp::Modulators;
 
 static SAMPLE_RATE: f32 = 1e5;
 static BAUD_RATE: f32 = 1e4;
