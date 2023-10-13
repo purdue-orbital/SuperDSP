@@ -28,7 +28,7 @@ jobs:
         run: mv target/doc docs
 
       - name: Create Index.html
-        run: echo '<meta http-equiv="refresh" content="0; url=RustDSP">' > docs/index.html
+        run: echo '<meta http-equiv="refresh" content="0; url=rustdsp">' > docs/index.html
 
       - name: Push to Branch
         run: |
