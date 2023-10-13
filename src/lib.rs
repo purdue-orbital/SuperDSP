@@ -38,7 +38,7 @@ impl Demodulators {
         let mut to_return = Demodulators {
             ask: ask_demod::new(0, 0.0, 0.0),
             fsk: fsk_demod::new(0, 0.0, 0.0),
-            bpsk: bpsk_demod::new(0, 0.0),
+            bpsk: bpsk_demod::new(0, 0.0,0.0),
             qpsk: qpsk_demod::new(0, 0.0),
         };
 
@@ -52,7 +52,7 @@ impl Demodulators {
 
         self.ask = ask_demod::new(samples_per_symbol, sample_rate, message_signal);
         self.fsk = fsk_demod::new(samples_per_symbol, sample_rate, sample_rate / 2.0);
-        self.bpsk = bpsk_demod::new(samples_per_symbol, sample_rate);
+        self.bpsk = bpsk_demod::new(samples_per_symbol, sample_rate, message_signal);
         self.qpsk = qpsk_demod::new(samples_per_symbol, sample_rate);
     }
 

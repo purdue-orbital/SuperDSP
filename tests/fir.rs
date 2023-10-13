@@ -11,7 +11,7 @@ static SAMPLE_RATE: f32 = 1e6;
 static FREQUENCY: f32 = SAMPLE_RATE / 2.0;
 
 static SIGNAL: Lazy<Vec<Complex<f32>>> = Lazy::new(|| {
-    generate_wave(FREQUENCY, SAMPLE_RATE, FFT_SIZE as i32, 0, 1.0, 0.0, 0.0)
+    generate_wave(FREQUENCY, SAMPLE_RATE, FFT_SIZE as i32, 0, 1.0, 0.0, 0.0,0.0)
 });
 
 fn vector_equal(arr1: Vec<Complex<f32>>, arr2: Vec<Complex<f32>>) -> bool {
