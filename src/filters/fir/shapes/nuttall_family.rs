@@ -4,7 +4,7 @@ use num_complex::Complex;
 
 use crate::filters::fir::shapes::shape::Shape;
 
-fn nuttall_base_function(fft_size: usize, alpha: i16, coefficients: &[f32; 4]) -> Vec<Complex<f32>>
+fn nuttall_base_function(fft_size: usize, _alpha: i16, coefficients: &[f32; 4]) -> Vec<Complex<f32>>
 {
     let mut to_return: Vec<Complex<f32>> = Vec::with_capacity(fft_size);
 

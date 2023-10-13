@@ -6,7 +6,7 @@ use crate::filters::fir::shapes::shape::Shape;
 pub struct Welch;
 
 impl Shape for Welch {
-    fn generate_shape(fft_size: usize, alpha: i16) -> Vec<Complex<f32>> {
+    fn generate_shape(fft_size: usize, _alpha: i16) -> Vec<Complex<f32>> {
         let mut to_return = Vec::with_capacity(fft_size);
 
         let fft_div_2 = (fft_size / 2) as f32;

@@ -5,7 +5,7 @@ use crate::filters::fir::shapes::shape::Shape;
 pub struct Rectangle;
 
 impl Shape for Rectangle {
-    fn generate_shape(fft_size: usize, alpha: i16) -> Vec<Complex<f32>> {
+    fn generate_shape(fft_size: usize, _alpha: i16) -> Vec<Complex<f32>> {
         vec![Complex::new(1.0, 1.0); fft_size]
     }
 }

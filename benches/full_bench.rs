@@ -1,8 +1,9 @@
 use criterion::{criterion_group, criterion_main};
+
 use crate::ask::ask_benchmark;
+use crate::bpsk::bpsk_benchmark;
 use crate::fsk::fsk_benchmark;
 use crate::qpsk::qpsk_benchmark;
-use crate::bpsk::bpsk_benchmark;
 
 mod qpsk;
 mod bpsk;

@@ -72,7 +72,6 @@ pub fn bpsk_byte_1() {
 }
 
 
-
 pub fn bpsk_byte_2() {
     DATA.instance.bpsk(DATA.signal_2bytes.as_slice());
 }
@@ -84,7 +83,7 @@ pub fn bpsk_byte_4() {
 
 
 pub fn bpsk_byte_8() {
-   DATA.instance.bpsk(DATA.signal_8bytes.as_slice());
+    DATA.instance.bpsk(DATA.signal_8bytes.as_slice());
 }
 
 
@@ -104,7 +103,7 @@ pub fn bpsk_byte_64() {
 
 
 pub fn bpsk_byte_128() {
-   DATA.instance.bpsk(DATA.signal_128bytes.as_slice());
+    DATA.instance.bpsk(DATA.signal_128bytes.as_slice());
 }
 
 
@@ -128,18 +127,18 @@ pub fn bpsk_byte_2048() {
 }
 
 pub fn bpsk_benchmark(c: &mut Criterion) {
-    c.bench_function("BPSK demod 1",|b| b.iter(bpsk_byte_1));
-    c.bench_function("BPSK demod 2",|b| b.iter(bpsk_byte_2));
-    c.bench_function("BPSK demod 4",|b| b.iter(bpsk_byte_4));
-    c.bench_function("BPSK demod 8",|b| b.iter(bpsk_byte_8));
-    c.bench_function("BPSK demod 16",|b| b.iter(bpsk_byte_16));
-    c.bench_function("BPSK demod 32",|b| b.iter(bpsk_byte_32));
-    c.bench_function("BPSK demod 64",|b| b.iter(bpsk_byte_64));
-    c.bench_function("BPSK demod 128",|b| b.iter(bpsk_byte_128));
-    c.bench_function("BPSK demod 256",|b| b.iter(bpsk_byte_256));
-    c.bench_function("BPSK demod 512",|b| b.iter(bpsk_byte_512));
-    c.bench_function("BPSK demod 1024",|b| b.iter(bpsk_byte_1024));
-    c.bench_function("BPSK demod 2048",|b| b.iter(bpsk_byte_2048));
+    c.bench_function("BPSK demod 1", |b| b.iter(bpsk_byte_1));
+    c.bench_function("BPSK demod 2", |b| b.iter(bpsk_byte_2));
+    c.bench_function("BPSK demod 4", |b| b.iter(bpsk_byte_4));
+    c.bench_function("BPSK demod 8", |b| b.iter(bpsk_byte_8));
+    c.bench_function("BPSK demod 16", |b| b.iter(bpsk_byte_16));
+    c.bench_function("BPSK demod 32", |b| b.iter(bpsk_byte_32));
+    c.bench_function("BPSK demod 64", |b| b.iter(bpsk_byte_64));
+    c.bench_function("BPSK demod 128", |b| b.iter(bpsk_byte_128));
+    c.bench_function("BPSK demod 256", |b| b.iter(bpsk_byte_256));
+    c.bench_function("BPSK demod 512", |b| b.iter(bpsk_byte_512));
+    c.bench_function("BPSK demod 1024", |b| b.iter(bpsk_byte_1024));
+    c.bench_function("BPSK demod 2048", |b| b.iter(bpsk_byte_2048));
 }
 
 

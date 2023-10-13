@@ -15,7 +15,7 @@ impl Demodulation {
     ///
     /// # Arguments
     /// * `arr` - Array of radio samples to
-    pub fn run(&self, mut arr: &[Complex<f32>]) -> Vec<u8>
+    pub fn run(&self, arr: &[Complex<f32>]) -> Vec<u8>
     {
         bi_signal_demodulation(arr, &self.goertzel_algorithm_ask, &(self.samples_per_symbol as f32 / 2.0), self.samples_per_symbol.borrow())
     }

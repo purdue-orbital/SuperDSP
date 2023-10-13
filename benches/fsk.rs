@@ -72,7 +72,6 @@ pub fn fsk_byte_1() {
 }
 
 
-
 pub fn fsk_byte_2() {
     DATA.instance.fsk(DATA.signal_2bytes.as_slice());
 }
@@ -84,7 +83,7 @@ pub fn fsk_byte_4() {
 
 
 pub fn fsk_byte_8() {
-   DATA.instance.fsk(DATA.signal_8bytes.as_slice());
+    DATA.instance.fsk(DATA.signal_8bytes.as_slice());
 }
 
 
@@ -104,7 +103,7 @@ pub fn fsk_byte_64() {
 
 
 pub fn fsk_byte_128() {
-   DATA.instance.fsk(DATA.signal_128bytes.as_slice());
+    DATA.instance.fsk(DATA.signal_128bytes.as_slice());
 }
 
 
@@ -128,18 +127,18 @@ pub fn fsk_byte_2048() {
 }
 
 pub fn fsk_benchmark(c: &mut Criterion) {
-    c.bench_function("fsk demod 1",|b| b.iter(fsk_byte_1));
-    c.bench_function("fsk demod 2",|b| b.iter(fsk_byte_2));
-    c.bench_function("fsk demod 4",|b| b.iter(fsk_byte_4));
-    c.bench_function("fsk demod 8",|b| b.iter(fsk_byte_8));
-    c.bench_function("fsk demod 16",|b| b.iter(fsk_byte_16));
-    c.bench_function("fsk demod 32",|b| b.iter(fsk_byte_32));
-    c.bench_function("fsk demod 64",|b| b.iter(fsk_byte_64));
-    c.bench_function("fsk demod 128",|b| b.iter(fsk_byte_128));
-    c.bench_function("fsk demod 256",|b| b.iter(fsk_byte_256));
-    c.bench_function("fsk demod 512",|b| b.iter(fsk_byte_512));
-    c.bench_function("fsk demod 1024",|b| b.iter(fsk_byte_1024));
-    c.bench_function("fsk demod 2048",|b| b.iter(fsk_byte_2048));
+    c.bench_function("fsk demod 1", |b| b.iter(fsk_byte_1));
+    c.bench_function("fsk demod 2", |b| b.iter(fsk_byte_2));
+    c.bench_function("fsk demod 4", |b| b.iter(fsk_byte_4));
+    c.bench_function("fsk demod 8", |b| b.iter(fsk_byte_8));
+    c.bench_function("fsk demod 16", |b| b.iter(fsk_byte_16));
+    c.bench_function("fsk demod 32", |b| b.iter(fsk_byte_32));
+    c.bench_function("fsk demod 64", |b| b.iter(fsk_byte_64));
+    c.bench_function("fsk demod 128", |b| b.iter(fsk_byte_128));
+    c.bench_function("fsk demod 256", |b| b.iter(fsk_byte_256));
+    c.bench_function("fsk demod 512", |b| b.iter(fsk_byte_512));
+    c.bench_function("fsk demod 1024", |b| b.iter(fsk_byte_1024));
+    c.bench_function("fsk demod 2048", |b| b.iter(fsk_byte_2048));
 }
 
 

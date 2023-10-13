@@ -72,7 +72,6 @@ pub fn ask_byte_1() {
 }
 
 
-
 pub fn ask_byte_2() {
     DATA.instance.ask(DATA.signal_2bytes.as_slice());
 }
@@ -84,7 +83,7 @@ pub fn ask_byte_4() {
 
 
 pub fn ask_byte_8() {
-   DATA.instance.ask(DATA.signal_8bytes.as_slice());
+    DATA.instance.ask(DATA.signal_8bytes.as_slice());
 }
 
 
@@ -104,7 +103,7 @@ pub fn ask_byte_64() {
 
 
 pub fn ask_byte_128() {
-   DATA.instance.ask(DATA.signal_128bytes.as_slice());
+    DATA.instance.ask(DATA.signal_128bytes.as_slice());
 }
 
 
@@ -128,18 +127,18 @@ pub fn ask_byte_2048() {
 }
 
 pub fn ask_benchmark(c: &mut Criterion) {
-    c.bench_function("ask demod 1",|b| b.iter(ask_byte_1));
-    c.bench_function("ask demod 2",|b| b.iter(ask_byte_2));
-    c.bench_function("ask demod 4",|b| b.iter(ask_byte_4));
-    c.bench_function("ask demod 8",|b| b.iter(ask_byte_8));
-    c.bench_function("ask demod 16",|b| b.iter(ask_byte_16));
-    c.bench_function("ask demod 32",|b| b.iter(ask_byte_32));
-    c.bench_function("ask demod 64",|b| b.iter(ask_byte_64));
-    c.bench_function("ask demod 128",|b| b.iter(ask_byte_128));
-    c.bench_function("ask demod 256",|b| b.iter(ask_byte_256));
-    c.bench_function("ask demod 512",|b| b.iter(ask_byte_512));
-    c.bench_function("ask demod 1024",|b| b.iter(ask_byte_1024));
-    c.bench_function("ask demod 2048",|b| b.iter(ask_byte_2048));
+    c.bench_function("ask demod 1", |b| b.iter(ask_byte_1));
+    c.bench_function("ask demod 2", |b| b.iter(ask_byte_2));
+    c.bench_function("ask demod 4", |b| b.iter(ask_byte_4));
+    c.bench_function("ask demod 8", |b| b.iter(ask_byte_8));
+    c.bench_function("ask demod 16", |b| b.iter(ask_byte_16));
+    c.bench_function("ask demod 32", |b| b.iter(ask_byte_32));
+    c.bench_function("ask demod 64", |b| b.iter(ask_byte_64));
+    c.bench_function("ask demod 128", |b| b.iter(ask_byte_128));
+    c.bench_function("ask demod 256", |b| b.iter(ask_byte_256));
+    c.bench_function("ask demod 512", |b| b.iter(ask_byte_512));
+    c.bench_function("ask demod 1024", |b| b.iter(ask_byte_1024));
+    c.bench_function("ask demod 2048", |b| b.iter(ask_byte_2048));
 }
 
 
