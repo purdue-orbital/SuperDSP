@@ -5,3 +5,4 @@ pub mod goertzel_algorithm;
 pub mod noise_generators;
 pub mod constellation;
 pub mod split;
+pub mod rational_resampler;
