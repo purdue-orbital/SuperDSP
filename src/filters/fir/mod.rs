@@ -57,3 +57,21 @@ impl Windowing {
         self.inverse_fft.process_with_scratch(arr, self.scratch_space.as_mut_slice());
     }
 }
+
+/// This creates a rectangular shape in samples by repeating samples "num_samples" times
+pub fn rectangular_pulse_shaping<T>(arr:&[T],num_samples:usize)->Vec<T>
+where T: Copy
+{
+    let mut out = Vec::with_capacity(arr.len()*(num_samples+1));
+
+    for x in arr{
+        
+        out.push(*x);
+        
+        for _ in 0..num_samples{
+            out.push(*x)
+        }
+    }
+
+    out
+}

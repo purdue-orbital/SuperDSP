@@ -16,6 +16,7 @@ pub mod common;
 pub mod filters;
 pub mod ecc;
 pub mod modulators;
+pub mod encoders;
 
 pub struct Demodulators {
     ask: ask_demod,
