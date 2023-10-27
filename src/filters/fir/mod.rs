@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 use num_complex::Complex;
 use rustfft::{Fft, FftPlanner};
+use crate::common;
 
 use crate::filters::fir::shapes::WindowShapes;
 
@@ -40,6 +41,9 @@ impl Windowing {
 
         // preform fft
         self.forward_fft.process_with_scratch(arr, self.scratch_space.as_mut_slice());
+
+        // reorder fft
+        common::fftshift::split_reverse(arr);
 
         // apply filter and normalization
         for (index, x) in self.window.iter().enumerate() {

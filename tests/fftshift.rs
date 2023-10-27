@@ -10,7 +10,12 @@ fn fftshifttest() {
         test_data.push(Complex::new(i as f32, i as f32));
     }
 
-    let shifted_data: Vec<Complex<f32>> = split_reverse(&mut test_data);
+    let test_data_clone = test_data.clone();
 
-    assert!(test_data[test_data.len() - 1] == shifted_data[test_data.len() / 2 - 1]);
+    split_reverse(test_data.as_mut_slice());
+
+    dbg!(&test_data_clone);
+    dbg!(&test_data);
+
+    assert_eq!(test_data[test_data.len() - 1], test_data_clone[test_data.len() / 2 - 1]);
 }

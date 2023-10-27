@@ -1,12 +1,19 @@
 use num_complex::Complex;
 
 /// split a vector and reverse the two halves, combine them, then return that vector
-pub fn split_reverse(signal: &mut[Complex<f32>]) -> Vec<Complex<f32>> {
-    let (first_half, second_half) = signal.split_at_mut(signal.len() / 2);
+pub fn split_reverse(signal: &mut [Complex<f32>]) {
 
-    let mut combined = second_half.to_vec();
+    let half = signal.len() / 2;
 
-    combined.append(&mut first_half.to_vec());
+    let first_half_copy = signal[..half].to_vec().clone();
+    let second_half_ref = &signal[half..].to_vec();
 
-    combined
+    for index in 0..signal.len(){
+        signal[index] = if half > index {
+            second_half_ref[index]
+        } else {
+            first_half_copy[index-half]
+        }
+    }
+
 }
