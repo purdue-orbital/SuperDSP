@@ -29,7 +29,7 @@ fn vector_equal(arr1: Vec<Complex<f32>>, arr2: Vec<Complex<f32>>) -> bool {
 #[test]
 fn test_rectangle() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::Rectangle, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::Rectangle, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -40,7 +40,7 @@ fn test_rectangle() {
 #[test]
 fn test_triangle() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::Triangle, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::Triangle, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -51,7 +51,7 @@ fn test_triangle() {
 #[test]
 fn test_welch() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::Welch, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::Welch, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -62,7 +62,7 @@ fn test_welch() {
 #[test]
 fn test_hann() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::Hann, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::Hann, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -73,7 +73,7 @@ fn test_hann() {
 #[test]
 fn test_nuttall() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::Nuttall, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::Nuttall, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -84,7 +84,7 @@ fn test_nuttall() {
 #[test]
 fn test_blackman() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::Blackman, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::Blackman, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -95,7 +95,7 @@ fn test_blackman() {
 #[test]
 fn test_blackman_nuttall() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::BlackmanNuttall, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::BlackmanNuttall, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -106,7 +106,7 @@ fn test_blackman_nuttall() {
 #[test]
 fn test_blackman_harris() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::BlackmanHarris, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::BlackmanHarris, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());
@@ -117,7 +117,7 @@ fn test_blackman_harris() {
 #[test]
 fn test_flat_top() {
     // make window
-    let mut window = fir::Windowing::new(WindowShapes::FlatTop, FFT_SIZE, 1);
+    let mut window = fir::Windowing::new(WindowShapes::FlatTop, FFT_SIZE, 1.0);
     let mut wave = SIGNAL.clone();
 
     window.run(wave.as_mut_slice());

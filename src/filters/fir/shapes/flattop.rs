@@ -7,7 +7,7 @@ use crate::filters::fir::shapes::shape::Shape;
 pub struct FlatTop;
 
 impl Shape for FlatTop {
-    fn generate_shape(fft_size: usize, _alpha: i16) -> Vec<Complex<f32>> {
+    fn generate_shape(fft_size: usize, _alpha: f32) -> Vec<Complex<f32>> {
         let mut to_return = Vec::with_capacity(fft_size);
         let coefficients: [f32; 5] = [0.21556895, 0.41663158, 0.277263158, 0.083578947, 0.006947368];
         // Generate window

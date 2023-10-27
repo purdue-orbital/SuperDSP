@@ -24,7 +24,7 @@ pub struct Windowing {
 
 impl Windowing {
     /// Generate a new windowing object
-    pub fn new(window_shape: WindowShapes, fft_size: usize, alpha: i16) -> Windowing {
+    pub fn new(window_shape: WindowShapes, fft_size: usize, alpha: f32) -> Windowing {
         // generate window
         let window = shapes::generate_shape(window_shape, fft_size, alpha);
 

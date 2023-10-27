@@ -29,7 +29,7 @@ pub enum WindowShapes {
 }
 
 /// This will generate a window shape given by the enum
-pub fn generate_shape(window_shape: WindowShapes, fft_size: usize, alpha: i16) -> Vec<Complex<f32>> {
+pub fn generate_shape(window_shape: WindowShapes, fft_size: usize, alpha: f32) -> Vec<Complex<f32>> {
     match window_shape {
         WindowShapes::Rectangle => rectangle::Rectangle::generate_shape(fft_size, alpha),
         WindowShapes::Triangle => triangular::Triangular::generate_shape(fft_size, alpha),
