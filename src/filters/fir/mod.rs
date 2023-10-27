@@ -57,6 +57,9 @@ impl Windowing {
             arr[x] /= max;
         }
 
+        //reorder back in order
+        common::fftshift::split_reverse(arr);
+
         // preform inverse operation
         self.inverse_fft.process_with_scratch(arr, self.scratch_space.as_mut_slice());
     }
