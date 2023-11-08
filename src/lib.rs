@@ -47,7 +47,7 @@ impl Demodulators {
     }
 
     pub fn update(&mut self, samples_per_symbol: usize, sample_rate: f32) {
-        let message_signal = 16e3;
+        let message_signal = 1.0;
 
         self.ask = ask_demod::new(samples_per_symbol, sample_rate, message_signal);
         self.fsk = fsk_demod::new(samples_per_symbol, sample_rate, sample_rate / 2.0);
@@ -85,7 +85,7 @@ impl Modulators {
 
 
     pub fn update(&mut self, samples_per_symbol: usize, sample_rate: f32) {
-        let message_signal = 16e3;
+        let message_signal = 1.0;
 
         self.ask = ask_mod::new(samples_per_symbol, sample_rate, message_signal);
         self.fsk = fsk_mod::new(samples_per_symbol, sample_rate, message_signal, sample_rate / 2.0);
