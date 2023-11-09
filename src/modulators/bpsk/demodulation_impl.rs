@@ -1,8 +1,5 @@
-use std::f32::consts::PI;
-
 use num_complex::Complex;
 
-use crate::common::constellation::{Constellation, ConstellationPoint};
 use crate::common::convolution;
 use crate::common::generate_wave::generate_wave;
 use crate::modulators::bpsk::structs::demodulation::Demodulation;
@@ -20,7 +17,6 @@ impl Demodulation {
     /// * `arr` - Array of radio samples to
     pub fn run(&self, arr: &[Complex<f32>]) -> Vec<u8>
     {
-        let mut to_return = vec![];
 
         let mut carrier_signal =  generate_wave(
             self.message_frequency,
@@ -40,12 +36,28 @@ impl Demodulation {
 
         let convoluted = convolution(carrier_signal.as_slice(), vec![Complex::new(1.0,1.0);self.samples_per_symbol].as_slice());
 
+        let mut peaks = Vec::with_capacity(convoluted.len()/self.samples_per_symbol);
+        let mut to_return = Vec::with_capacity(peaks.len()/8);
+
+        // find peaks
+        for x in (0..convoluted.len()-self.samples_per_symbol).step_by(self.samples_per_symbol){
+            let mut max = 0.0f32;
+
+            for y in 0..self.samples_per_symbol{
+                if convoluted[x+y].re.abs() > max.abs(){
+                    max = convoluted[x+y].re;
+                }
+            }
+
+            peaks.push(max);
+        }
+
         let mut bin = 0_u8;
         let mut counter = 0;
 
-        for x in convoluted.iter().skip(self.samples_per_symbol-1).step_by(self.samples_per_symbol) {
+        for x in peaks {
 
-            let bit = if x.re.is_sign_positive(){
+            let bit = if x.is_sign_positive(){
                 1
             }else {
                 0

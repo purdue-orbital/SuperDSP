@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 use num_complex::Complex;
 
 use rustdsp::{Demodulators, Modulators};
+use rustdsp::common::wgn;
 
 static SAMPLE_RATE: f32 = 1e5;
 static BAUD_RATE: f32 = 1e4;
@@ -64,6 +65,23 @@ lazy_static! {
     static ref DATA:TestData = TestData::default();
 }
 
+
+#[test]
+pub fn noisy() {
+    let test = DATA.instance.bpsk(wgn(DATA.signal_16bytes.as_slice(),20.0).as_slice());
+
+    let expected = BYTES_16;
+
+    assert_eq!(
+        test,
+        expected,
+        "Testing bpsk With 1 Byte of Data.\
+            Expected: {:?}\
+            Got: {:?}",
+        expected,
+        test
+    )
+}
 
 #[test]
 pub fn bpsk_byte_1() {
