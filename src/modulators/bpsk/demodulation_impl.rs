@@ -1,4 +1,5 @@
 use num_complex::Complex;
+use crate::carrier_recovery::multiply_divide;
 
 use crate::common::convolution;
 use crate::common::generate_wave::generate_wave;
@@ -17,17 +18,8 @@ impl Demodulation {
     /// * `arr` - Array of radio samples to
     pub fn run(&self, arr: &[Complex<f32>]) -> Vec<u8>
     {
-
-        let mut carrier_signal =  generate_wave(
-            self.message_frequency,
-            self.sample_rate,
-            arr.len() as i32,
-            0,
-            1.0,
-            1.0,
-            0.0,
-            0.0,
-        );
+        // recover carrier
+        let mut carrier_signal = multiply_divide(arr,2);
 
         for index in 0..arr.len(){
             carrier_signal[index].re *= arr[index].re;

@@ -17,6 +17,7 @@ pub mod filters;
 pub mod ecc;
 pub mod modulators;
 pub mod encoders;
+mod carrier_recovery;
 
 pub struct Demodulators {
     ask: ask_demod,

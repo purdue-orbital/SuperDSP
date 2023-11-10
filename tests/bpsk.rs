@@ -84,6 +84,27 @@ pub fn noisy() {
 }
 
 #[test]
+pub fn shifted() {
+    let mut arr = DATA.signal_16bytes.clone();
+
+    arr.insert(0,Complex::new(0.0,0.0));
+
+    let test = DATA.instance.bpsk(arr.as_slice());
+
+    let expected = BYTES_16;
+
+    assert_eq!(
+        test,
+        expected,
+        "Testing bpsk With 1 Byte of Data.\
+            Expected: {:?}\
+            Got: {:?}",
+        expected,
+        test
+    )
+}
+
+#[test]
 pub fn bpsk_byte_1() {
     let test = DATA.instance.bpsk(DATA.signal_1byte.as_slice());
 
