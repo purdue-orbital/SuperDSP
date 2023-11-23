@@ -1,38 +1,35 @@
 use std::f32::consts::PI;
 use num_complex::Complex;
 use plotters::prelude::*;
-use rustdsp::common::constellation::Constellation;
-use rustdsp::common::generate_wave::generate_wave;
-use rustdsp::Modulators;
 
 fn main() {
-    let modulators = Modulators::new(10,10000.0);
-    let bpsk_signal = modulators.bpsk(&[138]);
-
-    let reference = generate_wave(
-        16e3,
-        10000.0,
-        40,
-        0,
-        1.0,
-        0.0,
-        0.0,
-        0.0
-    );
-
-    let mut to_constellation_map = vec![];
-
-    for index in (0..reference.len()).step_by(10){
-        let mut map = Constellation::calculate_phase_offset(&reference[index..index+10],&bpsk_signal[index..index+10]);
-
-        map.0 = map.0.cos();
-        map.1 = map.1.cos();
-
-        to_constellation_map.push(map);
-    }
-    draw_constellation_map(to_constellation_map.as_slice());
-
-    draw_complex(bpsk_signal.as_slice());
+    // let modulators = Modulators::new(10,10000.0, 1000.0);
+    // let bpsk_signal = modulators.bpsk(&[138]);
+    // //
+    // // let reference = generate_wave(
+    // //     16e3,
+    // //     10000.0,
+    // //     40,
+    // //     0,
+    // //     1.0,
+    // //     0.0,
+    // //     0.0,
+    // //     0.0
+    // // );
+    // //
+    // // let mut to_constellation_map = vec![];
+    // //
+    // // for index in (0..reference.len()).step_by(10){
+    // //     let mut map = Constellation::calculate_phase_offset(&reference[index..index+10],&bpsk_signal[index..index+10]);
+    // //
+    // //     map.0 = map.0.cos();
+    // //     map.1 = map.1.cos();
+    // //
+    // //     to_constellation_map.push(map);
+    // // }
+    // // draw_constellation_map(to_constellation_map.as_slice());
+    //
+    // draw_complex(bpsk_signal.as_slice());
 }
 
 pub fn draw_constellation_map(arr: &[(f32,f32)]) -> Result<(), Box<dyn std::error::Error>>{

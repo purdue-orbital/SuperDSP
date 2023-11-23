@@ -4,10 +4,7 @@ use rand::seq::index::sample;
 use rand_distr::Normal;
 
 pub mod generate_wave;
-pub mod bi_signal_generation;
-pub mod bi_signal_demodulation;
 pub mod goertzel_algorithm;
-pub mod noise_generators;
 pub mod constellation;
 pub mod fftshift;
 pub mod rational_resampler;

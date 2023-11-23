@@ -19,7 +19,7 @@ fn test_rational_resample_0_0() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    assert!(original_length == signal.len());
+    assert_eq!(original_length, signal.len());
 }
 
 #[test]
@@ -31,7 +31,7 @@ fn test_rational_resample_1_1() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    assert!(original_length == signal.len());
+    assert_eq!(original_length, signal.len());
 }
 
 #[test]
@@ -43,8 +43,7 @@ fn test_rational_resample_1_2() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length == 2 * signal.len());
+    assert_eq!(original_length, 2 * signal.len());
 }
 
 #[test]
@@ -56,8 +55,7 @@ fn test_rational_resample_1_3() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length / 3 == signal.len());
+    assert_eq!(original_length / 3, signal.len());
 }
 
 #[test]
@@ -69,8 +67,7 @@ fn test_rational_resample_1_4() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length / 4 == signal.len());
+    assert_eq!(original_length / 4, signal.len());
 }
 
 #[test]
@@ -82,8 +79,7 @@ fn test_rational_resample_2_2() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length == signal.len());
+    assert_eq!(original_length, signal.len());
 }
 
 #[test]
@@ -95,8 +91,7 @@ fn test_rational_resample_3_3() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length == signal.len());
+    assert_eq!(original_length, signal.len());
 }
 
 #[test]
@@ -108,8 +103,7 @@ fn test_rational_resample_2_1() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length * 2 == signal.len());
+    assert_eq!(original_length * 2, signal.len());
 }
 
 #[test]
@@ -121,8 +115,7 @@ fn test_rational_resample_3_1() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!(original_length * 3 == signal.len());
+    assert_eq!(original_length * 3, signal.len());
 }
 
 #[test]
@@ -134,8 +127,7 @@ fn test_rational_resample_2_3() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!((original_length as f32 * (2.0 / 3.0)) as usize == signal.len());
+    assert_eq!((original_length as f32 * (2.0 / 3.0)) as usize, signal.len());
 }
 
 #[test]
@@ -147,8 +139,7 @@ fn test_rational_resample_7_12() {
 
     rational_resample(upsample, downsample, &mut signal);
 
-    println!("{} {}", original_length, signal.len());
-    assert!((original_length as f32 * (7.0 / 12.0)) as usize == signal.len());
+    assert_eq!((original_length as f32 * (7.0 / 12.0)) as usize, signal.len());
 }
 
 

@@ -104,7 +104,7 @@ impl Constellation {
         let r = generate_wave(
             self.message_frequency,
             self.sample_rate,
-            arr.len() as i32,
+            arr.len(),
             0,
             1.0,
             1.0,
@@ -144,8 +144,8 @@ impl Constellation {
             let wave = generate_wave(
                 self.message_frequency,
                 self.sample_rate,
-                self.samples_per_a_symbol as i32,
-                index as i32 * self.samples_per_a_symbol as i32,
+                self.samples_per_a_symbol,
+                index * self.samples_per_a_symbol,
                 point.i_amplitude,
                 point.q_amplitude,
                 point.i_offset,

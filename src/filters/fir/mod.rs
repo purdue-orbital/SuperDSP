@@ -52,15 +52,14 @@ impl Windowing {
 
         // normalize one more time so its within the domain [-1,1]
         let max = unsafe { arr.iter().max_by(|x, y| x.norm().total_cmp(&y.norm())).unwrap_unchecked()};
+        let max_deref = *max;
 
-        let max_clone = max.clone();
-
-        for x in 0..arr.len() {
-            arr[x].re /= max_clone.re;
-            arr[x].im /= max_clone.im;
+        for x in &mut *arr {
+            x.re /= max_deref.re;
+            x.im /= max_deref.im;
         }
 
-        //reorder back in order
+        // reorder back in order
         common::fftshift::split_reverse(arr);
 
         // preform inverse operation
