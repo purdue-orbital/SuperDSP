@@ -1,6 +1,8 @@
 use std::f32::consts::PI;
 use num_complex::Complex;
 use plotters::prelude::*;
+use rustdsp::common::generate_wave::generate_wave;
+use rustdsp::components::interpolator::Interpolator;
 
 fn main() {
     // let modulators = Modulators::new(10,10000.0, 1000.0);
@@ -30,6 +32,15 @@ fn main() {
     // // draw_constellation_map(to_constellation_map.as_slice());
     //
     // draw_complex(bpsk_signal.as_slice());
+
+    let signal = generate_wave(1e3,3e3,16, 0,1.0,1.0,0.0,0.0);
+    let i = Interpolator::new(3e3);
+    let n_signal = i.lagrange(2, signal.as_slice());
+    //let n_signal = generate_wave(1e3,6e3,16*2, 0,1.0,1.0,0.0,0.0);
+    dbg!(&n_signal);
+    draw_complex(n_signal.as_slice()).unwrap();
+
+
 }
 
 pub fn draw_constellation_map(arr: &[(f32,f32)]) -> Result<(), Box<dyn std::error::Error>>{
