@@ -4,6 +4,8 @@ pub mod lpf;
 pub mod timing_error_detection;
 pub mod pi_loop;
 pub mod interpolator;
+pub mod match_filter;
+pub mod resampler;
 
 /// this will take a sample and either set it to -1.0 or 1.0 .
 pub fn threshold(sample:f32) -> f32 {

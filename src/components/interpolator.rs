@@ -1,15 +1,12 @@
 use num_complex::Complex;
 
 pub struct Interpolator{
-    sample_rate:f32,
-    inverse_sample_rate:f32
+
 }
 
 impl Interpolator{
-    pub fn new(sample_rate:f32) -> Interpolator{
+    pub fn new() -> Interpolator{
         Interpolator{
-            sample_rate,
-            inverse_sample_rate: 1.0 / sample_rate,
         }
     }
 
