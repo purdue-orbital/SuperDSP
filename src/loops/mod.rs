@@ -1,7 +1,7 @@
 //! DSP requires many loops that feed in on themselves
 
 pub mod costas;
-mod symbol_sync;
+pub mod symbol_sync;
 
 use num_complex::{Complex, ComplexFloat};
 
