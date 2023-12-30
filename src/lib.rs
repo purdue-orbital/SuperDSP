@@ -8,3 +8,4 @@ pub mod ecc;
 pub mod encoders;
 pub mod loops;
 pub mod components;
+pub mod ui;
