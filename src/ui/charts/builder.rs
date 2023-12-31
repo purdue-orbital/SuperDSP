@@ -2,6 +2,7 @@ use eframe::NativeOptions;
 use crate::ui::charts::chart::Chart;
 use crate::ui::frame::Frame;
 
+
 pub struct WindowBuilder{
     charts: Vec<Box<dyn Chart>>
 }
