@@ -7,9 +7,9 @@ use crate::ui::charts::line_chart::LineChart;
 
 #[derive(Clone)]
 pub struct TimeChart{
-    win_builder: Arc<RwLock<WindowBuilder>>,
+    boxed_chart: Option<Box<LineChart>>,
 
-    boxed_chart: Box<LineChart>,
+    len:usize
 }
 
 impl TimeChart{
@@ -17,30 +17,27 @@ impl TimeChart{
 
         let mut win_builder = WindowBuilder::new();
 
-        let chart = LineChart::new(len);
-
-        let boxed = win_builder.add_chart(chart);
-
         TimeChart{
-            win_builder: Arc::new(RwLock::new(win_builder)),
-
-            boxed_chart: boxed
+            boxed_chart: None,
+            len,
         }
     }
 }
 
 impl Element for TimeChart{
-    fn init(&mut self) {
+    fn init(&mut self, win_builder: &mut WindowBuilder) {
 
-        let ui = self.win_builder.clone();
-        spawn(move ||{
-            ui.read().unwrap().build()
-        });
+        let chart = LineChart::new(self.len);
+
+        self.boxed_chart =  Some(win_builder.add_chart(chart));
     }
 
     fn run(&mut self, samples: &mut [Complex<f32>]) {
+
+        let unwrapped = self.boxed_chart.as_mut().unwrap();
+
         for x in samples.iter().copied(){
-            self.boxed_chart.add(x)
+            unwrapped.add(x)
         }
     }
 }

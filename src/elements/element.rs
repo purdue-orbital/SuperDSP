@@ -1,8 +1,9 @@
 use num_complex::Complex;
+use crate::ui::charts::builder::WindowBuilder;
 
 pub trait Element: ElementClone + Send{
     /// This will run during the build process
-    fn init(&mut self);
+    fn init(&mut self, win_builder: &mut WindowBuilder);
     
     /// This will run during operations
     fn run(&mut self, samples: &mut [Complex<f32>]);

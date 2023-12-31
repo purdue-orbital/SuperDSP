@@ -1,12 +1,9 @@
 use std::thread::{sleep, spawn};
 use std::time::Duration;
 use num_complex::Complex;
-use rand::random;
 use rustdsp::elements::builder::PipelineBuilder;
 use rustdsp::elements::signal_generator::SignalGenerator;
 use rustdsp::elements::time_chart::TimeChart;
-use rustdsp::ui::charts::builder::WindowBuilder;
-use rustdsp::ui::charts::line_chart::LineChart;
 
 fn main() {
 
@@ -26,19 +23,22 @@ fn main() {
 
     builder.add(
         TimeChart::new(
-            sps * 10
+            sps * 100
         )
     );
 
-    let mut pipeline = builder.build(sps);
+    let (tx, rx, mut pipeline) = builder.build(sps);
 
+    spawn(move ||{
+        let vec_complex = vec![Complex::new(0.0,0.0); sps];
 
-    let mut vec_complex = vec![Complex::new(0.0,0.0); sps];
-    let sliced = vec_complex.as_mut_slice();
+        loop{
+            tx.send(vec_complex.clone()).unwrap();
 
-    loop{
-        pipeline.run(sliced);
+            sleep(Duration::from_millis( 10 ));
+        }
 
-        sleep(Duration::from_secs_f64( sps as f64 / sample_rate as f64 ));
-    }
+    });
+
+    pipeline.run();
 }

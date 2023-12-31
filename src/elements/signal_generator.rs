@@ -1,6 +1,7 @@
 use std::f32::consts::PI;
 use num_complex::Complex;
 use crate::elements::element::Element;
+use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
 pub struct SignalGenerator{
@@ -12,7 +13,7 @@ pub struct SignalGenerator{
 }
 
 impl Element for SignalGenerator{
-    fn init(&mut self) {}
+    fn init(&mut self,  win_builder: &mut WindowBuilder) {}
 
     fn run(&mut self, samples: &mut [Complex<f32>]) {
         for x in samples{
