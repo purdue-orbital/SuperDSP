@@ -2,14 +2,14 @@ use num_complex::Complex;
 
 use rustdsp::common::rational_resampler::rational_resample;
 
-
-fn generate_data() -> Vec<Complex<f32>>{
+fn generate_data() -> Vec<Complex<f32>> {
     let mut signal: Vec<Complex<f32>> = Vec::new();
     for i in 0..100 {
         signal.push(Complex::new(i as f32, i as f32));
     }
     signal
 }
+
 #[test]
 fn test_rational_resample_0_0() {
     let mut signal = generate_data();

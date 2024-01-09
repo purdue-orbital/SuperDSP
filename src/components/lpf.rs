@@ -3,16 +3,15 @@
 
 use std::f32::consts::PI;
 
-pub struct LPF{
+pub struct LPF {
     x_n: f32,
     prev_y_n: f32,
-    a: f32
+    a: f32,
 }
 
 
-impl LPF{
-
-    pub fn run(&mut self, sample: f32) -> f32{
+impl LPF {
+    pub fn run(&mut self, sample: f32) -> f32 {
         let y_n = self.prev_y_n + self.a * (sample - self.prev_y_n);
 
         self.prev_y_n = y_n;
@@ -20,16 +19,16 @@ impl LPF{
         y_n
     }
 
-    pub fn new(sample_rate:f32, passband:f32) -> LPF{
+    pub fn new(sample_rate: f32, passband: f32) -> LPF {
         // calculate coefficient
         let rc = 1.0 / (2.0 * PI * passband);
         let ts = 1.0 / sample_rate;
         let a = ts / (ts + rc);
 
-        LPF{
+        LPF {
             x_n: 0.0,
             prev_y_n: 0.0,
-            a
+            a,
         }
     }
 }

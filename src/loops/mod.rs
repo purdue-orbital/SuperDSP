@@ -1,9 +1,9 @@
 //! DSP requires many loops that feed in on themselves
 
+use num_complex::ComplexFloat;
+
 pub mod costas;
 pub mod symbol_sync;
-
-use num_complex::{Complex, ComplexFloat};
 
 // pub struct Loops{
 //     early_late_index: usize,

@@ -2,27 +2,27 @@ use num_complex::Complex;
 
 use crate::elements::element::Element;
 use crate::ui::charts::builder::WindowBuilder;
-use crate::ui::charts::line_chart::LineChart;
+use crate::ui::charts::point_chart::PointChart;
 
 #[derive(Clone)]
-pub struct TimeChart {
-    boxed_chart: Option<Box<LineChart>>,
+pub struct ConstellationChart {
+    boxed_chart: Option<Box<PointChart>>,
 
     len: usize,
 }
 
-impl TimeChart {
-    pub fn new(len: usize) -> TimeChart {
-        TimeChart {
+impl ConstellationChart {
+    pub fn new(len: usize) -> ConstellationChart {
+        ConstellationChart {
             boxed_chart: None,
             len,
         }
     }
 }
 
-impl Element for TimeChart {
+impl Element for ConstellationChart {
     fn init(&mut self, win_builder: &mut WindowBuilder) {
-        let chart = LineChart::new(self.len);
+        let chart = PointChart::new(self.len);
 
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }

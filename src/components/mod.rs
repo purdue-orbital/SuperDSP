@@ -8,10 +8,10 @@ pub mod match_filter;
 pub mod resampler;
 
 /// this will take a sample and either set it to -1.0 or 1.0 .
-pub fn threshold(sample:f32) -> f32 {
+pub fn threshold(sample: f32) -> f32 {
     if sample.is_sign_negative() {
         -1.0
-    }else {
+    } else {
         1.0
     }
 }

@@ -8,8 +8,8 @@ use std::sync::Arc;
 
 use num_complex::Complex;
 use rustfft::{Fft, FftPlanner};
-use crate::common;
 
+use crate::common;
 use crate::filters::fir::shapes::WindowShapes;
 
 pub mod shapes;
@@ -51,7 +51,7 @@ impl Windowing {
         }
 
         // normalize one more time so its within the domain [-1,1]
-        let max = unsafe { arr.iter().max_by(|x, y| x.norm().total_cmp(&y.norm())).unwrap_unchecked()};
+        let max = unsafe { arr.iter().max_by(|x, y| x.norm().total_cmp(&y.norm())).unwrap_unchecked() };
         let max_deref = *max;
 
         for x in &mut *arr {
@@ -68,16 +68,15 @@ impl Windowing {
 }
 
 /// This creates a rectangular shape in samples by repeating samples "num_samples" times
-pub fn rectangular_pulse_shaping<T>(arr:&[T],num_samples:usize)->Vec<T>
-where T: Copy
+pub fn rectangular_pulse_shaping<T>(arr: &[T], num_samples: usize) -> Vec<T>
+    where T: Copy
 {
-    let mut out = Vec::with_capacity(arr.len()*(num_samples+1));
+    let mut out = Vec::with_capacity(arr.len() * (num_samples + 1));
 
-    for x in arr{
-        
+    for x in arr {
         out.push(*x);
-        
-        for _ in 0..num_samples{
+
+        for _ in 0..num_samples {
             out.push(*x)
         }
     }

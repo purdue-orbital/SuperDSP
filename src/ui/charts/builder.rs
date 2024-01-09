@@ -1,33 +1,32 @@
+use eframe::NativeOptions;
+
 use crate::ui::charts::chart::Chart;
 use crate::ui::frame::Frame;
 
-use eframe::NativeOptions;
-
-pub struct WindowBuilder{
-    charts: Vec<Box<dyn Chart>>
+pub struct WindowBuilder {
+    charts: Vec<Box<dyn Chart>>,
 }
 
-impl WindowBuilder{
-    pub fn new() -> WindowBuilder{
-        WindowBuilder{
+impl WindowBuilder {
+    pub fn new() -> WindowBuilder {
+        WindowBuilder {
             charts: vec![],
         }
     }
-    
-    pub fn add_chart<T: Chart + 'static>(&mut self, chart: T) -> Box<T>{
+
+    pub fn add_chart<T: Chart + 'static>(&mut self, chart: T) -> Box<T> {
         let b = Box::new(chart);
         self.charts.push(b.clone_box());
 
         b
     }
-    
-    pub fn build(&self){
 
+    pub fn build(&self) {
         let native_options = NativeOptions::default();
 
         let mut frame = Frame::new();
 
-        for x in self.charts.iter(){
+        for x in self.charts.iter() {
             frame.add(x.clone_box())
         }
 

@@ -63,6 +63,7 @@ fn downsample(signal: &mut Vec<Complex<f32>>, downsample_factor: usize) {
     }
     println!("{}", signal.len());
 }
+
 /// upsample value = size * 3, downsample value means size / value
 pub fn rational_resample(mut upsample_factor: u8, mut downsample_factor: u8, signal: &mut Vec<Complex<f32>>)
 {

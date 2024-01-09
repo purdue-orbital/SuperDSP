@@ -1,22 +1,22 @@
 use num_complex::Complex;
 
-pub struct PILoop{
+pub struct PILoop {
     alpha: f32,
     beta: f32,
     integral_prev: Complex<f32>,
 }
 
-impl PILoop{
-    pub fn new(proportional_gain: f32, integral_gain:f32) -> PILoop{
-        PILoop{
+impl PILoop {
+    pub fn new(proportional_gain: f32, integral_gain: f32) -> PILoop {
+        PILoop {
             alpha: proportional_gain,
             beta: integral_gain,
 
-            integral_prev: Complex::new(0.0,0.0)
+            integral_prev: Complex::new(0.0, 0.0),
         }
     }
 
-    pub fn run(&mut self, sample: Complex<f32>) -> Complex<f32>{
+    pub fn run(&mut self, sample: Complex<f32>) -> Complex<f32> {
 
         // calculate proportional and integral
         let p = self.alpha * sample;
