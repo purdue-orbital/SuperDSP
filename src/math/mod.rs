@@ -1,4 +1,6 @@
+#[cfg(feature = "vulkan")]
 pub mod vulkan;
+mod builder;
 
 use num_complex::Complex;
 use crate::math::ValueTypes::{ComplexF32, U8};

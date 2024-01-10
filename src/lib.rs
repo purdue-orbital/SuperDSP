@@ -3,6 +3,7 @@
 //! samples with a computer.
 
 pub mod ecc;
+#[cfg(feature = "ui")]
 pub mod ui;
 pub mod elements;
 pub mod math;

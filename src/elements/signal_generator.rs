@@ -3,6 +3,9 @@ use std::f32::consts::PI;
 use num_complex::Complex;
 
 use crate::elements::element::Element;
+
+
+#[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
@@ -15,6 +18,8 @@ pub struct SignalGenerator {
 }
 
 impl Element for SignalGenerator {
+
+    #[cfg(feature = "ui")]
     fn init(&mut self, win_builder: &mut WindowBuilder) {}
 
     fn run(&mut self, samples: &mut [Complex<f32>]) {

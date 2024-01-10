@@ -1,8 +1,11 @@
 use num_complex::Complex;
 
+#[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
 
 pub trait Element: ElementClone + Send {
+
+    #[cfg(feature = "ui")]
     /// This will run during the build process
     fn init(&mut self, win_builder: &mut WindowBuilder);
 

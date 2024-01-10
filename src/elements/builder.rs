@@ -5,11 +5,16 @@ use std::thread::spawn;
 use num_complex::Complex;
 
 use crate::elements::element::Element;
+
+
+#[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
 
 pub struct Pipeline {
     sps: usize,
 
+
+    #[cfg(feature = "ui")]
     window: WindowBuilder,
 
     elements: Vec<Box<dyn Element>>,
@@ -37,6 +42,8 @@ impl Pipeline {
             }
         });
 
+
+        #[cfg(feature = "ui")]
         self.window.build()
     }
 }
@@ -68,6 +75,8 @@ impl PipelineBuilder {
 
         let mut program = Pipeline {
             sps,
+
+            #[cfg(feature = "ui")]
             window: WindowBuilder::new(),
             elements: vec![],
 
@@ -76,6 +85,8 @@ impl PipelineBuilder {
         };
 
         for x in self.elements.as_mut_slice() {
+
+            #[cfg(feature = "ui")]
             x.init(&mut program.window);
 
             program.elements.push(x.clone_box())

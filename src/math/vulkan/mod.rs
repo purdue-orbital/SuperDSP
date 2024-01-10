@@ -1,8 +1,7 @@
 mod glsl;
 
-use std::hash::Hash;
+use std::collections::HashMap;
 use std::sync::Arc;
-use eframe::egui::ahash::{HashMap, RandomState};
 use vulkano::buffer::{Buffer, BufferCreateInfo, BufferUsage, Subbuffer};
 use vulkano::command_buffer::allocator::{StandardCommandBufferAllocator, StandardCommandBufferAllocatorCreateInfo};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferExecFuture, CommandBufferUsage, PrimaryAutoCommandBuffer};
@@ -187,6 +186,22 @@ impl VulkanCommandBuilder{
         ).unwrap()
     }
 
+    fn bind_descriptor_sets(&mut self, pipeline: Arc<ComputePipeline>, arr: &[Arc<PersistentDescriptorSet>], workgroups: [u32;3]){
+        let mut buffer = self.builder.as_mut().unwrap().bind_pipeline_compute(pipeline.clone()).unwrap();
+
+        for (index,x) in arr.iter().enumerate(){
+           buffer = buffer.bind_descriptor_sets(
+               PipelineBindPoint::Compute,
+               pipeline.layout().clone(),
+               index as u32,
+               x.clone()
+               )
+               .unwrap();
+        }
+
+        buffer.dispatch(workgroups).unwrap();
+    }
+
     /// This is a simple, elementwise multiplication (dest\[n\] =  src\[n\] * dest\[n\])
     pub fn elementwise_multiply_f32(&mut self, source:  Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
 
@@ -195,26 +210,9 @@ impl VulkanCommandBuilder{
         let descriptor_set_destination = self.set_layout(pipeline.clone(),1,1,destination);
 
         let work_group_counts = [(source.read().unwrap().len() / 64) as u32 + 1, 1, 1];
+        let arr = [descriptor_set_source,descriptor_set_destination];
 
-         self.builder.as_mut().unwrap()
-             .bind_pipeline_compute(pipeline.clone())
-            .unwrap()
-            .bind_descriptor_sets(
-                PipelineBindPoint::Compute,
-                pipeline.layout().clone(),
-                0,
-                descriptor_set_source
-            )
-            .unwrap()
-             .bind_descriptor_sets(
-                 PipelineBindPoint::Compute,
-                 pipeline.layout().clone(),
-                 1,
-                 descriptor_set_destination
-             )
-             .unwrap()
-            .dispatch(work_group_counts)
-            .unwrap();
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
     }
 
     pub fn convolution_f32(&mut self, source1:  Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]>{
@@ -229,33 +227,9 @@ impl VulkanCommandBuilder{
 
 
         let work_group_counts = [(source1.read().unwrap().len() / 32) as u32 + 1, 1, 1];
+        let arr = [descriptor_set_source1,descriptor_set_destination_source2,descriptor_set_destination_dest];
 
-        self.builder.as_mut().unwrap()
-            .bind_pipeline_compute(pipeline.clone())
-            .unwrap()
-            .bind_descriptor_sets(
-                PipelineBindPoint::Compute,
-                pipeline.layout().clone(),
-                0,
-                descriptor_set_source1
-            )
-            .unwrap()
-            .bind_descriptor_sets(
-                PipelineBindPoint::Compute,
-                pipeline.layout().clone(),
-                1,
-                descriptor_set_destination_source2
-            )
-            .unwrap()
-            .bind_descriptor_sets(
-                PipelineBindPoint::Compute,
-                pipeline.layout().clone(),
-                2,
-                descriptor_set_destination_dest
-            )
-            .unwrap()
-            .dispatch(work_group_counts)
-            .unwrap();
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
 
         dest
     }
