@@ -1,5 +1,6 @@
 #[cfg(feature = "vulkan")]
 pub mod vulkan;
+pub mod cpu;
 mod builder;
 
 use num_complex::Complex;
