@@ -59,7 +59,7 @@ impl Element for WaterfallChart {
         for x in samples_clone {
 
             // we only need the real component as the imaginary component is just phase data
-            let normalized = ((x.re / self.len as f32) * 255.0) as u8;
+            let normalized = (((x.norm_sqr().sqrt()) / self.len as f32) * 255.0) as u8;
 
             unwrapped.add(normalized,0,255 - normalized);
         }
