@@ -19,6 +19,7 @@ use vulkano::shader::ShaderModule;
 use vulkano::sync::future::{FenceSignalFuture, NowFuture};
 use vulkano::sync::GpuFuture;
 
+#[derive(Clone)]
 pub struct Vulkan{
     device: Arc<Device>,
     queue: Arc<Queue>,
@@ -70,12 +71,14 @@ impl Default for Vulkan{
         let memory_allocator = Arc::new(StandardMemoryAllocator::new_default(device.clone()));
 
         // compile compute shaders
-        let pw = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile compute shaders!");
+        let pw_mul = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile compute shaders!");
+        let convolve = glsl::compute_shaders::convolution_f32::load(device.clone()).expect("Failed to compile compute shaders!");
 
         // create hash map
         let mut compute_shaders = HashMap::default();
 
-        compute_shaders.insert("pw mul".to_string(), pw);
+        compute_shaders.insert("pw mul".to_string(), pw_mul);
+        compute_shaders.insert("convolve".to_string(), convolve);
 
         // We save these variables so we can execute operations on them later
         Vulkan{
@@ -115,7 +118,7 @@ impl Vulkan {
     }
 
     pub fn create_command_builder(&self) -> VulkanCommandBuilder{
-        VulkanCommandBuilder::new(self.device.clone(), self.queue_family_index, self.compute_shaders.clone())
+        VulkanCommandBuilder::new(self.device.clone(), self.queue_family_index, self.compute_shaders.clone(), self.clone())
     }
 }
 
@@ -124,11 +127,12 @@ pub struct VulkanCommandBuilder{
     command_buffer_allocator: StandardCommandBufferAllocator,
     builder:  Option<AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>>,
     compute_shaders: HashMap<String,Arc<ShaderModule>>,
-    device: Arc<Device>
+    device: Arc<Device>,
+    vulkan: Vulkan
 }
 
 impl VulkanCommandBuilder{
-    fn new(device: Arc<Device>, queue_family_index: u32, compute_shaders: HashMap<String, Arc<ShaderModule>>) -> Self {
+    fn new(device: Arc<Device>, queue_family_index: u32, compute_shaders: HashMap<String, Arc<ShaderModule>>, vulkan: Vulkan) -> Self {
         let command_buffer_allocator = StandardCommandBufferAllocator::new(
             device.clone(),
             StandardCommandBufferAllocatorCreateInfo::default()
@@ -144,7 +148,8 @@ impl VulkanCommandBuilder{
             command_buffer_allocator,
             builder: Some(builder),
             compute_shaders,
-            device: device.clone()
+            device: device.clone(),
+            vulkan
         }
     }
 
@@ -186,10 +191,10 @@ impl VulkanCommandBuilder{
     pub fn elementwise_multiply_f32(&mut self, source:  Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
 
         let pipeline = self.stage_pipeline("pw mul");
-        let descriptor_set_source = self.set_layout(pipeline.clone(),0,0,source);
+        let descriptor_set_source = self.set_layout(pipeline.clone(),0,0,source.clone());
         let descriptor_set_destination = self.set_layout(pipeline.clone(),1,1,destination);
 
-        let work_group_counts = [1024, 1, 1];
+        let work_group_counts = [(source.read().unwrap().len() / 64) as u32 + 1, 1, 1];
 
          self.builder.as_mut().unwrap()
              .bind_pipeline_compute(pipeline.clone())
@@ -210,6 +215,49 @@ impl VulkanCommandBuilder{
              .unwrap()
             .dispatch(work_group_counts)
             .unwrap();
+    }
+
+    pub fn convolution_f32(&mut self, source1:  Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]>{
+        // Create buffer that will be returned
+        let size = source1.read().unwrap().len() + source2.read().unwrap().len() - 1;
+        let dest =  self.vulkan.store_to_vram(vec![0.0;size].as_slice());
+
+        let pipeline = self.stage_pipeline("convolve");
+        let descriptor_set_source1 = self.set_layout(pipeline.clone(), 0, 0, source1.clone());
+        let descriptor_set_destination_source2 = self.set_layout(pipeline.clone(), 1, 1, source2.clone());
+        let descriptor_set_destination_dest = self.set_layout(pipeline.clone(), 2, 2, dest.clone());
+
+
+        let work_group_counts = [(source1.read().unwrap().len() / 32) as u32 + 1, 1, 1];
+
+        self.builder.as_mut().unwrap()
+            .bind_pipeline_compute(pipeline.clone())
+            .unwrap()
+            .bind_descriptor_sets(
+                PipelineBindPoint::Compute,
+                pipeline.layout().clone(),
+                0,
+                descriptor_set_source1
+            )
+            .unwrap()
+            .bind_descriptor_sets(
+                PipelineBindPoint::Compute,
+                pipeline.layout().clone(),
+                1,
+                descriptor_set_destination_source2
+            )
+            .unwrap()
+            .bind_descriptor_sets(
+                PipelineBindPoint::Compute,
+                pipeline.layout().clone(),
+                2,
+                descriptor_set_destination_dest
+            )
+            .unwrap()
+            .dispatch(work_group_counts)
+            .unwrap();
+
+        dest
     }
 
     pub fn build(&mut self) -> Arc<PrimaryAutoCommandBuffer>{
