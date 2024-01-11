@@ -72,12 +72,14 @@ impl Default for Vulkan{
         // compile compute shaders
         let pw_mul = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile compute shaders!");
         let convolve = glsl::compute_shaders::convolution_f32::load(device.clone()).expect("Failed to compile compute shaders!");
+        let s_mul = glsl::compute_shaders::scalar_multiplication_f32::load(device.clone()).expect("Failed to compile compute shaders!");
 
         // create hash map
         let mut compute_shaders = HashMap::default();
 
         compute_shaders.insert("pw mul".to_string(), pw_mul);
         compute_shaders.insert("convolve".to_string(), convolve);
+        compute_shaders.insert("s mul".to_string(), s_mul);
 
         // We save these variables so we can execute operations on them later
         Vulkan{
@@ -92,7 +94,7 @@ impl Default for Vulkan{
 
 impl Vulkan {
     /// this will take in an array and store it in vram
-    pub fn store_to_vram<T: Copy + bytemuck::Pod + Send + Sync>(&self, data: &[T]) -> Subbuffer<[T]>{
+    pub fn store_to_vram_array<T: Copy + bytemuck::Pod + Send + Sync>(&self, data: &[T]) -> Subbuffer<[T]>{
         Buffer::from_iter(
             self.memory_allocator.clone(),
             BufferCreateInfo {
@@ -105,6 +107,22 @@ impl Vulkan {
                 ..Default::default()
             },
             data.iter().copied(),
+        ).expect("failed to create buffer")
+    }
+
+    pub fn store_to_vram_var<T: Copy + bytemuck::Pod + Send + Sync>(&self, data: T) -> Subbuffer<T>{
+        Buffer::from_data(
+            self.memory_allocator.clone(),
+            BufferCreateInfo {
+                usage: BufferUsage::STORAGE_BUFFER,
+                ..Default::default()
+            },
+            AllocationCreateInfo {
+                memory_type_filter: MemoryTypeFilter::PREFER_DEVICE
+                    | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
+                ..Default::default()
+            },
+            data,
         ).expect("failed to create buffer")
     }
 
@@ -169,7 +187,24 @@ impl VulkanCommandBuilder{
         ).expect("failed to create compute pipeline")
     }
 
-    fn set_layout<T: Copy + bytemuck::Pod + Send + Sync>(&self, pipeline: Arc<ComputePipeline>, set_index:usize, binding_index: u32, source: Subbuffer<[T]>) -> Arc<PersistentDescriptorSet>{
+    fn set_layout_array<T: Copy + bytemuck::Pod + Send + Sync>(&self, pipeline: Arc<ComputePipeline>, set_index:usize, binding_index: u32, source: Subbuffer<[T]>) -> Arc<PersistentDescriptorSet>{
+        let descriptor_set_allocator = StandardDescriptorSetAllocator::new(self.device.clone(), Default::default());
+        let pipeline_layout = pipeline.layout();
+        let descriptor_set_layouts = pipeline_layout.set_layouts();
+
+        let descriptor_set_layout = descriptor_set_layouts
+            .get(set_index)
+            .unwrap();
+
+        PersistentDescriptorSet::new(
+            &descriptor_set_allocator,
+            descriptor_set_layout.clone(),
+            [WriteDescriptorSet::buffer(binding_index, source.clone())],
+            [],
+        ).unwrap()
+    }
+
+    fn set_layout_var<T: Copy + bytemuck::Pod + Send + Sync>(&self, pipeline: Arc<ComputePipeline>, set_index:usize, binding_index: u32, source: Subbuffer<T>) -> Arc<PersistentDescriptorSet>{
         let descriptor_set_allocator = StandardDescriptorSetAllocator::new(self.device.clone(), Default::default());
         let pipeline_layout = pipeline.layout();
         let descriptor_set_layouts = pipeline_layout.set_layouts();
@@ -206,8 +241,8 @@ impl VulkanCommandBuilder{
     pub fn elementwise_multiply_f32(&mut self, source:  Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
 
         let pipeline = self.stage_pipeline("pw mul");
-        let descriptor_set_source = self.set_layout(pipeline.clone(),0,0,source.clone());
-        let descriptor_set_destination = self.set_layout(pipeline.clone(),1,1,destination);
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(),1,1,destination);
 
         let work_group_counts = [(source.read().unwrap().len() / 64) as u32 + 1, 1, 1];
         let arr = [descriptor_set_source,descriptor_set_destination];
@@ -218,12 +253,12 @@ impl VulkanCommandBuilder{
     pub fn convolution_f32(&mut self, source1:  Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]>{
         // Create buffer that will be returned
         let size = source1.read().unwrap().len() + source2.read().unwrap().len() - 1;
-        let dest =  self.vulkan.store_to_vram(vec![0.0;size].as_slice());
+        let dest = self.vulkan.store_to_vram_array(vec![0.0;size].as_slice());
 
         let pipeline = self.stage_pipeline("convolve");
-        let descriptor_set_source1 = self.set_layout(pipeline.clone(), 0, 0, source1.clone());
-        let descriptor_set_destination_source2 = self.set_layout(pipeline.clone(), 1, 1, source2.clone());
-        let descriptor_set_destination_dest = self.set_layout(pipeline.clone(), 2, 2, dest.clone());
+        let descriptor_set_source1 = self.set_layout_array(pipeline.clone(), 0, 0, source1.clone());
+        let descriptor_set_destination_source2 = self.set_layout_array(pipeline.clone(), 1, 1, source2.clone());
+        let descriptor_set_destination_dest = self.set_layout_array(pipeline.clone(), 2, 2, dest.clone());
 
 
         let work_group_counts = [(source1.read().unwrap().len() / 32) as u32 + 1, 1, 1];
@@ -232,6 +267,18 @@ impl VulkanCommandBuilder{
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
 
         dest
+    }
+
+    pub fn scalar_multiply_f32(&mut self, source: Subbuffer<[f32]>, scalar: Subbuffer<f32>){
+        let pipeline = self.stage_pipeline("s mul");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
+        let descriptor_set_destination_scalar = self.set_layout_var(pipeline.clone(), 1, 1, scalar.clone());
+
+
+        let work_group_counts = [(source.read().unwrap().len() / 32) as u32 + 1, 1, 1];
+        let arr = [descriptor_set_destination_scalar,descriptor_set_source];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
     }
 
     pub fn build(&mut self) -> Arc<PrimaryAutoCommandBuffer>{

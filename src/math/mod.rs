@@ -1,56 +1,79 @@
 #[cfg(feature = "vulkan")]
 pub mod vulkan;
+#[cfg(feature = "vulkan")]
+use vulkano::buffer::Subbuffer;
+#[cfg(feature = "vulkan")]
+use crate::math::builder::VULKAN;
+
 pub mod cpu;
-mod builder;
+pub mod builder;
 
-use num_complex::Complex;
-use crate::math::ValueTypes::{ComplexF32, U8};
+use crate::math::ValueTypes::F32;
 
-enum ValueTypes{
-    ComplexF32,
-    U8,
+pub enum ValueTypes{
+    F32,
 }
-
 
 /// This will dynamically be
 pub struct ElementParameter {
     vtype: ValueTypes,
 
-    complexf32: Option<Vec<Complex<f32>>>,
-    u8: Option<Vec<u8>>
+
+    #[cfg(not(feature = "vulkan"))]
+    f32_cpu: Option<Vec<f32>>,
+
+
+    #[cfg(feature = "vulkan")]
+    f32_vulkan: Option<Subbuffer<[f32]>>
 }
 
-impl ElementParameter {
-    pub fn new_complex_f32(arr: &[Complex<f32>]) -> ElementParameter {
-        ElementParameter{
-            vtype: ComplexF32,
+impl<'a> ElementParameter{
+    pub fn new_f32(arr: &[f32]) -> ElementParameter {
+        let mut new = ElementParameter{
+            vtype: F32,
 
-            complexf32: Some(arr.to_vec()),
-            u8: None
-        }
+            #[cfg(not(feature = "vulkan"))]
+            f32_cpu: None,
+
+            #[cfg(feature = "vulkan")]
+            f32_vulkan: None,
+        };
+
+        new.set_f32(arr);
+
+        new
     }
 
-    pub fn new_u8(arr: &[u8]) -> ElementParameter{
-        ElementParameter{
-            vtype: U8,
+    pub fn get_f32_array(&mut self) -> Vec<f32> {
 
-            complexf32: None,
-            u8: Some(arr.to_vec())
-        }
+        #[cfg(not(feature = "vulkan"))]
+        let arr = self.f32_cpu.clone().unwrap();
+
+        #[cfg(feature = "vulkan")]
+        let arr = self.f32_vulkan.as_mut().unwrap().read().unwrap().to_vec();
+
+        arr
     }
 
-    pub fn get_complex_f32_array(&self) -> Vec<Complex<f32>>{
-        self.complexf32.clone().unwrap()
-    }
-    pub fn get_u8_array(&self) -> Vec<u8>{
-        self.u8.clone().unwrap()
+    #[cfg(not(feature = "vulkan"))]
+    pub fn get_f32_array_mut(&mut self) -> &mut [f32] {
+        self.f32_cpu.as_mut().unwrap().as_mut_slice()
     }
 
-    pub fn set_complex_f32(&self) -> Vec<Complex<f32>>{
-        self.complexf32.clone().unwrap()
+    #[cfg(not(feature = "vulkan"))]
+    pub fn set_f32(&mut self, arr: &[f32]) {
+        self.vtype = F32;
+        self.f32_cpu = Some(arr.to_vec());
     }
 
-    pub fn set_u8(&self) -> Vec<u8>{
-        self.u8.clone().unwrap()
+    #[cfg(feature = "vulkan")]
+    pub fn get_buffer_f32(&mut self) -> Subbuffer<[f32]>{
+        self.f32_vulkan.clone().unwrap()
+    }
+
+    #[cfg(feature = "vulkan")]
+    pub fn set_f32(&mut self, arr: &[f32]) {
+        self.vtype = F32;
+        self.f32_vulkan = Some(VULKAN.store_to_vram_array(arr));
     }
 }

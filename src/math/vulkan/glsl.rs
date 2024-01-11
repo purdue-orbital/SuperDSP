@@ -52,6 +52,29 @@ pub mod compute_shaders {
                 ",
         }
     }
+
+    pub mod scalar_multiplication_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer Scalar {
+                        float data;
+                    } scalar;
+
+                    layout(set = 1, binding = 1) buffer Source {
+                        float data[];
+                    } dest;
+
+                    void main() {
+                        dest.data[gl_GlobalInvocationID.x] *= scalar.data;
+                    }
+                ",
+        }
+    }
 }
 
 
