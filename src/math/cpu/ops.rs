@@ -1,5 +1,8 @@
-pub struct Data<'a>{
-    pub(crate) f32_arrays: Vec<&'a mut [f32]>
+use std::sync::{Arc, Mutex, RwLock};
+
+pub struct Data{
+    pub(crate) f32_arrays: Vec<Arc<Mutex<Vec<f32>>>>,
+    pub(crate) f32_const: Vec<Arc<RwLock<f32>>>
 }
 
 pub trait CPUOperation{
@@ -36,5 +39,16 @@ impl CPUOperation for ConvolutionF32 {
                 mb[2][i+j] += mb.first().unwrap().get(i).unwrap() * mb.get(1).unwrap().get(j).unwrap();
             }
         }
+    }
+}
+
+pub struct ScalarMultiplyF32;
+impl CPUOperation for ScalarMultiplyF32 {
+    fn run(&mut self, data: &mut Data) {
+
+        let mb: &mut Vec<&mut [f32]> = data.f32_arrays.as_mut();
+        let scalar: f32 = *data.f32_const[0];
+
+        let _ = mb[0].iter_mut().map(|val| *val *= scalar);
     }
 }

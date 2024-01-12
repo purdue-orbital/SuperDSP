@@ -7,12 +7,12 @@ use crate::math::ElementParameter;
 #[cfg(not(feature = "vulkan"))]
 use crate::math::cpu::{CPUCommandBuilder, CPUPipeline};
 #[cfg(not(feature = "vulkan"))]
-pub struct Workflow<'a> {
-    pipeline: CPUPipeline<'a>
+pub struct Workflow {
+    pipeline: CPUPipeline
 }
 
 #[cfg(not(feature = "vulkan"))]
-impl<'a> Workflow<'a> {
+impl Workflow {
     pub fn run(&mut self){
         self.pipeline.run();
     }
@@ -22,13 +22,13 @@ impl<'a> Workflow<'a> {
 /// This builder is a wrapper class around the CPU and GPU compute method that will dynamiclly switch depending on the
 /// feature set
 #[cfg(not(feature = "vulkan"))]
-pub struct WorkflowBuilder<'a> {
-    cpu_builder: CPUCommandBuilder<'a>
+pub struct WorkflowBuilder {
+    cpu_builder: CPUCommandBuilder
 }
 
 
 #[cfg(not(feature = "vulkan"))]
-impl<'a> Default for WorkflowBuilder<'a>{
+impl<'a> Default for WorkflowBuilder{
     fn default() -> Self {
         WorkflowBuilder{
             cpu_builder: CPUCommandBuilder::default(),
@@ -37,20 +37,24 @@ impl<'a> Default for WorkflowBuilder<'a>{
 }
 
 #[cfg(not(feature = "vulkan"))]
-impl<'a> WorkflowBuilder<'a>{
+impl WorkflowBuilder{
     pub fn build(&mut self) -> Workflow{
         Workflow{
             pipeline: self.cpu_builder.build()
         }
     }
 
-    pub fn pointwise_multiply_f32(&mut self, src: &'a mut ElementParameter, dest: &'a mut ElementParameter ){
+    pub fn pointwise_multiply_f32(&mut self, src: &mut ElementParameter, dest: &mut ElementParameter ){
         self.cpu_builder.elementwise_multiply_f32(src.get_f32_array_mut(), dest.get_f32_array_mut())
     }
-    pub fn convolution_f32(&mut self, src1: &'a mut ElementParameter, src2: &'a mut ElementParameter, dest: &'a mut ElementParameter){
+    pub fn convolution_f32(&mut self, src1: &mut ElementParameter, src2: &mut ElementParameter, dest: &mut ElementParameter){
 
         let size = src1.get_f32_array().len() + src2.get_f32_array().len() - 1;
-        dest.f32_cpu = Some(vec![0.0;size]);
+
+        if dest.get_f32_array().len() != size{
+            dest.f32_cpu = Some(Arc::new(Mutex::new(vec![0.0;size])));
+        }
+
 
         self.cpu_builder.convolution_f32(src1.get_f32_array_mut(), src2.get_f32_array_mut(), dest.get_f32_array_mut())
     }
@@ -68,6 +72,7 @@ use lazy_static::lazy_static;
 
 #[cfg(feature = "vulkan")]
 use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 #[cfg(feature = "vulkan")]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;

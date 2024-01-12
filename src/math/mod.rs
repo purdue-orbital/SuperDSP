@@ -1,5 +1,7 @@
 #[cfg(feature = "vulkan")]
 pub mod vulkan;
+
+use std::sync::{Arc,Mutex};
 #[cfg(feature = "vulkan")]
 use vulkano::buffer::Subbuffer;
 #[cfg(feature = "vulkan")]
@@ -20,7 +22,7 @@ pub struct ElementParameter {
 
 
     #[cfg(not(feature = "vulkan"))]
-    f32_cpu: Option<Vec<f32>>,
+    f32_cpu: Option<Arc<Mutex<Vec<f32>>>>,
 
 
     #[cfg(feature = "vulkan")]
@@ -39,7 +41,7 @@ impl<'a> ElementParameter{
             f32_vulkan: None,
         };
 
-        new.set_f32(arr);
+        new.set_f32_array(arr);
 
         new
     }
@@ -47,7 +49,7 @@ impl<'a> ElementParameter{
     pub fn get_f32_array(&mut self) -> Vec<f32> {
 
         #[cfg(not(feature = "vulkan"))]
-        let arr = self.f32_cpu.clone().unwrap();
+        let arr = self.f32_cpu.unwrap().lock().unwrap().to_vec();
 
         #[cfg(feature = "vulkan")]
         let arr = self.f32_vulkan.as_mut().unwrap().read().unwrap().to_vec();
@@ -56,14 +58,9 @@ impl<'a> ElementParameter{
     }
 
     #[cfg(not(feature = "vulkan"))]
-    pub fn get_f32_array_mut(&mut self) -> &mut [f32] {
-        self.f32_cpu.as_mut().unwrap().as_mut_slice()
-    }
-
-    #[cfg(not(feature = "vulkan"))]
-    pub fn set_f32(&mut self, arr: &[f32]) {
+    pub fn set_f32_array(&mut self, arr: &[f32]) {
         self.vtype = F32;
-        self.f32_cpu = Some(arr.to_vec());
+        self.f32_cpu = Some(Arc::new(Mutex::new(arr.to_vec())));
     }
 
     #[cfg(feature = "vulkan")]

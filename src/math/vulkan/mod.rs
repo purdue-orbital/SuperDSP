@@ -271,8 +271,8 @@ impl VulkanCommandBuilder{
 
     pub fn scalar_multiply_f32(&mut self, source: Subbuffer<[f32]>, scalar: Subbuffer<f32>){
         let pipeline = self.stage_pipeline("s mul");
-        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
-        let descriptor_set_destination_scalar = self.set_layout_var(pipeline.clone(), 1, 1, scalar.clone());
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),1,1,source.clone());
+        let descriptor_set_destination_scalar = self.set_layout_var(pipeline.clone(), 0, 0, scalar.clone());
 
 
         let work_group_counts = [(source.read().unwrap().len() / 32) as u32 + 1, 1, 1];

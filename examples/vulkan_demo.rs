@@ -5,7 +5,7 @@ fn main() {
     let arr1 = vec![1.0,2.0,3.0];
     let arr2 = vec![0.0,1.0,0.5];
 
-    let var1 = 0.0 as f32;
+    let var1 = 0.0_f32;
 
     let v = Vulkan::default();
 
