@@ -238,7 +238,7 @@ impl VulkanCommandBuilder{
     }
 
     /// This is a simple, elementwise multiplication (dest\[n\] =  src\[n\] * dest\[n\])
-    pub fn elementwise_multiply_f32(&mut self, source:  Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
+    pub fn elementwise_multiply_f32(&mut self, source: Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
 
         let pipeline = self.stage_pipeline("pw mul");
         let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
@@ -250,7 +250,7 @@ impl VulkanCommandBuilder{
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
     }
 
-    pub fn convolution_f32(&mut self, source1:  Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]>{
+    pub fn convolution_f32(&mut self, source1: Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]>{
         // Create buffer that will be returned
         let size = source1.read().unwrap().len() + source2.read().unwrap().len() - 1;
         let dest = self.vulkan.store_to_vram_array(vec![0.0;size].as_slice());
@@ -261,7 +261,7 @@ impl VulkanCommandBuilder{
         let descriptor_set_destination_dest = self.set_layout_array(pipeline.clone(), 2, 2, dest.clone());
 
 
-        let work_group_counts = [(source1.read().unwrap().len() / 32) as u32 + 1, 1, 1];
+        let work_group_counts = [source1.read().unwrap().len() as u32, 1, 1];
         let arr = [descriptor_set_source1,descriptor_set_destination_source2,descriptor_set_destination_dest];
 
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
@@ -275,7 +275,7 @@ impl VulkanCommandBuilder{
         let descriptor_set_destination_scalar = self.set_layout_var(pipeline.clone(), 0, 0, scalar.clone());
 
 
-        let work_group_counts = [(source.read().unwrap().len() / 32) as u32 + 1, 1, 1];
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
         let arr = [descriptor_set_destination_scalar,descriptor_set_source];
 
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);

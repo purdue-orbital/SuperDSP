@@ -1,35 +1,20 @@
+use std::sync::{Arc, Mutex, RwLock};
 use rustdsp::math::cpu::CPUCommandBuilder;
 
-pub struct Test{
-    src: Vec<f32>,
-    dest: Vec<f32>
-}
-
-fn borrow_src(x: &mut Test) -> &mut [f32] {
-    &mut x.src
-}
-
-fn borrow_dest(x: &mut Test) -> &mut [f32] {
-    &mut x.dest
-}
-
 fn main() {
+    let src = Arc::new(Mutex::new(vec![3.0;4]));
+    let src2 = Arc::new(Mutex::new(vec![3.0;4]));
+    let dest = Arc::new(Mutex::new(vec![2.0;7]));
 
-    let mut test = Test{
-        src: vec![3.0;4],
-        dest: vec![2.0;4],
-    };
-
-    let mut var = 0.0;
-    
+    let var = Arc::new(RwLock::new(0.0));
     let mut builder = CPUCommandBuilder::default();
 
-    builder.elementwise_multiply_f32(borrow_src(&mut test), borrow_dest(&mut test));
-    builder.scalar_multiply_f32(test.src.as_mut_slice(),&mut var);
+    builder.convolution_f32(src,src2, dest.clone());
+    builder.scalar_multiply_f32(dest.clone(),var);
 
     let mut pipeline = builder.build();
 
     pipeline.run();
 
-    dbg!(borrow_dest(&mut test));
+    dbg!(dest.lock().unwrap().as_mut_slice());
 }

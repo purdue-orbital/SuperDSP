@@ -14,15 +14,15 @@ pub struct ElementwiseMultiplyF32;
 impl CPUOperation for ElementwiseMultiplyF32{
     fn run(&mut self, data: &mut Data) {
 
-        let mb: &mut Vec<&mut [f32]> = data.f32_arrays.as_mut();
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let arr1 = binding.as_slice();
+
+        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let arr2 = binding.as_mut_slice();
 
         // run
-        for index in 0..mb.first().unwrap().len(){
-
-            let val2 = mb.get(1).unwrap().get(index).unwrap();
-            let val1 = mb.first().unwrap().get(index).unwrap();
-
-            mb[1][index] = *val1 * *val2;
+        for (index,x) in arr2.iter_mut().enumerate(){
+            *x *= arr1[index];
         }
     }
 }
@@ -31,12 +31,19 @@ pub struct ConvolutionF32;
 impl CPUOperation for ConvolutionF32 {
     fn run(&mut self, data: &mut Data) {
 
-        let mb: &mut Vec<&mut [f32]> = data.f32_arrays.as_mut();
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let arr1 = binding.as_slice();
+
+        let binding = data.f32_arrays[1].lock().unwrap();
+        let arr2 = binding.as_slice();
+
+        let mut binding = data.f32_arrays[2].lock().unwrap();
+        let dest = binding.as_mut_slice();
 
         // run
-        for i in 0..mb.first().unwrap().len(){
-            for j in 0..mb.get(1).unwrap().len(){
-                mb[2][i+j] += mb.first().unwrap().get(i).unwrap() * mb.get(1).unwrap().get(j).unwrap();
+        for i in 0..arr1.len(){
+            for j in 0..arr2.len(){
+                dest[i+j] += arr1[i] * arr2[j];
             }
         }
     }
@@ -45,10 +52,10 @@ impl CPUOperation for ConvolutionF32 {
 pub struct ScalarMultiplyF32;
 impl CPUOperation for ScalarMultiplyF32 {
     fn run(&mut self, data: &mut Data) {
+        let scalar: f32 = *data.f32_const[0].read().unwrap();
 
-        let mb: &mut Vec<&mut [f32]> = data.f32_arrays.as_mut();
-        let scalar: f32 = *data.f32_const[0];
-
-        let _ = mb[0].iter_mut().map(|val| *val *= scalar);
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+            *x *= scalar;
+        }
     }
 }

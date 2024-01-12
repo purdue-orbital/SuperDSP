@@ -24,7 +24,7 @@ pub struct CPUCommandBuilder{
     operations: Option<Vec<BoxedCPUOperation>>
 }
 
-impl<'a> Default for CPUCommandBuilder{
+impl Default for CPUCommandBuilder{
     fn default() -> Self {
         CPUCommandBuilder{
             operations: Some(vec![]),

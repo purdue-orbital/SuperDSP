@@ -19,7 +19,7 @@ impl Workflow {
 }
 
 
-/// This builder is a wrapper class around the CPU and GPU compute method that will dynamiclly switch depending on the
+/// This builder is a wrapper class around the CPU and GPU compute method that will dynamically switch depending on the
 /// feature set
 #[cfg(not(feature = "vulkan"))]
 pub struct WorkflowBuilder {
@@ -28,7 +28,7 @@ pub struct WorkflowBuilder {
 
 
 #[cfg(not(feature = "vulkan"))]
-impl<'a> Default for WorkflowBuilder{
+impl Default for WorkflowBuilder{
     fn default() -> Self {
         WorkflowBuilder{
             cpu_builder: CPUCommandBuilder::default(),
@@ -44,19 +44,22 @@ impl WorkflowBuilder{
         }
     }
 
-    pub fn pointwise_multiply_f32(&mut self, src: &mut ElementParameter, dest: &mut ElementParameter ){
+    pub fn pointwise_multiply_f32(&mut self, src: &ElementParameter, dest: &ElementParameter ){
         self.cpu_builder.elementwise_multiply_f32(src.get_f32_array_mut(), dest.get_f32_array_mut())
     }
-    pub fn convolution_f32(&mut self, src1: &mut ElementParameter, src2: &mut ElementParameter, dest: &mut ElementParameter){
+    pub fn convolution_f32(&mut self, src1: &ElementParameter, src2: &ElementParameter, dest: &ElementParameter){
 
         let size = src1.get_f32_array().len() + src2.get_f32_array().len() - 1;
 
         if dest.get_f32_array().len() != size{
-            dest.f32_cpu = Some(Arc::new(Mutex::new(vec![0.0;size])));
+            *dest.f32_array_cpu.clone().unwrap().lock().unwrap() = vec![0.0; size];
         }
 
-
         self.cpu_builder.convolution_f32(src1.get_f32_array_mut(), src2.get_f32_array_mut(), dest.get_f32_array_mut())
+    }
+
+    pub fn scalar_multiply_f32(&mut self, src: &ElementParameter, scaler: &ElementParameter ){
+        self.cpu_builder.scalar_multiply_f32(src.get_f32_array_mut(), scaler.get_f32_mut())
     }
 }
 
@@ -71,8 +74,7 @@ impl WorkflowBuilder{
 use lazy_static::lazy_static;
 
 #[cfg(feature = "vulkan")]
-use std::sync::Arc;
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc};
 
 #[cfg(feature = "vulkan")]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
@@ -122,10 +124,13 @@ impl WorkflowBuilder{
         }
     }
 
-    pub fn pointwise_multiply_f32(&mut self, src: &mut ElementParameter, dest: &mut ElementParameter){
-        self.vulkan_builder.elementwise_multiply_f32(src.get_buffer_f32(), dest.get_buffer_f32());
+    pub fn pointwise_multiply_f32(&mut self, src: &ElementParameter, dest: &ElementParameter){
+        self.vulkan_builder.elementwise_multiply_f32(src.get_buffer_f32_array(), dest.get_buffer_f32_array());
     }
-    pub fn convolution_f32(&mut self, src1: &mut ElementParameter, src2: &mut ElementParameter, dest: &mut ElementParameter){
-        dest.f32_vulkan = Some(self.vulkan_builder.convolution_f32(src1.get_buffer_f32(), src2.get_buffer_f32()))
+    pub fn convolution_f32(&mut self, src1: &ElementParameter, src2: &ElementParameter, dest: &mut ElementParameter){
+        dest.f32_array_vulkan = Some(self.vulkan_builder.convolution_f32(src1.get_buffer_f32_array(), src2.get_buffer_f32_array()));
+    }
+    pub fn scalar_multiply_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter ){
+        self.vulkan_builder.scalar_multiply_f32(src.get_buffer_f32_array(), scalar.get_buffer_f32())
     }
 }
