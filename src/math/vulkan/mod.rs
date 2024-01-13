@@ -2,6 +2,7 @@ mod glsl;
 
 use std::collections::HashMap;
 use std::sync::Arc;
+
 use vulkano::buffer::{Buffer, BufferCreateInfo, BufferUsage, Subbuffer};
 use vulkano::command_buffer::allocator::{StandardCommandBufferAllocator, StandardCommandBufferAllocatorCreateInfo};
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferExecFuture, CommandBufferUsage, PrimaryAutoCommandBuffer};
@@ -245,7 +246,6 @@ impl VulkanCommandBuilder{
 
     /// This is a simple, elementwise multiplication (dest\[n\] =  src\[n\] * dest\[n\])
     pub fn elementwise_multiply_f32(&mut self, source: Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
-
         let pipeline = self.stage_pipeline("pw mul");
         let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
         let descriptor_set_destination = self.set_layout_array(pipeline.clone(),1,1,destination);

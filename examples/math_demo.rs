@@ -1,5 +1,4 @@
-use rustdsp::math::builder::WorkflowBuilder;
-use rustdsp::math::ElementParameter;
+use rustdsp::math::prelude::*;
 
 fn main() {
     let test1 = vec![1.0,2.0,3.0];
