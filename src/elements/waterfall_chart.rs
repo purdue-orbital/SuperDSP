@@ -27,7 +27,7 @@ impl WaterfallChart {
 }
 
 impl Element for WaterfallChart {
-    fn init(&mut self, win_builder: &mut WindowBuilder) {
+    fn build_window(&mut self, win_builder: &mut WindowBuilder) {
         let chart = PixelChart::new(self.len, 100);
 
         self.boxed_chart = Some(win_builder.add_chart(chart));

@@ -1,7 +1,7 @@
 mod ops;
 
 use std::sync::{Arc, Mutex, RwLock};
-use crate::math::cpu::ops::{ConvolutionF32, CPUOperation, Data, ElementwiseMultiplyF32, ScalarMultiplyF32};
+use crate::math::cpu::ops::{ConvolutionF32, CosF32, CPUOperation, Data, ElementwiseMultiplyF32, ModF32, ScalarMultiplyF32, SinF32};
 
 struct BoxedCPUOperation{
     buffer: Data,
@@ -80,6 +80,46 @@ impl CPUCommandBuilder{
         self.operations.as_mut().unwrap().push(BoxedCPUOperation{
             buffer: data,
             operation: Box::new(ScalarMultiplyF32),
+        });
+    }
+
+    pub fn sin_f32(&mut self, source: Arc<Mutex<Vec<f32>>>){
+        // create data structure
+        let data = Data{
+            f32_arrays: vec![source],
+            f32_const: vec![]
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation{
+            buffer: data,
+            operation: Box::new(SinF32),
+        });
+    }
+    pub fn cos_f32(&mut self, source: Arc<Mutex<Vec<f32>>>){
+        // create data structure
+        let data = Data{
+            f32_arrays: vec![source],
+            f32_const: vec![]
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation{
+            buffer: data,
+            operation: Box::new(CosF32),
+        });
+    }
+    pub fn mod_f32(&mut self, source:  Arc<Mutex<Vec<f32>>>, scalar: Arc<RwLock<f32>>){
+        // create data structure
+        let data = Data{
+            f32_arrays: vec![source],
+            f32_const: vec![scalar]
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation{
+            buffer: data,
+            operation: Box::new(ModF32),
         });
     }
 }

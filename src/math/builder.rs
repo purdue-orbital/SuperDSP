@@ -47,7 +47,7 @@ impl WorkflowBuilder{
     pub fn pointwise_multiply_f32(&mut self, src: &ElementParameter, dest: &ElementParameter ){
         self.cpu_builder.elementwise_multiply_f32(src.get_f32_array_mut(), dest.get_f32_array_mut())
     }
-    pub fn convolution_f32(&mut self, src1: &ElementParameter, src2: &ElementParameter, dest: &ElementParameter){
+    pub fn convolution_f32(&mut self, src1: &ElementParameter, src2: &ElementParameter, dest: &mut ElementParameter){
 
         let size = src1.get_f32_array().len() + src2.get_f32_array().len() - 1;
 
@@ -58,8 +58,20 @@ impl WorkflowBuilder{
         self.cpu_builder.convolution_f32(src1.get_f32_array_mut(), src2.get_f32_array_mut(), dest.get_f32_array_mut())
     }
 
-    pub fn scalar_multiply_f32(&mut self, src: &ElementParameter, scaler: &ElementParameter ){
-        self.cpu_builder.scalar_multiply_f32(src.get_f32_array_mut(), scaler.get_f32_mut())
+    pub fn scalar_multiply_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter){
+        self.cpu_builder.scalar_multiply_f32(src.get_f32_array_mut(), scalar.get_f32_mut())
+    }
+
+    pub fn sin_f32(&mut self, src: &ElementParameter){
+        self.cpu_builder.sin_f32(src.get_f32_array_mut())
+    }
+
+    pub fn cos_f32(&mut self, src: &ElementParameter){
+        self.cpu_builder.cos_f32(src.get_f32_array_mut())
+    }
+
+    pub fn mod_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter){
+        self.cpu_builder.mod_f32(src.get_f32_array_mut(), scalar.get_f32_mut())
     }
 }
 
@@ -133,4 +145,14 @@ impl WorkflowBuilder{
     pub fn scalar_multiply_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter ){
         self.vulkan_builder.scalar_multiply_f32(src.get_buffer_f32_array(), scalar.get_buffer_f32())
     }
+    pub fn sin_f32(&mut self, src: &ElementParameter){
+        self.vulkan_builder.sin_f32(src.get_buffer_f32_array())
+    }
+    pub fn cos_f32(&mut self, src: &ElementParameter){
+        self.vulkan_builder.cos_f32(src.get_buffer_f32_array())
+    }
+    pub fn mod_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter){
+        self.vulkan_builder.mod_f32(src.get_buffer_f32_array(), scalar.get_buffer_f32())
+    }
+
 }

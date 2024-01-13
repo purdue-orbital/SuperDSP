@@ -21,7 +21,7 @@ impl TimeChart {
 }
 
 impl Element for TimeChart {
-    fn init(&mut self, win_builder: &mut WindowBuilder) {
+    fn build_window(&mut self, win_builder: &mut WindowBuilder) {
         let chart = LineChart::new(self.len);
 
         self.boxed_chart = Some(win_builder.add_chart(chart));

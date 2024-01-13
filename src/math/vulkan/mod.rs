@@ -70,9 +70,12 @@ impl Default for Vulkan{
         let memory_allocator = Arc::new(StandardMemoryAllocator::new_default(device.clone()));
 
         // compile compute shaders
-        let pw_mul = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile compute shaders!");
-        let convolve = glsl::compute_shaders::convolution_f32::load(device.clone()).expect("Failed to compile compute shaders!");
-        let s_mul = glsl::compute_shaders::scalar_multiplication_f32::load(device.clone()).expect("Failed to compile compute shaders!");
+        let pw_mul = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile point wise multiplication shaders!");
+        let convolve = glsl::compute_shaders::convolution_f32::load(device.clone()).expect("Failed to compile convolution shaders!");
+        let s_mul = glsl::compute_shaders::scalar_multiplication_f32::load(device.clone()).expect("Failed to compile scalar multiplication shaders!");
+        let sin = glsl::compute_shaders::sin_f32::load(device.clone()).expect("Failed to compile sine shaders!");
+        let cos = glsl::compute_shaders::cos_f32::load(device.clone()).expect("Failed to compile cosine shaders!");
+        let mod_f32 = glsl::compute_shaders::mod_f32::load(device.clone()).expect("Failed to compile mod shaders!");
 
         // create hash map
         let mut compute_shaders = HashMap::default();
@@ -80,6 +83,9 @@ impl Default for Vulkan{
         compute_shaders.insert("pw mul".to_string(), pw_mul);
         compute_shaders.insert("convolve".to_string(), convolve);
         compute_shaders.insert("s mul".to_string(), s_mul);
+        compute_shaders.insert("sin".to_string(), sin);
+        compute_shaders.insert("cos".to_string(), cos);
+        compute_shaders.insert("mod".to_string(), mod_f32);
 
         // We save these variables so we can execute operations on them later
         Vulkan{
@@ -261,7 +267,7 @@ impl VulkanCommandBuilder{
         let descriptor_set_destination_dest = self.set_layout_array(pipeline.clone(), 2, 2, dest.clone());
 
 
-        let work_group_counts = [source1.read().unwrap().len() as u32, 1, 1];
+        let work_group_counts = [size as u32, 1, 1];
         let arr = [descriptor_set_source1,descriptor_set_destination_source2,descriptor_set_destination_dest];
 
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
@@ -272,11 +278,45 @@ impl VulkanCommandBuilder{
     pub fn scalar_multiply_f32(&mut self, source: Subbuffer<[f32]>, scalar: Subbuffer<f32>){
         let pipeline = self.stage_pipeline("s mul");
         let descriptor_set_source = self.set_layout_array(pipeline.clone(),1,1,source.clone());
-        let descriptor_set_destination_scalar = self.set_layout_var(pipeline.clone(), 0, 0, scalar.clone());
+        let descriptor_set_scalar = self.set_layout_var(pipeline.clone(), 0, 0, scalar.clone());
 
 
         let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
-        let arr = [descriptor_set_destination_scalar,descriptor_set_source];
+        let arr = [descriptor_set_scalar,descriptor_set_source];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
+    }
+
+    pub fn sin_f32(&mut self, source: Subbuffer<[f32]>){
+        let pipeline = self.stage_pipeline("sin");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
+
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
+    }
+
+    pub fn cos_f32(&mut self, source: Subbuffer<[f32]>){
+        let pipeline = self.stage_pipeline("cos");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
+
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
+    }
+
+    pub fn mod_f32(&mut self, source: Subbuffer<[f32]>, scalar: Subbuffer<f32>){
+        let pipeline = self.stage_pipeline("mod");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),1,1,source.clone());
+        let descriptor_set_scalar = self.set_layout_var(pipeline.clone(), 0, 0, scalar.clone());
+
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_scalar,descriptor_set_source];
 
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
     }

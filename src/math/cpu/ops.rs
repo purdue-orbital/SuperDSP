@@ -59,3 +59,32 @@ impl CPUOperation for ScalarMultiplyF32 {
         }
     }
 }
+
+pub struct SinF32;
+impl CPUOperation for SinF32 {
+    fn run(&mut self, data: &mut Data) {
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+            *x = x.sin();
+        }
+    }
+}
+
+pub struct CosF32;
+impl CPUOperation for CosF32 {
+    fn run(&mut self, data: &mut Data) {
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+            *x = x.cos();
+        }
+    }
+}
+
+pub struct ModF32;
+impl CPUOperation for ModF32 {
+    fn run(&mut self, data: &mut Data) {
+        let scalar = *data.f32_const[0].read().unwrap();
+
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+            *x %= scalar;
+        }
+    }
+}

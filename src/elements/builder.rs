@@ -24,7 +24,7 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
-    /// ***THIS WILL HALT THE THREAD AND IT MUST BE THE MAIN THREAD***
+    /// ***THIS WILL HALT THE THREAD AND IT MUST BE THE MAIN THREAD!*** This is because of a limitation set by egui
     pub fn run(&mut self) {
         let mut elements: Vec<Box<dyn Element>> = self.elements.iter().map(|val| val.clone_box()).collect();
         let rx = self.rx.clone();
@@ -87,7 +87,7 @@ impl PipelineBuilder {
         for x in self.elements.as_mut_slice() {
 
             #[cfg(feature = "ui")]
-            x.init(&mut program.window);
+            x.build_window(&mut program.window);
 
             program.elements.push(x.clone_box())
         }

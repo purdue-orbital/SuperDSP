@@ -3,6 +3,8 @@ use std::f32::consts::PI;
 use num_complex::Complex;
 
 use crate::elements::element::Element;
+use crate::math::builder::WorkflowBuilder;
+use crate::math::ElementParameter;
 
 
 #[cfg(feature = "ui")]
@@ -18,18 +20,17 @@ pub struct SignalGenerator {
 }
 
 impl Element for SignalGenerator {
-
     #[cfg(feature = "ui")]
-    fn init(&mut self, win_builder: &mut WindowBuilder) {}
+    fn build_window(&mut self, win_builder: &mut WindowBuilder) {}
 
-    fn run(&mut self, samples: &mut [Complex<f32>]) {
-        for x in samples {
-            x.re = self.phi.cos();
-            x.im = self.phi.sin();
+    fn init(&mut self, builder: &mut WorkflowBuilder) {
 
-            self.phi += self.step;
-            self.phi %= 2.0 * PI;
-        }
+    }
+
+    fn run(&mut self, samples: &ElementParameter) {}
+
+    fn halt(&self) -> bool {
+        false
     }
 }
 
