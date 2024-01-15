@@ -77,6 +77,9 @@ impl Default for Vulkan{
         let sin = glsl::compute_shaders::sin_f32::load(device.clone()).expect("Failed to compile sine shaders!");
         let cos = glsl::compute_shaders::cos_f32::load(device.clone()).expect("Failed to compile cosine shaders!");
         let mod_f32 = glsl::compute_shaders::mod_f32::load(device.clone()).expect("Failed to compile mod shaders!");
+        let add_f32 = glsl::compute_shaders::add_f32::load(device.clone()).expect("Failed to compile add shaders!");
+        let s_add_f32 = glsl::compute_shaders::scalar_add_f32::load(device.clone()).expect("Failed to compile scalar add shaders!");
+        let copy = glsl::compute_shaders::copy_f32::load(device.clone()).expect("Failed to compile copy shaders!");
 
         // create hash map
         let mut compute_shaders = HashMap::default();
@@ -87,6 +90,9 @@ impl Default for Vulkan{
         compute_shaders.insert("sin".to_string(), sin);
         compute_shaders.insert("cos".to_string(), cos);
         compute_shaders.insert("mod".to_string(), mod_f32);
+        compute_shaders.insert("add".to_string(), add_f32);
+        compute_shaders.insert("s add".to_string(), s_add_f32);
+        compute_shaders.insert("copy".to_string(), copy);
 
         // We save these variables so we can execute operations on them later
         Vulkan{
@@ -250,7 +256,7 @@ impl VulkanCommandBuilder{
         let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
         let descriptor_set_destination = self.set_layout_array(pipeline.clone(),1,1,destination);
 
-        let work_group_counts = [(source.read().unwrap().len() / 64) as u32 + 1, 1, 1];
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
         let arr = [descriptor_set_source,descriptor_set_destination];
 
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
@@ -321,6 +327,39 @@ impl VulkanCommandBuilder{
         self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
     }
 
+    pub fn add_f32(&mut self, source: Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
+        let pipeline = self.stage_pipeline("add");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(),1,1,destination);
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source,descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
+    }
+
+    pub fn scalar_add_f32(&mut self, scalar: Subbuffer<f32>, destination: Subbuffer<[f32]>){
+        let pipeline = self.stage_pipeline("s add");
+        let descriptor_set_source = self.set_layout_var(pipeline.clone(),0,0,scalar);
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(),1,1,destination.clone());
+
+        let work_group_counts = [destination.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source,descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
+    }
+
+    pub fn copy_f32(&mut self, source: Subbuffer<[f32]>, destination: Subbuffer<[f32]>){
+        let pipeline = self.stage_pipeline("copy");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(),0,0,source.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(),1,1,destination);
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source,descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline,&arr,work_group_counts);
+    }
+    
     pub fn build(&mut self) -> Arc<PrimaryAutoCommandBuffer>{
         self.builder.take().unwrap().build().unwrap()
     }

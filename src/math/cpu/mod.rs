@@ -1,12 +1,15 @@
 mod ops;
 
 use std::sync::{Arc, Mutex, RwLock};
-use crate::math::cpu::ops::{ConvolutionF32, CosF32, CPUOperation, Data, ElementwiseMultiplyF32, ModF32, ScalarMultiplyF32, SinF32};
+use crate::math::cpu::ops::{AddF32, ConvolutionF32, CopyF32, CosF32, CPUOperation, Data, ElementwiseMultiplyF32, ModF32, ScalarAddF32, ScalarMultiplyF32, SinF32};
 
 struct BoxedCPUOperation{
     buffer: Data,
     operation: Box<dyn CPUOperation>
 }
+
+unsafe impl Send for BoxedCPUOperation{}
+
 
 pub struct CPUPipeline{
     operations: Vec<BoxedCPUOperation>
@@ -121,5 +124,47 @@ impl CPUCommandBuilder{
             buffer: data,
             operation: Box::new(ModF32),
         });
+    }
+
+    pub fn add_f32(&mut self, source: Arc<Mutex<Vec<f32>>>, dest: Arc<Mutex<Vec<f32>>>){
+        // create data structure
+        let data = Data{
+            f32_arrays: vec![source,dest],
+            f32_const: vec![]
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation{
+            buffer: data,
+            operation: Box::new(AddF32),
+        });
+    }
+
+    pub fn scalar_add_f32(&mut self, source:  Arc<Mutex<Vec<f32>>>, scalar: Arc<RwLock<f32>>){
+        // create data structure
+        let data = Data{
+            f32_arrays: vec![source],
+            f32_const: vec![scalar]
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation{
+            buffer: data,
+            operation: Box::new(ScalarAddF32),
+        });
+    }
+    pub fn copy_f32(&mut self, source: Arc<Mutex<Vec<f32>>>, destination: Arc<Mutex<Vec<f32>>>){
+        // create data structure
+        let data = Data{
+            f32_arrays: vec![source,destination],
+            f32_const: vec![]
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation{
+            buffer: data,
+            operation: Box::new(CopyF32),
+        })
+
     }
 }

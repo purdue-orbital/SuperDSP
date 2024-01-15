@@ -3,6 +3,8 @@ use num_complex::Complex;
 use rustfft::Fft;
 
 use crate::elements::element::Element;
+use crate::math::builder::WorkflowBuilder;
+use crate::math::objects::ElementParameter;
 use crate::ui::charts::builder::WindowBuilder;
 use crate::ui::charts::pixel_chart::PixelChart;
 
@@ -33,13 +35,15 @@ impl Element for WaterfallChart {
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }
 
-    fn run(&mut self, samples: &mut [Complex<f32>]) {
+    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
+
+    fn run(&mut self, samples: &ElementParameter) {
 
         // get chart
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 
         // make a copy (as fft is done in place)
-        let mut samples_clone: Vec<Complex<f32>> = samples.to_vec();
+        let mut samples_clone: Vec<Complex<f32>> = samples.get_complex_f32().to_vec();
 
         // fft
         self.fft.process(samples_clone.as_mut_slice());
@@ -63,5 +67,13 @@ impl Element for WaterfallChart {
 
             unwrapped.add(normalized,0,255 - normalized);
         }
+    }
+
+    fn halt(&self) -> bool {
+        true
+    }
+
+    fn is_source(&self) -> bool {
+        false
     }
 }

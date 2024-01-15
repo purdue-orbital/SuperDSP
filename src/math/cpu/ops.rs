@@ -1,5 +1,7 @@
 use std::sync::{Arc, Mutex, RwLock};
 
+
+#[derive(Clone)]
 pub struct Data{
     pub(crate) f32_arrays: Vec<Arc<Mutex<Vec<f32>>>>,
     pub(crate) f32_const: Vec<Arc<RwLock<f32>>>
@@ -85,6 +87,49 @@ impl CPUOperation for ModF32 {
 
         for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
             *x %= scalar;
+        }
+    }
+}
+
+pub struct AddF32;
+impl CPUOperation for AddF32{
+    fn run(&mut self, data: &mut Data) {
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let arr1 = binding.as_slice();
+
+        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let arr2 = binding.as_mut_slice();
+
+        // run
+        for (index,x) in arr2.iter_mut().enumerate(){
+            *x += arr1[index];
+        }
+    }
+}
+
+pub struct ScalarAddF32;
+impl CPUOperation for ScalarAddF32 {
+    fn run(&mut self, data: &mut Data) {
+        let scalar: f32 = *data.f32_const[0].read().unwrap();
+
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+            *x += scalar;
+        }
+    }
+}
+
+pub struct CopyF32;
+impl CPUOperation for CopyF32 {
+    fn run(&mut self, data: &mut Data) {
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let arr1 = binding.as_slice();
+
+        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let arr2 = binding.as_mut_slice();
+
+        // run
+        for (index,x) in arr2.iter_mut().enumerate(){
+            *x = arr1[index];
         }
     }
 }

@@ -102,9 +102,47 @@ impl ComplexF32{
         elem
     }
 
+    pub fn to_vec(&self) -> Vec<Complex<f32>>{
+        #[cfg(not(feature = "vulkan"))]
+        let i_array = self.real_comp_cpu.lock().unwrap();
+
+        #[cfg(not(feature = "vulkan"))]
+        let q_array = self.imag_comp_cpu.lock().unwrap();
+
+
+        #[cfg(feature = "vulkan")]
+            let i_array = self.real_comp_vulkan.read().unwrap();
+
+        #[cfg(feature = "vulkan")]
+            let q_array = self.imag_comp_vulkan.read().unwrap();
+
+        i_array.iter().enumerate().map(|(index,&val)| Complex::new(val,q_array[index])).collect()
+    }
+
+    #[cfg(not(feature = "vulkan"))]
+    pub fn set_imag_array_wrapped(&mut self, elem: &ElementParameter){
+        self.imag_comp_cpu = elem.get_f32_array_mut();
+    }
+
+    #[cfg(not(feature = "vulkan"))]
+    pub fn set_real_array_wrapped(&mut self, elem: &ElementParameter){
+        self.real_comp_cpu = elem.get_f32_array_mut();
+    }
+
+    #[cfg(feature = "vulkan")]
+    pub fn set_imag_array_wrapped(&mut self, elem: &ElementParameter){
+        self.imag_comp_vulkan = elem.get_buffer_f32_array();
+    }
+
+    #[cfg(feature = "vulkan")]
+    pub fn set_real_array_wrapped(&mut self, elem: &ElementParameter){
+        self.real_comp_vulkan = elem.get_buffer_f32_array();
+    }
+
 }
 
 
+#[derive(Clone)]
 pub enum ValueTypes{
     F32Array,
     F32,
@@ -112,6 +150,7 @@ pub enum ValueTypes{
 }
 
 /// This will dynamically switch between types
+#[derive(Clone)]
 pub struct ElementParameter {
     vtype: ValueTypes,
 
@@ -212,11 +251,12 @@ impl ElementParameter{
         self.f32_cpu = Some(Arc::new(RwLock::new(arr)));
     }
 
-    #[cfg(not(feature = "vulkan"))]
-    pub fn get_complex_f32(&mut self) -> ComplexF32 {
+    pub fn get_complex_f32(&self) -> ComplexF32 {
         self.complex_f32.clone().unwrap()
     }
-
+    pub fn set_complex_f32(&mut self, value: ComplexF32) {
+        self.complex_f32 = Some(value);
+    }
 
     #[cfg(feature = "vulkan")]
     pub fn set_f32(&mut self, arr: f32) {
