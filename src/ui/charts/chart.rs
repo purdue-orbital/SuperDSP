@@ -1,8 +1,8 @@
-use eframe::egui::Context;
+use eframe::egui::Ui;
 
-pub trait Chart: ChartClone{
+pub trait Chart: ChartClone + Send + Sync {
     /// This will update the chart each frame
-    fn update(&self, ctx: &Context);
+    fn update(&self, ui: &mut Ui);
 }
 
 pub trait ChartClone {

@@ -2,10 +2,8 @@
 //! taking digital samples from a radio or microphone and preforming sets of operations on those
 //! samples with a computer.
 
-pub mod common;
-pub mod filters;
 pub mod ecc;
-pub mod encoders;
-pub mod loops;
-pub mod components;
+#[cfg(feature = "ui")]
 pub mod ui;
+pub mod elements;
+pub mod math;
