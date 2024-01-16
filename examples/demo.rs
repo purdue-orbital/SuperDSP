@@ -30,17 +30,17 @@ fn main() {
         )
     );
 
-    // builder.add(
-    //     ConstellationChart::new(
-    //         sps * 100
-    //     )
-    // );
-    //
-    // builder.add(
-    //     WaterfallChart::new(
-    //         sps
-    //     )
-    // );
+    builder.add(
+        ConstellationChart::new(
+            sps * 100
+        )
+    );
+
+    builder.add(
+        WaterfallChart::new(
+            sps
+        )
+    );
 
 
     let mut pipeline = builder.build(sps);

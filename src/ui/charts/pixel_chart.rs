@@ -36,11 +36,17 @@ impl PixelChart {
 
 impl Chart for PixelChart {
     fn update(&self, ui: &mut Ui) {
-        let texture_options = TextureOptions::default();
-        let texture_id = ui.ctx().load_texture("test_img", ColorImage::from_rgb([self.width,self.height], self.pixel_array.read().unwrap().as_slices().0),texture_options);
 
-        ui.add(
-            Image::new(&texture_id).fit_to_exact_size(Vec2::new(1024.0,1024.0))
-        );
+        let binding = self.pixel_array.read().unwrap();
+        let arr = binding.as_slices().0;
+
+        if arr.len() == self.width * self.height * 3 {
+            let texture_options = TextureOptions::default();
+            let texture_id = ui.ctx().load_texture("test_img", ColorImage::from_rgb([self.width,self.height], arr),texture_options);
+
+            ui.add(
+                Image::new(&texture_id).fit_to_exact_size(Vec2::new(1024.0,1024.0))
+            );
+        }
     }
 }
