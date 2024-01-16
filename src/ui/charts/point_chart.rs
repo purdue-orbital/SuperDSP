@@ -2,7 +2,7 @@ use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
 
 use eframe::egui;
-use eframe::egui::{Context, Ui};
+use eframe::egui::{Context, Ui, Vec2b};
 use egui_plot::{Legend, Plot, Points};
 use num_complex::Complex;
 
@@ -36,7 +36,7 @@ impl Chart for PointChart {
     fn update(&self, ui: &mut Ui) {
         let plot = Plot::new("Point Chart").legend(Legend::default());
 
-        plot.auto_bounds_y().auto_bounds_x().allow_scroll(false).show(ui, |plot_ui| {
+        plot.auto_bounds(Vec2b::from([true, true])).allow_scroll(false).show(ui, |plot_ui| {
             plot_ui.points(Points::new(self.i_array.read().unwrap().iter().enumerate().map(|(index, val)| [self.q_array.read().unwrap()[index] as f64, *val as f64]).collect::<Vec<[f64; 2]>>()).name("I"));
         });
     }

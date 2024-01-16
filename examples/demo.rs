@@ -30,27 +30,23 @@ fn main() {
         )
     );
 
-    builder.add(
-        ConstellationChart::new(
-            sps * 100
-        )
-    );
+    // builder.add(
+    //     ConstellationChart::new(
+    //         sps * 100
+    //     )
+    // );
+    //
+    // builder.add(
+    //     WaterfallChart::new(
+    //         sps
+    //     )
+    // );
 
-    builder.add(
-        WaterfallChart::new(
-            sps
-        )
-    );
 
-
-    let (tx, rx, mut pipeline) = builder.build(sps);
+    let mut pipeline = builder.build(sps);
 
     spawn(move || {
-        let vec_complex = vec![Complex::new(0.0, 0.0); sps];
-
         loop {
-            tx.send(vec_complex.clone()).unwrap();
-
             sleep(Duration::from_secs_f32(sps as f32 / sample_rate));
         }
     });

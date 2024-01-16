@@ -1,10 +1,4 @@
-use std::sync::{Arc, mpsc, Mutex};
-use std::sync::mpsc::{Receiver, Sender};
-use std::thread::{sleep, spawn};
-use std::time::Duration;
-
-use num_complex::Complex;
-
+use std::thread::{spawn};
 use crate::elements::element::Element;
 use crate::math::prelude::*;
 
@@ -20,17 +14,12 @@ pub struct Pipeline {
     window: WindowBuilder,
 
     pipeline: Option<Vec<PipeSegment>>,
-
-    rx: Arc<Mutex<Receiver<Vec<Complex<f32>>>>>,
-    tx: Sender<Vec<Complex<f32>>>,
 }
 
 impl Pipeline {
     /// ***THIS WILL HALT THE THREAD AND IT MUST BE THE MAIN THREAD!*** This is because of a limitation set by egui
     pub fn run(&mut self) {
         let mut elements = self.pipeline.take();
-        let rx = self.rx.clone();
-        let tx = self.tx.clone();
 
         spawn(move || {
             loop {
@@ -73,7 +62,7 @@ pub struct PipelineBuilder {
     buffer: ElementParameter,
 
     #[cfg(feature = "ui")]
-    window_builder: WindowBuilder,
+    window_builder: Option<WindowBuilder>,
 }
 
 impl PipelineBuilder {
@@ -84,7 +73,7 @@ impl PipelineBuilder {
             buffer: ElementParameter::new_f32_array(&[0.0]),
 
             #[cfg(feature = "ui")]
-            window_builder: WindowBuilder::new(),
+            window_builder: Some(WindowBuilder::new()),
         }
     }
 
@@ -94,7 +83,7 @@ impl PipelineBuilder {
         element.init(&mut self.current_workflow, &mut self.buffer);
 
         #[cfg(feature = "ui")]
-        element.build_window(&mut self.window_builder);
+        element.build_window(&mut self.window_builder.as_mut().unwrap());
 
         // check if workflow halts
         if element.halt(){
@@ -121,25 +110,14 @@ impl PipelineBuilder {
     }
 
     /// This will setup pipeline to run creating a sender, receiver, and pipeline
-    pub fn build(&mut self, sps: usize) -> (Sender<Vec<Complex<f32>>>, Receiver<Vec<Complex<f32>>>, Pipeline) {
-        let (main_tx, thread_rx) = mpsc::channel();
-        let (thread_tx, main_rx) = mpsc::channel();
+    pub fn build(&mut self, sps: usize) ->  Pipeline {
 
-        // add last pipeline
-
-
-        let program = Pipeline {
+        Pipeline {
             sps,
 
             #[cfg(feature = "ui")]
-            window: WindowBuilder::new(),
+            window: self.window_builder.take().unwrap(),
             pipeline: Some(self.pipeline.take().unwrap()),
-
-            tx: thread_tx,
-            rx: Arc::new(Mutex::new(thread_rx)),
-        };
-
-
-        (main_tx, main_rx, program)
+        }
     }
 }
