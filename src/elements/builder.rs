@@ -1,14 +1,12 @@
-use std::thread::{spawn};
+use std::thread::spawn;
+
 use crate::elements::element::Element;
 use crate::math::prelude::*;
-
-
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
 
 pub struct Pipeline {
     sps: usize,
-
 
     #[cfg(feature = "ui")]
     window: WindowBuilder,
@@ -44,14 +42,13 @@ struct PipeSegment {
 }
 
 impl PipeSegment {
-    pub fn run(&mut self){
-        if self.element.is_some(){
+    pub fn run(&mut self) {
+        if self.element.is_some() {
             self.element.as_mut().unwrap().run(self.element_input.as_ref().unwrap());
-        }else {
+        } else {
             self.workflow.as_mut().unwrap().run()
         }
     }
-
 }
 
 pub struct PipelineBuilder {
@@ -86,12 +83,11 @@ impl PipelineBuilder {
         element.build_window(&mut self.window_builder.as_mut().unwrap());
 
         // check if workflow halts
-        if element.halt(){
+        if element.halt() {
 
             // if workflow halts, check if workflow has more than one operation
             if self.current_workflow.num_operations > 0 {
-
-                self.pipeline.as_mut().unwrap().push(PipeSegment{
+                self.pipeline.as_mut().unwrap().push(PipeSegment {
                     element: None,
                     element_input: None,
                     workflow: Some(self.current_workflow.build()),
@@ -101,7 +97,7 @@ impl PipelineBuilder {
             }
 
             // add element
-            self.pipeline.as_mut().unwrap().push(PipeSegment{
+            self.pipeline.as_mut().unwrap().push(PipeSegment {
                 element: Some(Box::new(element)),
                 element_input: Some(self.buffer.clone()),
                 workflow: None,
@@ -110,8 +106,7 @@ impl PipelineBuilder {
     }
 
     /// This will setup pipeline to run creating a sender, receiver, and pipeline
-    pub fn build(&mut self, sps: usize) ->  Pipeline {
-
+    pub fn build(&mut self, sps: usize) -> Pipeline {
         Pipeline {
             sps,
 

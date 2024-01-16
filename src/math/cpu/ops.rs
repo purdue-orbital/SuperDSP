@@ -1,21 +1,20 @@
 use std::sync::{Arc, Mutex, RwLock};
 
-
 #[derive(Clone)]
-pub struct Data{
+pub struct Data {
     pub(crate) f32_arrays: Vec<Arc<Mutex<Vec<f32>>>>,
-    pub(crate) f32_const: Vec<Arc<RwLock<f32>>>
+    pub(crate) f32_const: Vec<Arc<RwLock<f32>>>,
 }
 
-pub trait CPUOperation{
+pub trait CPUOperation {
     fn run(&mut self, data: &mut Data);
 }
 
 
 pub struct ElementwiseMultiplyF32;
-impl CPUOperation for ElementwiseMultiplyF32{
-    fn run(&mut self, data: &mut Data) {
 
+impl CPUOperation for ElementwiseMultiplyF32 {
+    fn run(&mut self, data: &mut Data) {
         let binding = data.f32_arrays[0].lock().unwrap();
         let arr1 = binding.as_slice();
 
@@ -23,16 +22,16 @@ impl CPUOperation for ElementwiseMultiplyF32{
         let arr2 = binding.as_mut_slice();
 
         // run
-        for (index,x) in arr2.iter_mut().enumerate(){
+        for (index, x) in arr2.iter_mut().enumerate() {
             *x *= arr1[index];
         }
     }
 }
 
 pub struct ConvolutionF32;
+
 impl CPUOperation for ConvolutionF32 {
     fn run(&mut self, data: &mut Data) {
-
         let binding = data.f32_arrays[0].lock().unwrap();
         let arr1 = binding.as_slice();
 
@@ -43,56 +42,61 @@ impl CPUOperation for ConvolutionF32 {
         let dest = binding.as_mut_slice();
 
         // run
-        for i in 0..arr1.len(){
-            for j in 0..arr2.len(){
-                dest[i+j] += arr1[i] * arr2[j];
+        for i in 0..arr1.len() {
+            for j in 0..arr2.len() {
+                dest[i + j] += arr1[i] * arr2[j];
             }
         }
     }
 }
 
 pub struct ScalarMultiplyF32;
+
 impl CPUOperation for ScalarMultiplyF32 {
     fn run(&mut self, data: &mut Data) {
         let scalar: f32 = *data.f32_const[0].read().unwrap();
 
-        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
             *x *= scalar;
         }
     }
 }
 
 pub struct SinF32;
+
 impl CPUOperation for SinF32 {
     fn run(&mut self, data: &mut Data) {
-        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
             *x = x.sin();
         }
     }
 }
 
 pub struct CosF32;
+
 impl CPUOperation for CosF32 {
     fn run(&mut self, data: &mut Data) {
-        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
             *x = x.cos();
         }
     }
 }
 
 pub struct ModF32;
+
 impl CPUOperation for ModF32 {
     fn run(&mut self, data: &mut Data) {
         let scalar = *data.f32_const[0].read().unwrap();
 
-        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
             *x %= scalar;
         }
     }
 }
 
 pub struct AddF32;
-impl CPUOperation for AddF32{
+
+impl CPUOperation for AddF32 {
     fn run(&mut self, data: &mut Data) {
         let binding = data.f32_arrays[0].lock().unwrap();
         let arr1 = binding.as_slice();
@@ -101,24 +105,26 @@ impl CPUOperation for AddF32{
         let arr2 = binding.as_mut_slice();
 
         // run
-        for (index,x) in arr2.iter_mut().enumerate(){
+        for (index, x) in arr2.iter_mut().enumerate() {
             *x += arr1[index];
         }
     }
 }
 
 pub struct ScalarAddF32;
+
 impl CPUOperation for ScalarAddF32 {
     fn run(&mut self, data: &mut Data) {
         let scalar: f32 = *data.f32_const[0].read().unwrap();
 
-        for x in data.f32_arrays[0].lock().unwrap().iter_mut(){
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
             *x += scalar;
         }
     }
 }
 
 pub struct CopyF32;
+
 impl CPUOperation for CopyF32 {
     fn run(&mut self, data: &mut Data) {
         let binding = data.f32_arrays[0].lock().unwrap();
@@ -128,7 +134,7 @@ impl CPUOperation for CopyF32 {
         let arr2 = binding.as_mut_slice();
 
         // run
-        for (index,x) in arr2.iter_mut().enumerate(){
+        for (index, x) in arr2.iter_mut().enumerate() {
             *x = arr1[index];
         }
     }

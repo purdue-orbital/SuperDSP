@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
+
 use eframe::egui::{ColorImage, Image, TextureOptions, Ui, Vec2};
 
 use crate::ui::charts::chart::Chart;
@@ -8,12 +9,12 @@ use crate::ui::charts::chart::Chart;
 pub struct PixelChart {
     pixel_array: Arc<RwLock<VecDeque<u8>>>,
 
-    width : usize,
-    height : usize,
+    width: usize,
+    height: usize,
 }
 
 impl PixelChart {
-    pub fn new(width: usize, height:usize) -> PixelChart {
+    pub fn new(width: usize, height: usize) -> PixelChart {
         PixelChart {
             pixel_array: Arc::new(RwLock::new(vec![0; width * height * 3].into())),
             width,
@@ -21,7 +22,7 @@ impl PixelChart {
         }
     }
 
-    pub fn add(&mut self, r:u8, g:u8, b:u8) {
+    pub fn add(&mut self, r: u8, g: u8, b: u8) {
         self.pixel_array.write().unwrap().pop_front();
         self.pixel_array.write().unwrap().pop_front();
         self.pixel_array.write().unwrap().pop_front();
@@ -36,16 +37,15 @@ impl PixelChart {
 
 impl Chart for PixelChart {
     fn update(&self, ui: &mut Ui) {
-
         let binding = self.pixel_array.read().unwrap();
         let arr = binding.as_slices().0;
 
         if arr.len() == self.width * self.height * 3 {
             let texture_options = TextureOptions::default();
-            let texture_id = ui.ctx().load_texture("test_img", ColorImage::from_rgb([self.width,self.height], arr),texture_options);
+            let texture_id = ui.ctx().load_texture("test_img", ColorImage::from_rgb([self.width, self.height], arr), texture_options);
 
             ui.add(
-                Image::new(&texture_id).fit_to_exact_size(Vec2::new(1024.0,1024.0))
+                Image::new(&texture_id).fit_to_exact_size(Vec2::new(1024.0, 1024.0))
             );
         }
     }

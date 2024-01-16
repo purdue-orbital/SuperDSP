@@ -1,4 +1,5 @@
 use std::sync::Arc;
+
 use num_complex::Complex;
 use rustfft::Fft;
 
@@ -23,7 +24,7 @@ impl WaterfallChart {
         WaterfallChart {
             boxed_chart: None,
             len,
-            fft
+            fft,
         }
     }
 }
@@ -52,7 +53,7 @@ impl Element for WaterfallChart {
         let mut k = samples_clone.len() >> 1;
 
         // preform fft shift
-        if samples_clone.len() % 2 == 1{
+        if samples_clone.len() % 2 == 1 {
             k += 1
         }
 
@@ -65,7 +66,7 @@ impl Element for WaterfallChart {
             // we only need the real component as the imaginary component is just phase data
             let normalized = (((x.norm_sqr().sqrt()) / self.len as f32) * 255.0) as u8;
 
-            unwrapped.add(normalized,0,255 - normalized);
+            unwrapped.add(normalized, 0, 255 - normalized);
         }
     }
 

@@ -1,9 +1,8 @@
 use rustdsp::math::vulkan::Vulkan;
 
 fn main() {
-
-    let arr1 = vec![1.0,2.0,3.0];
-    let arr2 = vec![0.0,1.0,0.5];
+    let arr1 = vec![1.0, 2.0, 3.0];
+    let arr2 = vec![0.0, 1.0, 0.5];
 
     let var1 = 0.0_f32;
 
@@ -15,9 +14,9 @@ fn main() {
 
     let mut builder = v.create_command_builder();
 
-    let out = builder.convolution_f32(buffer1.clone(),buffer2.clone());
+    let out = builder.convolution_f32(buffer1.clone(), buffer2.clone());
 
-    builder.scalar_multiply_f32(out.clone(),g_var1);
+    builder.scalar_multiply_f32(out.clone(), g_var1);
 
     let built = builder.build();
 

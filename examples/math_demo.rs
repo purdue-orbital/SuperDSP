@@ -1,9 +1,9 @@
 use rustdsp::math::prelude::*;
 
 fn main() {
-    let test1 = vec![1.0,2.0,3.0];
-    let test2 = vec![0.0,1.0,0.5];
-    let test3 = vec![1.0;4];
+    let test1 = vec![1.0, 2.0, 3.0];
+    let test2 = vec![0.0, 1.0, 0.5];
+    let test3 = vec![1.0; 4];
     let test4 = 8.0;
     let test5 = 3.0;
 

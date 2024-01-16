@@ -15,7 +15,6 @@ impl WindowBuilder {
     }
 
     pub fn add_chart<T: Chart + 'static>(&mut self, chart: T) -> Box<T> {
-
         let b = Box::new(chart);
 
         self.charts.push(b.clone_box());

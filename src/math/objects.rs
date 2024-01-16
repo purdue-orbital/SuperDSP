@@ -1,19 +1,16 @@
 #[cfg(not(feature = "vulkan"))]
 use std::sync::{Arc, Mutex, RwLock};
 
+use num_complex::Complex;
 #[cfg(feature = "vulkan")]
 use vulkano::buffer::Subbuffer;
 
 #[cfg(feature = "vulkan")]
 use crate::math::builder::VULKAN;
-
-
-use num_complex::Complex;
 use crate::math::objects::ValueTypes::{F32, F32Array};
 
 #[derive(Clone)]
-pub struct ComplexF32{
-
+pub struct ComplexF32 {
     #[cfg(not(feature = "vulkan"))]
     real_comp_cpu: Arc<Mutex<Vec<f32>>>,
 
@@ -27,11 +24,11 @@ pub struct ComplexF32{
     imag_comp_vulkan: Subbuffer<[f32]>,
 }
 
-impl ComplexF32{
-    pub fn new(arr: Vec<Complex<f32>>) -> Self{
+impl ComplexF32 {
+    pub fn new(arr: Vec<Complex<f32>>) -> Self {
         // split array into two arrays
-        let real_arr:Vec<f32> = arr.iter().map(|&val| val.re).collect();
-        let imag_arr:Vec<f32> = arr.iter().map(|&val| val.im).collect();
+        let real_arr: Vec<f32> = arr.iter().map(|&val| val.re).collect();
+        let imag_arr: Vec<f32> = arr.iter().map(|&val| val.im).collect();
 
         // convert to proper intermediate
         #[cfg(feature = "vulkan")]
@@ -45,7 +42,7 @@ impl ComplexF32{
         #[cfg(not(feature = "vulkan"))]
             let imag_comp_cpu = Arc::new(Mutex::new(imag_arr));
 
-        ComplexF32{
+        ComplexF32 {
             #[cfg(feature = "vulkan")]
             real_comp_vulkan,
             #[cfg(feature = "vulkan")]
@@ -55,14 +52,13 @@ impl ComplexF32{
             real_comp_cpu,
 
             #[cfg(not(feature = "vulkan"))]
-            imag_comp_cpu
+            imag_comp_cpu,
         }
     }
 
-    pub fn get_imag_array_wrapped(&self) -> ElementParameter{
-
+    pub fn get_imag_array_wrapped(&self) -> ElementParameter {
         #[cfg(not(feature = "vulkan"))]
-            let elem = ElementParameter{
+            let elem = ElementParameter {
             vtype: F32,
             f32_array_cpu: Some(self.imag_comp_cpu.clone()),
             f32_cpu: None,
@@ -71,7 +67,7 @@ impl ComplexF32{
 
 
         #[cfg(feature = "vulkan")]
-            let elem = ElementParameter{
+            let elem = ElementParameter {
             vtype: F32,
             complex_f32: None,
             f32_array_vulkan: Some(self.imag_comp_vulkan.clone()),
@@ -80,10 +76,9 @@ impl ComplexF32{
 
         elem
     }
-    pub fn get_real_array_wrapped(&self) -> ElementParameter{
-
+    pub fn get_real_array_wrapped(&self) -> ElementParameter {
         #[cfg(not(feature = "vulkan"))]
-            let elem = ElementParameter{
+            let elem = ElementParameter {
             vtype: F32,
             f32_array_cpu: Some(self.real_comp_cpu.clone()),
             f32_cpu: None,
@@ -92,7 +87,7 @@ impl ComplexF32{
 
 
         #[cfg(feature = "vulkan")]
-            let elem = ElementParameter{
+            let elem = ElementParameter {
             vtype: F32,
             complex_f32: None,
             f32_array_vulkan: Some(self.real_comp_vulkan.clone()),
@@ -102,12 +97,12 @@ impl ComplexF32{
         elem
     }
 
-    pub fn to_vec(&self) -> Vec<Complex<f32>>{
+    pub fn to_vec(&self) -> Vec<Complex<f32>> {
         #[cfg(not(feature = "vulkan"))]
-        let i_array = self.real_comp_cpu.lock().unwrap();
+            let i_array = self.real_comp_cpu.lock().unwrap();
 
         #[cfg(not(feature = "vulkan"))]
-        let q_array = self.imag_comp_cpu.lock().unwrap();
+            let q_array = self.imag_comp_cpu.lock().unwrap();
 
 
         #[cfg(feature = "vulkan")]
@@ -116,37 +111,36 @@ impl ComplexF32{
         #[cfg(feature = "vulkan")]
             let q_array = self.imag_comp_vulkan.read().unwrap();
 
-        i_array.iter().enumerate().map(|(index,&val)| Complex::new(val,q_array[index])).collect()
+        i_array.iter().enumerate().map(|(index, &val)| Complex::new(val, q_array[index])).collect()
     }
 
     #[cfg(not(feature = "vulkan"))]
-    pub fn set_imag_array_wrapped(&mut self, elem: &ElementParameter){
+    pub fn set_imag_array_wrapped(&mut self, elem: &ElementParameter) {
         self.imag_comp_cpu = elem.get_f32_array_mut();
     }
 
     #[cfg(not(feature = "vulkan"))]
-    pub fn set_real_array_wrapped(&mut self, elem: &ElementParameter){
+    pub fn set_real_array_wrapped(&mut self, elem: &ElementParameter) {
         self.real_comp_cpu = elem.get_f32_array_mut();
     }
 
     #[cfg(feature = "vulkan")]
-    pub fn set_imag_array_wrapped(&mut self, elem: &ElementParameter){
+    pub fn set_imag_array_wrapped(&mut self, elem: &ElementParameter) {
         self.imag_comp_vulkan = elem.get_buffer_f32_array();
     }
 
     #[cfg(feature = "vulkan")]
-    pub fn set_real_array_wrapped(&mut self, elem: &ElementParameter){
+    pub fn set_real_array_wrapped(&mut self, elem: &ElementParameter) {
         self.real_comp_vulkan = elem.get_buffer_f32_array();
     }
-
 }
 
 
 #[derive(Clone)]
-pub enum ValueTypes{
+pub enum ValueTypes {
     F32Array,
     F32,
-    F32Complex
+    F32Complex,
 }
 
 /// This will dynamically switch between types
@@ -166,12 +160,12 @@ pub struct ElementParameter {
     pub(crate) f32_array_vulkan: Option<Subbuffer<[f32]>>,
 
     #[cfg(feature = "vulkan")]
-    f32_vulkan: Option<Subbuffer<f32>>
+    f32_vulkan: Option<Subbuffer<f32>>,
 }
 
-impl ElementParameter{
+impl ElementParameter {
     pub fn new_f32_array(arr: &[f32]) -> ElementParameter {
-        let mut new = ElementParameter{
+        let mut new = ElementParameter {
             vtype: F32Array,
 
             #[cfg(not(feature = "vulkan"))]
@@ -195,7 +189,7 @@ impl ElementParameter{
     }
 
     pub fn new_f32(arr: f32) -> ElementParameter {
-        let mut new = ElementParameter{
+        let mut new = ElementParameter {
             vtype: F32,
 
             #[cfg(not(feature = "vulkan"))]
@@ -219,7 +213,6 @@ impl ElementParameter{
     }
 
     pub fn get_f32_array(&self) -> Vec<f32> {
-
         #[cfg(not(feature = "vulkan"))]
             let arr = self.f32_array_cpu.as_ref().unwrap().lock().unwrap().to_vec();
 
@@ -265,13 +258,13 @@ impl ElementParameter{
     }
 
     #[cfg(feature = "vulkan")]
-    pub fn get_buffer_f32_array(&self) -> Subbuffer<[f32]>{
+    pub fn get_buffer_f32_array(&self) -> Subbuffer<[f32]> {
         self.f32_array_vulkan.clone().unwrap()
     }
 
 
     #[cfg(feature = "vulkan")]
-    pub fn get_buffer_f32(&self) -> Subbuffer<f32>{
+    pub fn get_buffer_f32(&self) -> Subbuffer<f32> {
         self.f32_vulkan.clone().unwrap()
     }
 

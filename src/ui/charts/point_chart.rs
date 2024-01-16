@@ -1,8 +1,7 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
 
-use eframe::egui;
-use eframe::egui::{Context, Ui, Vec2b};
+use eframe::egui::{Ui, Vec2b};
 use egui_plot::{Legend, Plot, Points};
 use num_complex::Complex;
 

@@ -1,8 +1,6 @@
 use std::thread::{sleep, spawn};
 use std::time::Duration;
 
-use num_complex::Complex;
-
 use rustdsp::elements::builder::PipelineBuilder;
 use rustdsp::elements::constellation_chart::ConstellationChart;
 use rustdsp::elements::signal_generator::SignalGenerator;

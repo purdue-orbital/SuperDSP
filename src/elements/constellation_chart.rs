@@ -1,5 +1,3 @@
-use num_complex::Complex;
-
 use crate::elements::element::Element;
 use crate::math::builder::WorkflowBuilder;
 use crate::math::objects::ElementParameter;

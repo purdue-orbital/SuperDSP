@@ -160,6 +160,7 @@ pub mod compute_shaders {
                 ",
         }
     }
+
     pub mod scalar_add_f32 {
         vulkano_shaders::shader! {
                 ty: "compute",
@@ -182,6 +183,7 @@ pub mod compute_shaders {
                 ",
         }
     }
+
     pub mod copy_f32 {
         vulkano_shaders::shader! {
                 ty: "compute",
@@ -204,7 +206,6 @@ pub mod compute_shaders {
                 ",
         }
     }
-
 }
 
 
