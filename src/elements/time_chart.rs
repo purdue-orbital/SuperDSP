@@ -1,3 +1,5 @@
+use std::thread::sleep;
+use std::time::Duration;
 use crate::elements::element::Element;
 use crate::math::builder::WorkflowBuilder;
 use crate::math::objects::ElementParameter;
@@ -30,6 +32,7 @@ impl Element for TimeChart {
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
 
     fn run(&mut self, samples: &ElementParameter) {
+
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 
         for x in samples.get_complex_f32().to_vec().iter() {

@@ -1,10 +1,5 @@
-use std::f32::consts::PI;
-
-use num_complex::Complex;
-
 use crate::elements::element::Element;
 use crate::elements::parts::nco::add_nco;
-use crate::math::objects::ComplexF32;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;

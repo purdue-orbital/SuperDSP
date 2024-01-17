@@ -49,7 +49,7 @@ pub fn add_nco(builder: &mut WorkflowBuilder, sps:usize, sample_rate:f32, freque
     // multiply phi with 2 PI
     builder.scalar_multiply_f32(&scratch, &pi_2);
 
-    // copy scratch space to i and q array
+    // copy scratch space into i and q array
     builder.copy_f32(&scratch, &i_array);
     builder.copy_f32(&scratch, &q_array);
 
@@ -61,7 +61,7 @@ pub fn add_nco(builder: &mut WorkflowBuilder, sps:usize, sample_rate:f32, freque
     builder.scalar_add_f32(&time, &step_size);
 
     // mod phi to prevent value explosion
-    builder.mod_f32(&time, &ElementParameter::new_f32(2.0 * PI));
+    builder.mod_f32(&time, &ElementParameter::new_f32(sample_rate));
 
     to_return
 }
