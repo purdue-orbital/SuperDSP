@@ -1,4 +1,6 @@
 use std::sync::Arc;
+use std::thread::sleep;
+use std::time::Duration;
 
 use num_complex::Complex;
 use rustfft::Fft;
@@ -39,7 +41,6 @@ impl Element for WaterfallChart {
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
 
     fn run(&mut self, samples: &ElementParameter) {
-
         // get chart
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 

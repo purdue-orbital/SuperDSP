@@ -139,3 +139,23 @@ impl CPUOperation for CopyF32 {
         }
     }
 }
+
+pub struct FetchF32;
+
+impl CPUOperation for FetchF32 {
+    fn run(&mut self, data: &mut Data) {
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let src = binding.as_slice();
+
+        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let indexes = binding.as_mut_slice();
+
+        let mut binding = data.f32_arrays[2].lock().unwrap();
+        let dest = binding.as_mut_slice();
+
+        // run
+        for (index, x) in dest.iter_mut().enumerate() {
+            *x = src[indexes[index] as usize];
+        }
+    }
+}

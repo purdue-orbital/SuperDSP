@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex, RwLock};
 
-use crate::math::cpu::ops::{AddF32, ConvolutionF32, CopyF32, CosF32, CPUOperation, Data, ElementwiseMultiplyF32, ModF32, ScalarAddF32, ScalarMultiplyF32, SinF32};
+use crate::math::cpu::ops::{AddF32, ConvolutionF32, CopyF32, CosF32, CPUOperation, Data, ElementwiseMultiplyF32, ModF32, ScalarAddF32, ScalarMultiplyF32, SinF32, FetchF32};
 
 mod ops;
 
@@ -163,6 +163,20 @@ impl CPUCommandBuilder {
         self.operations.as_mut().unwrap().push(BoxedCPUOperation {
             buffer: data,
             operation: Box::new(CopyF32),
+        })
+    }
+
+    pub fn fetch_f32(&mut self, source: Arc<Mutex<Vec<f32>>>, indexes: Arc<Mutex<Vec<f32>>>, destination: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![source, indexes, destination],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(FetchF32),
         })
     }
 }

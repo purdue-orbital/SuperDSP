@@ -1,5 +1,9 @@
+use std::f32::consts::PI;
+use num_complex::Complex;
 use crate::elements::element::Element;
 use crate::elements::parts::nco::add_nco;
+use crate::elements::parts::wave_generators::wave_generator_complex_time_banked;
+use crate::math::objects::ComplexF32;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
@@ -16,13 +20,11 @@ impl Element for SignalGenerator {
     fn build_window(&mut self, win_builder: &mut WindowBuilder) {}
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
-        // signal generator doesn't need frequency adjustment (in terms of error)
-        let error_0 = ElementParameter::new_f32(0.0);
+        // create wave generator
+        let arr = wave_generator_complex_time_banked(builder,self.sample_rate,self.frequency,self.sps);
 
-        // signal generator is a lot like a NCO so we reuse those components
-        let arr = add_nco(builder,self.sps,self.sample_rate,self.frequency, &error_0);
-
-        samples.set_complex_f32(arr);
+        // set output as the out of the wave generator
+        samples.set_complex_f32(arr)
     }
 
     fn run(&mut self, samples: &ElementParameter) {}

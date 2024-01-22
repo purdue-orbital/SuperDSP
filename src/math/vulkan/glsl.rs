@@ -192,11 +192,11 @@ pub mod compute_shaders {
 
                     layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-                    layout(set = 0, binding = 0) buffer Scalar {
+                    layout(set = 0, binding = 0) buffer Source {
                         float data[];
                     } src;
 
-                    layout(set = 1, binding = 1) buffer Source {
+                    layout(set = 1, binding = 1) buffer Dest {
                         float data[];
                     } dest;
 
@@ -205,6 +205,34 @@ pub mod compute_shaders {
                     }
                 ",
         }
+    }
+
+    pub mod fetch_f32{
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer Source {
+                        float data[];
+                    } src;
+
+                    layout(set = 1, binding = 1) buffer Indexes {
+                        float data[];
+                    } indexes;
+
+                    layout(set = 2, binding = 2) buffer Dest {
+                        float data[];
+                    } dest;
+
+                    void main() {
+                        dest.data[gl_GlobalInvocationID.x] = src.data[int(indexes.data[gl_GlobalInvocationID.x])];
+                    }
+                ",
+        }
+
     }
 }
 

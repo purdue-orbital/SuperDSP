@@ -118,6 +118,11 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 
         increment_ops(self);
     }
+    fn fetch_f32(&mut self, src: &ElementParameter, indexes: &ElementParameter, dest: &ElementParameter) {
+        self.cpu_builder.fetch_f32(src.get_f32_array_mut(),indexes.get_f32_array_mut(),dest.get_f32_array_mut());
+
+        increment_ops(self);
+    }
 }
 
 
@@ -213,6 +218,12 @@ impl PlatformSpecificOperations for WorkflowBuilder {
     }
     fn copy_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
         self.vulkan_builder.copy_f32(src.get_buffer_f32_array(), dest.get_buffer_f32_array());
+
+        increment_ops(self);
+    }
+
+    fn fetch_f32(&mut self, src: &ElementParameter, indexes: &ElementParameter, dest: &ElementParameter) {
+        self.vulkan_builder.fetch_f32(src.get_buffer_f32_array(),indexes.get_buffer_f32_array(),dest.get_buffer_f32_array());
 
         increment_ops(self);
     }

@@ -80,6 +80,8 @@ impl Default for Vulkan {
         let add_f32 = glsl::compute_shaders::add_f32::load(device.clone()).expect("Failed to compile add shaders!");
         let s_add_f32 = glsl::compute_shaders::scalar_add_f32::load(device.clone()).expect("Failed to compile scalar add shaders!");
         let copy = glsl::compute_shaders::copy_f32::load(device.clone()).expect("Failed to compile copy shaders!");
+        let fetch_f32 = glsl::compute_shaders::fetch_f32::load(device.clone()).expect("Failed to compile fetch shaders!");
+
 
         // create hash map
         let mut compute_shaders = HashMap::default();
@@ -93,6 +95,7 @@ impl Default for Vulkan {
         compute_shaders.insert("add".to_string(), add_f32);
         compute_shaders.insert("s add".to_string(), s_add_f32);
         compute_shaders.insert("copy".to_string(), copy);
+        compute_shaders.insert("fetch".to_string(), fetch_f32);
 
         // We save these variables so we can execute operations on them later
         Vulkan {
@@ -356,6 +359,18 @@ impl VulkanCommandBuilder {
 
         let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
         let arr = [descriptor_set_source, descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
+    pub fn fetch_f32(&mut self, source: Subbuffer<[f32]>, indexes: Subbuffer<[f32]>, destination: Subbuffer<[f32]>) {
+        let pipeline = self.stage_pipeline("fetch");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source);
+        let descriptor_set_indexes = self.set_layout_array(pipeline.clone(), 1, 1, indexes.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(), 2, 2, destination);
+
+        let work_group_counts = [indexes.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source, descriptor_set_indexes, descriptor_set_destination];
 
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
