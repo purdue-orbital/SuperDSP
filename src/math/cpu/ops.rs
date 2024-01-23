@@ -168,7 +168,7 @@ impl CPUOperation for DFTF32 {
         let binding = data.f32_arrays[0].lock().unwrap();
         let i_src = binding.as_slice();
 
-        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let binding = data.f32_arrays[1].lock().unwrap();
         let q_src = binding.as_slice();
 
         let mut binding = data.f32_arrays[2].lock().unwrap();
@@ -177,15 +177,14 @@ impl CPUOperation for DFTF32 {
         let mut binding = data.f32_arrays[3].lock().unwrap();
         let q_dest = binding.as_mut_slice();
 
-        let N = i_dest.len();
+        let len = i_dest.len();
 
         // run
-        for k in 0..N {
-
+        for k in 0..len {
             let mut phi: f32 = 0.0;
-            let scalar = -2.0 * PI * (k as f32 / N as f32);
+            let scalar = -2.0 * PI * (k as f32 / len as f32);
 
-            for n in 0..N{
+            for n in 0..len {
                 // Set i value
                 i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
                 q_dest[k] += i_src[n] * phi.sin() + q_src[n] * phi.cos();

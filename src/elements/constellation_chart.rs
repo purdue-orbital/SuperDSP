@@ -27,7 +27,7 @@ impl Element for ConstellationChart {
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }
 
-    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
+    fn init(&mut self, _builder: &mut WorkflowBuilder, _samples: &mut ElementParameter) {}
 
     fn run(&mut self, samples: &ElementParameter) {
         let unwrapped = self.boxed_chart.as_mut().unwrap();

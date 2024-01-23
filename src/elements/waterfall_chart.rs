@@ -1,4 +1,3 @@
-use std::sync::Arc;
 use num_complex::Complex;
 
 use crate::elements::element::Element;
@@ -19,7 +18,7 @@ impl WaterfallChart {
         WaterfallChart {
             boxed_chart: None,
             len,
-            arr: ComplexF32::new(vec![Complex::new(0.0,0.0);len])
+            arr: ComplexF32::new(vec![Complex::new(0.0, 0.0); len]),
         }
     }
 }
@@ -37,7 +36,7 @@ impl Element for WaterfallChart {
         let i_arr = complex.get_real_array_wrapped();
         let q_arr = complex.get_imag_array_wrapped();
 
-        let zero_arr = ComplexF32::new(vec![Complex::new(0.0,0.0);self.len]);
+        let zero_arr = ComplexF32::new(vec![Complex::new(0.0, 0.0); self.len]);
         let i_zero = zero_arr.get_real_array_wrapped();
         let q_zero = zero_arr.get_imag_array_wrapped();
 
@@ -45,14 +44,14 @@ impl Element for WaterfallChart {
         let q_out = self.arr.get_imag_array_wrapped();
 
         // reset
-        builder.copy_f32(&i_zero,&i_out);
-        builder.copy_f32(&q_zero,&q_out);
+        builder.copy_f32(&i_zero, &i_out);
+        builder.copy_f32(&q_zero, &q_out);
 
         // preform fft
-        builder.dft_f32(&i_arr,&q_arr,&i_out,&q_out);
+        builder.dft_f32(&i_arr, &q_arr, &i_out, &q_out);
     }
 
-    fn run(&mut self, samples: &ElementParameter) {
+    fn run(&mut self, _samples: &ElementParameter) {
         let mut fft_bins: Vec<Complex<f32>> = self.arr.to_vec();
 
         // divide by 2

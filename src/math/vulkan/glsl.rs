@@ -207,7 +207,7 @@ pub mod compute_shaders {
         }
     }
 
-    pub mod fetch_f32{
+    pub mod fetch_f32 {
         vulkano_shaders::shader! {
                 ty: "compute",
                 src: r"
@@ -234,7 +234,7 @@ pub mod compute_shaders {
         }
     }
 
-    pub mod dft_f32{
+    pub mod dft_f32 {
         vulkano_shaders::shader! {
                 ty: "compute",
                 src: r"

@@ -119,13 +119,13 @@ impl PlatformSpecificOperations for WorkflowBuilder {
         increment_ops(self);
     }
     fn fetch_f32(&mut self, src: &ElementParameter, indexes: &ElementParameter, dest: &ElementParameter) {
-        self.cpu_builder.fetch_f32(src.get_f32_array_mut(),indexes.get_f32_array_mut(),dest.get_f32_array_mut());
+        self.cpu_builder.fetch_f32(src.get_f32_array_mut(), indexes.get_f32_array_mut(), dest.get_f32_array_mut());
 
         increment_ops(self);
     }
     fn dft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
-        self.cpu_builder.dft_f32(i_src.get_f32_array_mut(),q_src.get_f32_array_mut(),i_dest.get_f32_array_mut(),q_dest.get_f32_array_mut());
-        
+        self.cpu_builder.dft_f32(i_src.get_f32_array_mut(), q_src.get_f32_array_mut(), i_dest.get_f32_array_mut(), q_dest.get_f32_array_mut());
+
         increment_ops(self);
     }
 }
@@ -228,13 +228,13 @@ impl PlatformSpecificOperations for WorkflowBuilder {
     }
 
     fn fetch_f32(&mut self, src: &ElementParameter, indexes: &ElementParameter, dest: &ElementParameter) {
-        self.vulkan_builder.fetch_f32(src.get_buffer_f32_array(),indexes.get_buffer_f32_array(),dest.get_buffer_f32_array());
+        self.vulkan_builder.fetch_f32(src.get_buffer_f32_array(), indexes.get_buffer_f32_array(), dest.get_buffer_f32_array());
 
         increment_ops(self);
     }
 
     fn dft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
-        self.vulkan_builder.dft_f32(i_src.get_buffer_f32_array(),q_src.get_buffer_f32_array(),i_dest.get_buffer_f32_array(),q_dest.get_buffer_f32_array());
+        self.vulkan_builder.dft_f32(i_src.get_buffer_f32_array(), q_src.get_buffer_f32_array(), i_dest.get_buffer_f32_array(), q_dest.get_buffer_f32_array());
 
         increment_ops(self);
     }

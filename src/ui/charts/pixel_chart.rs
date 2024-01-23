@@ -48,6 +48,5 @@ impl Chart for PixelChart {
         ui.add(
             Image::new(&texture_id).fit_to_exact_size(Vec2::new(1024.0, 1024.0))
         );
-
     }
 }

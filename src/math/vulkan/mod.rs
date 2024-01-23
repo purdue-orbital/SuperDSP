@@ -159,7 +159,6 @@ impl Vulkan {
 
 /// This is a wrapper struct around the Vulkan CommandBuffer used to make vulkan compute pipelines
 pub struct VulkanCommandBuilder {
-    command_buffer_allocator: StandardCommandBufferAllocator,
     builder: Option<AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>>,
     compute_shaders: HashMap<String, Arc<ShaderModule>>,
     device: Arc<Device>,
@@ -180,7 +179,6 @@ impl VulkanCommandBuilder {
         ).unwrap();
 
         VulkanCommandBuilder {
-            command_buffer_allocator,
             builder: Some(builder),
             compute_shaders,
             device: device.clone(),
@@ -377,7 +375,7 @@ impl VulkanCommandBuilder {
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
 
-    pub fn dft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>){
+    pub fn dft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>) {
         let pipeline = self.stage_pipeline("dft");
         let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_source.clone());
         let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_source);

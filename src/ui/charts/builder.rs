@@ -31,6 +31,6 @@ impl WindowBuilder {
             frame.add(x.clone_box())
         }
 
-        eframe::run_native("test", native_options, Box::new(|cc| Box::new(frame.create(cc)))).unwrap();
+        eframe::run_native("test", native_options, Box::new(|_cc| Box::new(frame.create()))).unwrap();
     }
 }

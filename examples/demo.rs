@@ -41,7 +41,7 @@ fn main() {
     );
 
 
-    let mut pipeline = builder.build(sps);
+    let mut pipeline = builder.build();
 
     spawn(move || {
         loop {

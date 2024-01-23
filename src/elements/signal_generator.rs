@@ -13,17 +13,17 @@ pub struct SignalGenerator {
 
 impl Element for SignalGenerator {
     #[cfg(feature = "ui")]
-    fn build_window(&mut self, win_builder: &mut WindowBuilder) {}
+    fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
         // create wave generator
-        let arr = wave_generator_complex_time_banked(builder,self.sample_rate,self.frequency,self.sps);
+        let arr = wave_generator_complex_time_banked(builder, self.sample_rate, self.frequency, self.sps);
 
         // set output as the out of the wave generator
         samples.set_complex_f32(arr)
     }
 
-    fn run(&mut self, samples: &ElementParameter) {}
+    fn run(&mut self, _samples: &ElementParameter) {}
 
     fn halt(&self) -> bool {
         false
@@ -39,7 +39,7 @@ impl SignalGenerator {
         SignalGenerator {
             sps,
             sample_rate,
-            frequency
+            frequency,
         }
     }
 }

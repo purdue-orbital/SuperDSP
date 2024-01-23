@@ -27,10 +27,9 @@ impl Element for TimeChart {
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }
 
-    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
+    fn init(&mut self, _builder: &mut WorkflowBuilder, _samples: &mut ElementParameter) {}
 
     fn run(&mut self, samples: &ElementParameter) {
-
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 
         for x in samples.get_complex_f32().to_vec().iter() {

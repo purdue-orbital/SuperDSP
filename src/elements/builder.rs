@@ -6,8 +6,6 @@ use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 
 pub struct Pipeline {
-    sps: usize,
-
     #[cfg(feature = "ui")]
     window: WindowBuilder,
 
@@ -106,10 +104,8 @@ impl PipelineBuilder {
     }
 
     /// This will setup pipeline to run creating a sender, receiver, and pipeline
-    pub fn build(&mut self, sps: usize) -> Pipeline {
+    pub fn build(&mut self) -> Pipeline {
         Pipeline {
-            sps,
-
             #[cfg(feature = "ui")]
             window: self.window_builder.take().unwrap(),
             pipeline: Some(self.pipeline.take().unwrap()),
