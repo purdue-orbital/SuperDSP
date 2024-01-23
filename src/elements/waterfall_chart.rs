@@ -1,8 +1,5 @@
 use std::sync::Arc;
-use std::thread::sleep;
-use std::time::Duration;
 use num_complex::Complex;
-use rustfft::Fft;
 
 use crate::elements::element::Element;
 use crate::math::builder::WorkflowBuilder;
@@ -14,19 +11,14 @@ use crate::ui::charts::pixel_chart::PixelChart;
 pub struct WaterfallChart {
     boxed_chart: Option<Box<PixelChart>>,
     len: usize,
-    fft: Arc<dyn Fft<f32>>,
     arr: ComplexF32,
 }
 
 impl WaterfallChart {
     pub fn new(len: usize) -> WaterfallChart {
-        let mut planner = rustfft::FftPlanner::new();
-        let fft = planner.plan_fft_forward(len);
-
         WaterfallChart {
             boxed_chart: None,
             len,
-            fft,
             arr: ComplexF32::new(vec![Complex::new(0.0,0.0);len])
         }
     }
