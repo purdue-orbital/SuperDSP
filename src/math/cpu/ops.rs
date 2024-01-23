@@ -1,3 +1,4 @@
+use std::f32::consts::PI;
 use std::sync::{Arc, Mutex, RwLock};
 
 #[derive(Clone)]
@@ -168,7 +169,7 @@ impl CPUOperation for DFTF32 {
         let i_src = binding.as_slice();
 
         let mut binding = data.f32_arrays[1].lock().unwrap();
-        let q_src = binding.as_mut_slice();
+        let q_src = binding.as_slice();
 
         let mut binding = data.f32_arrays[2].lock().unwrap();
         let i_dest = binding.as_mut_slice();
@@ -176,20 +177,20 @@ impl CPUOperation for DFTF32 {
         let mut binding = data.f32_arrays[3].lock().unwrap();
         let q_dest = binding.as_mut_slice();
 
-
+        let N = i_dest.len();
 
         // run
-        for (index, x) in dest.iter_mut().enumerate() {
+        for k in 0..N {
 
-            let phi = 0;
-            let step = 2.0 * M_PI * (index as f32 / i_src.len() as f32);
+            let mut phi: f32 = 0.0;
+            let scalar = -2.0 * PI * (k as f32 / N as f32);
 
-            for y in {
+            for n in 0..N{
                 // Set i value
-                i_dest[index] += i_src[index] * cos(phi) - q_src[index] * sin(phi);
-                q_dest[index] += i_src[index] * sin(phi) + q_src[index] * cos(phi);
+                i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
+                q_dest[k] += i_src[n] * phi.sin() + q_src[n] * phi.cos();
 
-                phi += step;
+                phi = scalar * n as f32;
             }
         }
     }

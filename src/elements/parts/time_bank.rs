@@ -5,7 +5,7 @@ use crate::math::prelude::*;
 
 /// This generates a time bank at a frequency which is saved instances of at what time a sample is
 /// generated. This saves a lot of time if you are only generating signal without any changes
-pub fn time_bank(sample_rate:f32, frequency:f32, sps:usize) -> ComplexF32{
+pub fn time_bank(sample_rate:f32, frequency:f32) -> ComplexF32{
     // create time banks
     let mut i_bank = vec![0.0;2 * sample_rate as usize];
     let mut q_bank = vec![0.0;2 * sample_rate as usize];

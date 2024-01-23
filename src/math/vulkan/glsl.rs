@@ -261,16 +261,16 @@ pub mod compute_shaders {
                     } q_dest;
 
                     void main() {
-                        float step = 2 * M_PI * (gl_GlobalInvocationID.x / i_src.data.length());
+                        float step = -2 * M_PI * (float(gl_GlobalInvocationID.x) / float(i_src.data.length()));
                         float phi = 0;
                         uint thread = gl_GlobalInvocationID.x;
 
                         for (int i = 0; i < i_src.data.length(); i++){
+                            phi = step * i;
+
                             // Set i value
                             i_dest.data[thread] += i_src.data[thread] * cos(phi) - q_src.data[thread] * sin(phi);
                             q_dest.data[thread] += i_src.data[thread] * sin(phi) + q_src.data[thread] * cos(phi);
-
-                            phi += step;
                         }
                     }
                 ",

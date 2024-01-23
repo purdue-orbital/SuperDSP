@@ -8,7 +8,7 @@ use crate::math::prelude::*;
 pub fn wave_generator_complex_time_banked(builder:&mut WorkflowBuilder, sample_rate:f32,frequency:f32,sps:usize) -> ComplexF32{
     
     // produce a time bank
-    let bank = time_bank(sample_rate,frequency,sps);
+    let bank = time_bank(sample_rate,frequency);
     
     // extract time banks
     let i_bank = bank.get_real_array_wrapped();
@@ -20,7 +20,6 @@ pub fn wave_generator_complex_time_banked(builder:&mut WorkflowBuilder, sample_r
     for x in 0..sps{
         indexes[x] = x as f32
     }
-    
 
     // move indexes to ram
     let ram_indexes = ElementParameter::new_f32_array(indexes.as_slice());
