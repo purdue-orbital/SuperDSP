@@ -1,6 +1,7 @@
 use num_complex::Complex;
 
 use crate::elements::element::Element;
+use crate::elements::parts::dft::dft;
 use crate::math::builder::WorkflowBuilder;
 use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
@@ -31,24 +32,7 @@ impl Element for WaterfallChart {
     }
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
-        let complex = samples.get_complex_f32();
-
-        let i_arr = complex.get_real_array_wrapped();
-        let q_arr = complex.get_imag_array_wrapped();
-
-        let zero_arr = ComplexF32::new(vec![Complex::new(0.0, 0.0); self.len]);
-        let i_zero = zero_arr.get_real_array_wrapped();
-        let q_zero = zero_arr.get_imag_array_wrapped();
-
-        let i_out = self.arr.get_real_array_wrapped();
-        let q_out = self.arr.get_imag_array_wrapped();
-
-        // reset
-        builder.copy_f32(&i_zero, &i_out);
-        builder.copy_f32(&q_zero, &q_out);
-
-        // preform fft
-        builder.dft_f32(&i_arr, &q_arr, &i_out, &q_out);
+        dft(builder, &samples.get_complex_f32(), &self.arr, self.len);
     }
 
     fn run(&mut self, _samples: &ElementParameter) {
