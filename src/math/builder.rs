@@ -1,17 +1,18 @@
 #[cfg(feature = "vulkan")]
 use std::sync::Arc;
-
 #[cfg(feature = "vulkan")]
 use lazy_static::lazy_static;
 #[cfg(feature = "vulkan")]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
+#[cfg(feature = "vulkan")]
+use crate::math::vulkan::{Vulkan, VulkanCommandBuilder};
 
 #[cfg(not(feature = "vulkan"))]
 use crate::math::cpu::{CPUCommandBuilder, CPUPipeline};
+
 use crate::math::objects::ElementParameter;
 use crate::math::traits::PlatformSpecificOperations;
-#[cfg(feature = "vulkan")]
-use crate::math::vulkan::{Vulkan, VulkanCommandBuilder};
+
 
 /// this will increment the number of operations by one in this workflow
 fn increment_ops(builder: &mut WorkflowBuilder) {
@@ -128,6 +129,12 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 
         increment_ops(self);
     }
+
+    fn idft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
+        self.cpu_builder.idft_f32(i_src.get_f32_array_mut(), q_src.get_f32_array_mut(), i_dest.get_f32_array_mut(), q_dest.get_f32_array_mut());
+
+        increment_ops(self);
+    }
 }
 
 
@@ -235,6 +242,11 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 
     fn dft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
         self.vulkan_builder.dft_f32(i_src.get_buffer_f32_array(), q_src.get_buffer_f32_array(), i_dest.get_buffer_f32_array(), q_dest.get_buffer_f32_array());
+
+        increment_ops(self);
+    }
+    fn idft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
+        self.vulkan_builder.idft_f32(i_src.get_buffer_f32_array(), q_src.get_buffer_f32_array(), i_dest.get_buffer_f32_array(), q_dest.get_buffer_f32_array());
 
         increment_ops(self);
     }

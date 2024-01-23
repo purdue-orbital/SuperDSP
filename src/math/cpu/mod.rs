@@ -1,6 +1,6 @@
 use std::sync::{Arc, Mutex, RwLock};
 
-use crate::math::cpu::ops::{AddF32, ConvolutionF32, CopyF32, CosF32, CPUOperation, Data, DFTF32, ElementwiseMultiplyF32, FetchF32, ModF32, ScalarAddF32, ScalarMultiplyF32, SinF32};
+use crate::math::cpu::ops::*;
 
 mod ops;
 
@@ -191,6 +191,20 @@ impl CPUCommandBuilder {
         self.operations.as_mut().unwrap().push(BoxedCPUOperation {
             buffer: data,
             operation: Box::new(DFTF32),
+        })
+    }
+
+    pub fn idft_f32(&mut self, i_source: Arc<Mutex<Vec<f32>>>, q_source: Arc<Mutex<Vec<f32>>>, i_dest: Arc<Mutex<Vec<f32>>>, q_dest: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![i_source, q_source, i_dest, q_dest],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(IDFTF32),
         })
     }
 }

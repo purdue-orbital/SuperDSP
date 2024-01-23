@@ -14,4 +14,5 @@ pub trait PlatformSpecificOperations {
     fn copy_f32(&mut self, src: &ElementParameter, dest: &ElementParameter);
     fn fetch_f32(&mut self, src: &ElementParameter, indexes: &ElementParameter, dest: &ElementParameter);
     fn dft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter);
+    fn idft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter);
 }
