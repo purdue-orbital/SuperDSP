@@ -159,3 +159,38 @@ impl CPUOperation for FetchF32 {
         }
     }
 }
+
+pub struct DFTF32;
+
+impl CPUOperation for DFTF32 {
+    fn run(&mut self, data: &mut Data) {
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let i_src = binding.as_slice();
+
+        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let q_src = binding.as_mut_slice();
+
+        let mut binding = data.f32_arrays[2].lock().unwrap();
+        let i_dest = binding.as_mut_slice();
+
+        let mut binding = data.f32_arrays[3].lock().unwrap();
+        let q_dest = binding.as_mut_slice();
+
+
+
+        // run
+        for (index, x) in dest.iter_mut().enumerate() {
+
+            let phi = 0;
+            let step = 2.0 * M_PI * (index as f32 / i_src.len() as f32);
+
+            for y in {
+                // Set i value
+                i_dest[index] += i_src[index] * cos(phi) - q_src[index] * sin(phi);
+                q_dest[index] += i_src[index] * sin(phi) + q_src[index] * cos(phi);
+
+                phi += step;
+            }
+        }
+    }
+}

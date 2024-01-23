@@ -232,7 +232,49 @@ pub mod compute_shaders {
                     }
                 ",
         }
+    }
 
+    pub mod dft_f32{
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    #define M_PI 3.1415926535897932384626433832795
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer I_Source {
+                        float data[];
+                    } i_src;
+
+                    layout(set = 1, binding = 1) buffer Q_Source {
+                        float data[];
+                    } q_src;
+
+                    layout(set = 2, binding = 2) buffer I_Dest {
+                        float data[];
+                    } i_dest;
+
+                    layout(set = 3, binding = 3) buffer Q_Dest {
+                        float data[];
+                    } q_dest;
+
+                    void main() {
+                        float step = 2 * M_PI * (gl_GlobalInvocationID.x / i_src.data.length());
+                        float phi = 0;
+                        uint thread = gl_GlobalInvocationID.x;
+
+                        for (int i = 0; i < i_src.data.length(); i++){
+                            // Set i value
+                            i_dest.data[thread] += i_src.data[thread] * cos(phi) - q_src.data[thread] * sin(phi);
+                            q_dest.data[thread] += i_src.data[thread] * sin(phi) + q_src.data[thread] * cos(phi);
+
+                            phi += step;
+                        }
+                    }
+                ",
+        }
     }
 }
 

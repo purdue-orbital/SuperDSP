@@ -179,4 +179,8 @@ impl CPUCommandBuilder {
             operation: Box::new(FetchF32),
         })
     }
+
+    pub fn dft_f32(&mut self, i_source: Arc<Mutex<Vec<f32>>>, q_source: Arc<Mutex<Vec<f32>>>, i_dest: Arc<Mutex<Vec<f32>>>, q_dest: Arc<Mutex<Vec<f32>>>){
+
+    }
 }

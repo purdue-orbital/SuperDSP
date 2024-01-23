@@ -81,6 +81,7 @@ impl Default for Vulkan {
         let s_add_f32 = glsl::compute_shaders::scalar_add_f32::load(device.clone()).expect("Failed to compile scalar add shaders!");
         let copy = glsl::compute_shaders::copy_f32::load(device.clone()).expect("Failed to compile copy shaders!");
         let fetch_f32 = glsl::compute_shaders::fetch_f32::load(device.clone()).expect("Failed to compile fetch shaders!");
+        let dft = glsl::compute_shaders::dft_f32::load(device.clone()).expect("Failed to compile dft shaders!");
 
 
         // create hash map
@@ -96,6 +97,7 @@ impl Default for Vulkan {
         compute_shaders.insert("s add".to_string(), s_add_f32);
         compute_shaders.insert("copy".to_string(), copy);
         compute_shaders.insert("fetch".to_string(), fetch_f32);
+        compute_shaders.insert("dft".to_string(), dft);
 
         // We save these variables so we can execute operations on them later
         Vulkan {
@@ -371,6 +373,19 @@ impl VulkanCommandBuilder {
 
         let work_group_counts = [indexes.read().unwrap().len() as u32, 1, 1];
         let arr = [descriptor_set_source, descriptor_set_indexes, descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
+    pub fn dft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>){
+        let pipeline = self.stage_pipeline("dft");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_source.clone());
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_source);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_dest);
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
+
+        let work_group_counts = [i_source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination];
 
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
