@@ -8,5 +8,4 @@ pub mod constellation_chart;
 
 #[cfg(feature = "ui")]
 pub mod waterfall_chart;
-mod macros;
-//mod merger_element;
+pub mod macros;

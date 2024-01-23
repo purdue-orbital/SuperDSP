@@ -177,21 +177,24 @@ impl CPUOperation for DFTF32 {
         let mut binding = data.f32_arrays[3].lock().unwrap();
         let q_dest = binding.as_mut_slice();
 
-        let len = i_dest.len();
+        let len = i_src.len();
+        let mut phi: f32 = 0.0;
 
         // run
         for k in 0..len {
-            let mut phi: f32 = 0.0;
-            let scalar = -2.0 * PI * (k as f32 / len as f32);
-
+            i_dest[k] = 0.0;
+            q_dest[k] = 0.0;
             for n in 0..len {
+                phi = (2.0 * PI * k as f32  * n as f32) / len as f32;
+
                 // Set i value
                 i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
                 q_dest[k] += i_src[n] * phi.sin() + q_src[n] * phi.cos();
-
-                phi = scalar * n as f32;
             }
+            dbg!("test 4.1");
         }
+
+        dbg!("test 4.2");
     }
 }
 
@@ -199,6 +202,7 @@ pub struct IDFTF32;
 
 impl CPUOperation for IDFTF32 {
     fn run(&mut self, data: &mut Data) {
+
         let binding = data.f32_arrays[0].lock().unwrap();
         let i_src = binding.as_slice();
 
@@ -211,23 +215,26 @@ impl CPUOperation for IDFTF32 {
         let mut binding = data.f32_arrays[3].lock().unwrap();
         let q_dest = binding.as_mut_slice();
 
-        let len = i_dest.len();
+        let len = i_src.len();
+
+        let mut phi: f32 = 0.0;
 
         // run
-        for k in 0..len {
-            let mut phi: f32 = 0.0;
-            let scalar = 2.0 * PI * (k as f32 / len as f32);
+        for n in 0..len {
 
-            for n in 0..len {
+            i_dest[n] = 0.0;
+            q_dest[n] = 0.0;
+
+            for k in 0..len {
+                phi = (2.0 * PI * k as f32 * n as f32) / len as f32;
+
                 // Set i value
-                i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
-                q_dest[k] += i_src[n] * phi.sin() + q_src[n] * phi.cos();
-
-                phi = scalar * n as f32;
+                i_dest[n] += (i_src[k] * phi.cos()) - (q_src[n] * phi.sin());
+                q_dest[n] += (i_src[k] * phi.sin()) + (q_src[n] * phi.cos());
             }
 
-            i_dest[k] /= len as f32;
-            q_dest[k] /= len as f32;
+            i_dest[n] /= len as f32;
+            q_dest[n] /= len as f32;
         }
     }
 }

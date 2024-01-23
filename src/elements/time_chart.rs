@@ -1,6 +1,5 @@
 use crate::elements::element::Element;
-use crate::math::builder::WorkflowBuilder;
-use crate::math::objects::ElementParameter;
+use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 use crate::ui::charts::line_chart::LineChart;
 
