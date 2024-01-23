@@ -1,7 +1,7 @@
 use num_complex::Complex;
 
 use crate::elements::element::Element;
-use crate::elements::parts::dft::dft;
+use crate::elements::macros::dft::dft;
 use crate::math::builder::WorkflowBuilder;
 use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
