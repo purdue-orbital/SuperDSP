@@ -103,7 +103,7 @@ impl PipelineBuilder {
         }
     }
 
-    /// This will setup pipeline to run creating a sender, receiver, and pipeline
+    /// This will set up pipeline to run creating a sender, receiver, and pipeline
     pub fn build(&mut self) -> Pipeline {
         Pipeline {
             #[cfg(feature = "ui")]

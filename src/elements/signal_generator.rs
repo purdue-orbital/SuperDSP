@@ -1,3 +1,5 @@
+use std::thread::sleep;
+use std::time::Duration;
 use crate::elements::element::Element;
 use crate::elements::macros::wave_generators::wave_generator_complex_time_banked;
 use crate::math::prelude::*;
@@ -9,6 +11,7 @@ pub struct SignalGenerator {
     sps: usize,
     sample_rate: f32,
     frequency: f32,
+    time_delay: f32,
 }
 
 impl Element for SignalGenerator {
@@ -23,10 +26,12 @@ impl Element for SignalGenerator {
         samples.set_complex_f32(arr)
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {}
+    fn run(&mut self, _samples: &ElementParameter) {
+        sleep(Duration::from_secs_f32(self.time_delay))
+    }
 
     fn halt(&self) -> bool {
-        false
+        true
     }
 
     fn is_source(&self) -> bool {
@@ -36,10 +41,12 @@ impl Element for SignalGenerator {
 
 impl SignalGenerator {
     pub fn new(frequency: f32, sample_rate: f32, sps: usize) -> SignalGenerator {
+
         SignalGenerator {
             sps,
             sample_rate,
             frequency,
+            time_delay: sps as f32 / sample_rate,
         }
     }
 }

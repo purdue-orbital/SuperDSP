@@ -9,8 +9,8 @@ use rustdsp::elements::waterfall_chart::WaterfallChart;
 
 fn main() {
     let sps = 10;
-    let sample_rate = 1e3;
-    let frequency = 0.5;
+    let sample_rate = 100e3;
+    let frequency = 10.0;
 
     let mut builder = PipelineBuilder::new();
 
