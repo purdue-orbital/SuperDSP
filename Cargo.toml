@@ -20,3 +20,10 @@ vulkan = ["dep:vulkano", "dep:bytemuck", "dep:vulkano-shaders"]
 
 # User interface feature
 ui = ["dep:eframe", "dep:egui_extras", "dep:egui_plot"]
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "dft"
+harness = false

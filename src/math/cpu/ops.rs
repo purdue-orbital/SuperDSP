@@ -178,14 +178,19 @@ impl CPUOperation for DFTF32 {
         let q_dest = binding.as_mut_slice();
 
         let len = i_src.len();
+
+        let step_save = (2.0 * PI) / len as f32;
+        let mut step = 0.0;
+
         let mut phi: f32 = 0.0;
 
         // run
         for k in 0..len {
             i_dest[k] = 0.0;
             q_dest[k] = 0.0;
+            step = step_save * k as f32;
             for n in 0..len {
-                phi = (2.0 * PI * k as f32  * n as f32) / len as f32;
+                phi = step * n as f32;
 
                 // Set i value
                 i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
