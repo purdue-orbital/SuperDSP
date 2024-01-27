@@ -261,16 +261,23 @@ pub mod compute_shaders {
                     } q_dest;
 
                     void main() {
-                        float step = -2 * M_PI * (float(gl_GlobalInvocationID.x) / float(i_src.data.length()));
-                        float phi = 0;
-                        uint thread = gl_GlobalInvocationID.x;
 
-                        for (int i = 0; i < i_src.data.length(); i++){
-                            phi = step * i;
+                        uint len = i_src.data.length();
+
+                        uint k = gl_GlobalInvocationID.x;
+                        float phi = 0;
+                        float step = (-2.0 * M_PI * k) / len;
+
+                        i_dest.data[k] = 0;
+                        q_dest.data[k] = 0;
+
+
+                        for (int n = 0; n < len; n++){
+                            phi = step * n;
 
                             // Set i value
-                            i_dest.data[thread] += i_src.data[thread] * cos(phi) - q_src.data[thread] * sin(phi);
-                            q_dest.data[thread] += i_src.data[thread] * sin(phi) + q_src.data[thread] * cos(phi);
+                            i_dest.data[k] += i_src.data[n] * cos(phi) - q_src.data[n] * sin(phi);
+                            q_dest.data[k] += i_src.data[n] * sin(phi) + q_src.data[n] * cos(phi);
                         }
                     }
                 ",
@@ -303,20 +310,27 @@ pub mod compute_shaders {
                     } q_dest;
 
                     void main() {
-                        float step = 2 * M_PI * (float(gl_GlobalInvocationID.x) / float(i_src.data.length()));
-                        float phi = 0;
-                        uint thread = gl_GlobalInvocationID.x;
+                        uint len = i_src.data.length();
 
-                        for (int i = 0; i < i_src.data.length(); i++){
-                            phi = step * i;
+                        uint n = gl_GlobalInvocationID.x;
+                        float phi = 0;
+                        float step = (2.0 * M_PI * n) / len;
+
+                        i_dest.data[n] = 0;
+                        q_dest.data[n] = 0;
+
+
+                        for (int k = 0; k < len; k++){
+                            phi = step * k;
+
 
                             // Set i value
-                            i_dest.data[thread] += i_src.data[thread] * cos(phi) - q_src.data[thread] * sin(phi);
-                            q_dest.data[thread] += i_src.data[thread] * sin(phi) + q_src.data[thread] * cos(phi);
+                            i_dest.data[n] += i_src.data[k] * cos(phi) - q_src.data[n] * sin(phi);
+                            q_dest.data[n] += i_src.data[k] * sin(phi) + q_src.data[n] * cos(phi);
                         }
                         
-                        i_dest.data[thread] /= float(i_src.data.length());
-                        q_dest.data[thread] /= float(i_src.data.length());
+                        i_dest.data[n] /= float(len);
+                        q_dest.data[n] /= float(len);
                     }
                 ",
         }

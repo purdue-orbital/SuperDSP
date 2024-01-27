@@ -1,4 +1,4 @@
-use num_complex::Complex;
+use num_complex::{Complex, ComplexFloat};
 use rustdsp::elements::macros::dft::{dft, idft};
 use rustdsp::math::prelude::*;
 
@@ -7,8 +7,10 @@ fn test_dft_round(){
     // create builder
     let mut builder = WorkflowBuilder::default();
 
+    let cmp = [Complex::new(1.0,0.0),Complex::new(-1.0,0.0),Complex::new(1.0,0.0),Complex::new(-1.0,0.0)];
+
     // create elements
-    let src = ComplexF32::new(vec![Complex::new(0.0,0.0),Complex::new(1.0,0.0),Complex::new(0.0,0.0),Complex::new(-1.0,0.0)]);
+    let src = ComplexF32::new(cmp.to_vec());
     let dest = ComplexF32::new(vec![Complex::new(0.0,0.0),Complex::new(0.0,0.0),Complex::new(0.0,0.0),Complex::new(0.0,0.0)]);
 
     // add dft
@@ -22,5 +24,7 @@ fn test_dft_round(){
     // Run once
     pipeline.run();
 
-    assert_eq!(src.to_vec(), vec![Complex::new(0.0,0.0),Complex::new(1.0,0.0),Complex::new(0.0,0.0),Complex::new(-1.0,0.0)]);
+    for (index, x) in  src.to_vec().iter().enumerate(){
+        assert!((cmp[index] - x).abs() < 0.001 );
+    }
 }

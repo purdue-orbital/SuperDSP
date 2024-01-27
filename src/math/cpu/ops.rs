@@ -191,10 +191,7 @@ impl CPUOperation for DFTF32 {
                 i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
                 q_dest[k] += i_src[n] * phi.sin() + q_src[n] * phi.cos();
             }
-            dbg!("test 4.1");
         }
-
-        dbg!("test 4.2");
     }
 }
 

@@ -32,7 +32,7 @@ impl Element for WaterfallChart {
     }
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
-        dft(builder, &samples.get_complex_f32(), &self.arr, self.len);
+        dft(builder, &samples.get_complex_f32(), &self.arr);
     }
 
     fn run(&mut self, _samples: &ElementParameter) {
