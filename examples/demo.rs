@@ -8,9 +8,9 @@ use rustdsp::elements::time_chart::TimeChart;
 use rustdsp::elements::waterfall_chart::WaterfallChart;
 
 fn main() {
-    let sps = 10;
+    let sps = 1024;
     let sample_rate = 100e3;
-    let frequency = 10.0;
+    let frequency = 40e3;
 
     let mut builder = PipelineBuilder::new();
 

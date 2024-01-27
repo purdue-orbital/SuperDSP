@@ -176,21 +176,16 @@ impl CPUOperation for DFTF32 {
 
         let mut binding = data.f32_arrays[3].lock().unwrap();
         let q_dest = binding.as_mut_slice();
-
         let len = i_src.len();
-
-        let step_save = (2.0 * PI) / len as f32;
-        let mut step = 0.0;
-
-        let mut phi: f32 = 0.0;
+        let step_save = (-2.0 * PI) / len as f32;
 
         // run
         for k in 0..len {
             i_dest[k] = 0.0;
             q_dest[k] = 0.0;
-            step = step_save * k as f32;
+            let step = step_save * k as f32;
             for n in 0..len {
-                phi = step * n as f32;
+                let phi = step * n as f32;
 
                 // Set i value
                 i_dest[k] += i_src[n] * phi.cos() - q_src[n] * phi.sin();
@@ -219,7 +214,7 @@ impl CPUOperation for IDFTF32 {
 
         let len = i_src.len();
 
-        let mut phi: f32 = 0.0;
+        let pi_2: f32 = (2.0 * PI) / len as f32;
 
         // run
         for n in 0..len {
@@ -228,7 +223,7 @@ impl CPUOperation for IDFTF32 {
             q_dest[n] = 0.0;
 
             for k in 0..len {
-                phi = (2.0 * PI * k as f32 * n as f32) / len as f32;
+                let phi = pi_2 * n as f32 * k as f32;
 
                 // Set i value
                 i_dest[n] += (i_src[k] * phi.cos()) - (q_src[n] * phi.sin());

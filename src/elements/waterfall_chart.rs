@@ -1,7 +1,7 @@
 use num_complex::Complex;
 
 use crate::elements::element::Element;
-use crate::elements::macros::dft::dft;
+use crate::elements::macros::dft::{dft, fft_shift};
 use crate::math::builder::WorkflowBuilder;
 use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
@@ -33,23 +33,12 @@ impl Element for WaterfallChart {
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
         dft(builder, &samples.get_complex_f32(), &self.arr);
+        fft_shift(builder, &self.arr);
     }
 
     fn run(&mut self, _samples: &ElementParameter) {
-        let mut fft_bins: Vec<Complex<f32>> = self.arr.to_vec();
-
-        // divide by 2
-        let mut k = fft_bins.len() >> 1;
-
-        // preform fft shift
-        if fft_bins.len() % 2 == 1 {
-            k += 1
-        }
-
-        fft_bins.rotate_right(k);
-
         // send fft to pixel chart
-        for x in fft_bins {
+        for x in self.arr.to_vec() {
 
             // we only need the real component as the imaginary component is just phase data
             let normalized = (((x.norm_sqr().sqrt()) / self.len as f32) * 255.0) as u8;

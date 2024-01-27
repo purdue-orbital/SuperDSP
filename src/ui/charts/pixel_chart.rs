@@ -1,6 +1,5 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
-
 use eframe::egui::{ColorImage, Image, TextureOptions, Ui, Vec2};
 
 use crate::ui::charts::chart::Chart;
@@ -8,7 +7,6 @@ use crate::ui::charts::chart::Chart;
 #[derive(Clone)]
 pub struct PixelChart {
     pixel_array: Arc<RwLock<VecDeque<u8>>>,
-
     width: usize,
     height: usize,
 }
@@ -32,14 +30,14 @@ impl PixelChart {
         arr.push_back(r);
         arr.push_back(g);
         arr.push_back(b);
-
-        arr.make_contiguous();
     }
 }
 
 impl Chart for PixelChart {
     fn update(&self, ui: &mut Ui) {
-        let binding = self.pixel_array.read().unwrap();
+
+        let binding = self.pixel_array.read().unwrap().clone();
+
         let arr = binding.as_slices().0;
 
         let texture_options = TextureOptions::default();
