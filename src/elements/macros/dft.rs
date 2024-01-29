@@ -1,6 +1,6 @@
 use crate::math::prelude::*;
 
-/// This will preform dft on a input array and send it to the output array
+/// This will preform dft on an input array and send it to the output array
 pub fn dft(builder: &mut WorkflowBuilder, samples:&ComplexF32, out: &ComplexF32){
     let i_arr = samples.get_real_array_wrapped();
     let q_arr = samples.get_imag_array_wrapped();

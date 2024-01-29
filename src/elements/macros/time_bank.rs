@@ -11,9 +11,16 @@ pub fn time_bank(sample_rate: f32, frequency: f32) -> ComplexF32 {
     let mut i_bank = vec![0.0; 2 * sample_rate as usize];
     let mut q_bank = vec![0.0; 2 * sample_rate as usize];
 
+    // this adds a frequency shift for negative frequencies
+    let offset = if frequency < 0.0{
+        PI
+    }else {
+        0.0
+    };
+
     for x in 0..((2.0 * sample_rate) as usize) {
         i_bank[x] = (2.0 * PI * (x as f32 / sample_rate) * frequency).cos();
-        q_bank[x] = (2.0 * PI * (x as f32 / sample_rate) * frequency).sin();
+        q_bank[x] = (2.0 * PI * (x as f32 / sample_rate) * frequency + offset).sin();
     }
 
     // move time banks to ram
