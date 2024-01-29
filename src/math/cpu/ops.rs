@@ -226,8 +226,8 @@ impl CPUOperation for IDFTF32 {
                 let phi = pi_2 * n as f32 * k as f32;
 
                 // Set i value
-                i_dest[n] += (i_src[k] * phi.cos()) - (q_src[n] * phi.sin());
-                q_dest[n] += (i_src[k] * phi.sin()) + (q_src[n] * phi.cos());
+                i_dest[n] += (i_src[k] * phi.cos()) - (q_src[k] * phi.sin());
+                q_dest[n] += (i_src[k] * phi.sin()) + (q_src[k] * phi.cos());
             }
 
             i_dest[n] /= len as f32;

@@ -37,13 +37,10 @@ impl Element for WaterfallChart {
     }
 
     fn run(&mut self, _samples: &ElementParameter) {
-        // send fft to pixel chart
+        // send dft to pixel chart
         for x in self.arr.to_vec() {
-
-
-
             // we only need the real component as the imaginary component is just phase data
-            let normalized = (( x.norm_sqr().sqrt() / self.len as f32) * 255.0) as u8;
+            let normalized = ((x.norm_sqr().sqrt() / self.len as f32) * 255.0) as u8;
 
             self.boxed_chart.as_mut().unwrap().add(normalized, 0, 255 - normalized);
         }

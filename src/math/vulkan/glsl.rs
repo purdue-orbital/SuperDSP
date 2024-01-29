@@ -325,8 +325,8 @@ pub mod compute_shaders {
 
 
                             // Set i value
-                            i_dest.data[n] += i_src.data[k] * cos(phi) - q_src.data[n] * sin(phi);
-                            q_dest.data[n] += i_src.data[k] * sin(phi) + q_src.data[n] * cos(phi);
+                            i_dest.data[n] += i_src.data[k] * cos(phi) - q_src.data[k] * sin(phi);
+                            q_dest.data[n] += i_src.data[k] * sin(phi) + q_src.data[k] * cos(phi);
                         }
                         
                         i_dest.data[n] /= float(len);
