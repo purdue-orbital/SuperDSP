@@ -40,6 +40,8 @@ impl Element for WaterfallChart {
         // send fft to pixel chart
         for x in self.arr.to_vec() {
 
+
+
             // we only need the real component as the imaginary component is just phase data
             let normalized = (( x.norm_sqr().sqrt() / self.len as f32) * 255.0) as u8;
 
