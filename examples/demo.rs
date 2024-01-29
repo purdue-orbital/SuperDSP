@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use rustdsp::elements::builder::PipelineBuilder;
 use rustdsp::elements::constellation_chart::ConstellationChart;
+use rustdsp::elements::lpf::LPF;
 use rustdsp::elements::signal_adder::SignalAdder;
 use rustdsp::elements::signal_generator::SignalGenerator;
 use rustdsp::elements::time_chart::TimeChart;
@@ -50,12 +51,16 @@ fn main() {
         )
     );
 
+    builder.add(
+      LPF::new(30e3,sample_rate,0.1)
+    );
 
     builder.add(
         TimeChart::new(
             1000
         )
     );
+
 
 
     let mut pipeline = builder.build();

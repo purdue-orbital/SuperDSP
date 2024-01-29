@@ -10,3 +10,5 @@ pub mod constellation_chart;
 pub mod waterfall_chart;
 pub mod macros;
 pub mod signal_adder;
+pub mod lpf;
+pub mod hpf;
