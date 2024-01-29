@@ -3,6 +3,7 @@ use std::time::Duration;
 
 use rustdsp::elements::builder::PipelineBuilder;
 use rustdsp::elements::constellation_chart::ConstellationChart;
+use rustdsp::elements::signal_adder::SignalAdder;
 use rustdsp::elements::signal_generator::SignalGenerator;
 use rustdsp::elements::time_chart::TimeChart;
 use rustdsp::elements::waterfall_chart::WaterfallChart;
@@ -10,21 +11,30 @@ use rustdsp::elements::waterfall_chart::WaterfallChart;
 fn main() {
     let sps = 1024;
     let sample_rate = 100e3;
-    let frequency = 20e3;
+    let frequency1 = 40e3;
+    let frequency2 = 1e3;
 
     let mut builder = PipelineBuilder::new();
 
     builder.add(
         SignalGenerator::new(
-            frequency,
+            frequency1,
             sample_rate,
             sps,
         )
     );
 
     builder.add(
+        SignalAdder::new(
+            frequency2,
+            sample_rate,
+            sps
+        )
+    );
+
+    builder.add(
         TimeChart::new(
-            (sample_rate / frequency) as usize
+            1000
         )
     );
 
@@ -37,6 +47,13 @@ fn main() {
     builder.add(
         WaterfallChart::new(
             sps
+        )
+    );
+
+
+    builder.add(
+        TimeChart::new(
+            1000
         )
     );
 
