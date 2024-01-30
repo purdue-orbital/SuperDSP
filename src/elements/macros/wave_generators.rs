@@ -37,14 +37,14 @@ pub fn wave_generator_complex_time_banked(builder: &mut WorkflowBuilder, sample_
     let to_return_q = to_return.get_imag_array_wrapped();
 
     // get time banks
-    builder.fetch_f32(&i_bank, &ram_indexes, &to_return_i);
+    builder.fetch_f32(&i_bank, &ram_indexes, &to_return_i); // get indicies from bank, fill up the to_return with data
     builder.fetch_f32(&q_bank, &ram_indexes, &to_return_q);
 
     // increment time
-    builder.scalar_add_f32(&ram_indexes, &step);
+    builder.scalar_add_f32(&ram_indexes, &step); // add the timestep to each value in the ram indicies array
 
     // mod time
-    builder.mod_f32(&ram_indexes, &max);
+    builder.mod_f32(&ram_indexes, &max); // modulate the indicies so we dont go too far past (errors)
 
     to_return
 }
