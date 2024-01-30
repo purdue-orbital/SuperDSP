@@ -12,3 +12,4 @@ pub mod macros;
 pub mod signal_adder;
 pub mod lpf;
 pub mod hpf;
+pub mod bpf;

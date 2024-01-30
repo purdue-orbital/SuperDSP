@@ -2,7 +2,7 @@ use std::thread::{sleep, spawn};
 use std::time::Duration;
 use rustdsp::elements::builder::{PipelineBuilder, Pipeline};
 use rustdsp::elements::lpf::LPF;
-use rustdsp::elements::hpf::HPF;
+use rustdsp::elements::bpf::BPF;
 
 use rustdsp::elements::constellation_chart::ConstellationChart;
 use rustdsp::elements::signal_adder::SignalAdder;
@@ -26,9 +26,7 @@ fn main() {
     builder.add(signal_3);
 
     builder.add(WaterfallChart::new(sps));
-    builder.add(HPF::new(50.0, sample_rate, 5.0)); // rolloff is the slope of the filter so it doesnt go down straight
-    builder.add(WaterfallChart::new(sps));
-    builder.add(LPF::new(50.0, sample_rate, 5.0)); // rolloff is the slope of the filter so it doesnt go down straight
+    builder.add(BPF::new(sample_rate, 1.0, 45.0, 55.0));
     builder.add(WaterfallChart::new(sps));
     
 

@@ -15,34 +15,5 @@ fn main() {
 
     let mut builder = PipelineBuilder::new();
 
-    builder.add(
-        SignalGenerator::new(
-            frequency,
-            sample_rate,
-            sps,
-        )
-    );
-
-    builder.add(
-        TimeChart::new(
-            (sample_rate / frequency) as usize
-        )
-    );
-
-    builder.add(
-        ConstellationChart::new(
-            sps * 100
-        )
-    );
-
-    builder.add(
-        WaterfallChart::new(
-            sps
-        )
-    );
-
-
-    let mut pipeline: Pipeline = builder.build();
-
-    pipeline.run();
+    builder.add()
 }
