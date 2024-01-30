@@ -50,7 +50,7 @@ impl Default for Vulkan {
             .iter()
             .enumerate()
             .position(|(_queue_family_index, queue_family_properties)| {
-                queue_family_properties.queue_flags.contains(QueueFlags::GRAPHICS)
+                queue_family_properties.queue_flags.contains(QueueFlags::GRAPHICS | QueueFlags::COMPUTE)
             })
             .expect("couldn't find a graphical queue family") as u32;
 
