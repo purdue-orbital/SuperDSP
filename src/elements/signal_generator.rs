@@ -12,6 +12,7 @@ pub struct SignalGenerator {
     sample_rate: f32,
     frequency: f32,
     time_delay: f32,
+    delay:bool
 }
 
 impl Element for SignalGenerator {
@@ -31,7 +32,7 @@ impl Element for SignalGenerator {
     }
 
     fn halt(&self) -> bool {
-        true
+        self.delay
     }
 
     fn is_source(&self) -> bool {
@@ -40,13 +41,14 @@ impl Element for SignalGenerator {
 }
 
 impl SignalGenerator {
-    pub fn new(frequency: f32, sample_rate: f32, sps: usize) -> SignalGenerator {
+    pub fn new(frequency: f32, sample_rate: f32, sps: usize, delay:bool) -> SignalGenerator {
 
         SignalGenerator {
             sps,
             sample_rate,
             frequency,
             time_delay: sps as f32 / sample_rate,
+            delay
         }
     }
 }

@@ -16,7 +16,7 @@ impl Element for LPF {
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
-        fir_lpf_dft(builder,&samples.get_complex_f32(),self.sample_rate,self.cutoff_frequency,self.roll_off)
+        fir_lpf_dft(builder,&samples.get_complex_f32(),self.sample_rate,self.cutoff_frequency,self.roll_off, 1.0)
     }
 
     fn run(&mut self, _samples: &ElementParameter) {}

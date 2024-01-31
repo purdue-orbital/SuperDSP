@@ -18,8 +18,10 @@ pub fn wave_generator_complex_time_banked(builder: &mut WorkflowBuilder, sample_
     // create indexes
     let mut indexes = vec![0.0; sps];
 
+    let bank_size = i_bank.get_f32_array().len();
+
     for x in 0..sps {
-        indexes[x] = x as f32
+        indexes[x] = (x % bank_size) as f32
     }
 
     // move indexes to ram
@@ -37,14 +39,14 @@ pub fn wave_generator_complex_time_banked(builder: &mut WorkflowBuilder, sample_
     let to_return_q = to_return.get_imag_array_wrapped();
 
     // get time banks
-    builder.fetch_f32(&i_bank, &ram_indexes, &to_return_i); // get indicies from bank, fill up the to_return with data
+    builder.fetch_f32(&i_bank, &ram_indexes, &to_return_i); // get indices from bank, fill up the to_return with data
     builder.fetch_f32(&q_bank, &ram_indexes, &to_return_q);
 
     // increment time
-    builder.scalar_add_f32(&ram_indexes, &step); // add the timestep to each value in the ram indicies array
+    builder.scalar_add_f32(&ram_indexes, &step); // add the timestep to each value in the ram indices array
 
     // mod time
-    builder.mod_f32(&ram_indexes, &max); // modulate the indicies so we dont go too far past (errors)
+    builder.mod_f32(&ram_indexes, &max); // modulate the indices, so we don't go too far past (errors)
 
     to_return
 }

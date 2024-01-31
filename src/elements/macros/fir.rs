@@ -24,7 +24,7 @@ pub fn fir_filter_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, fir_f
 }
 
 /// This macro applies a low pass filter (LPF)
-pub fn fir_lpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_rate:f32, cutoff_freq:f32, roll_off:f32){
+pub fn fir_lpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_rate:f32, cutoff_freq:f32, roll_off:f32, scale:f32){
     // get baud rate
     let sps = samples.to_vec().len();
 
@@ -32,11 +32,11 @@ pub fn fir_lpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_r
     let step_size = sample_rate / sps as f32;
 
     // Create lpf filter
-    let mut filter = vec![1.0;sps];
+    let mut filter = vec![scale;sps];
     for (index,x) in filter.iter_mut().enumerate() {
         let freq = (index as f32 - ((sps >> 1) as f32)) * step_size;
         if freq > cutoff_freq{
-            *x = (-(freq - cutoff_freq) * roll_off) + 1.0;
+            *x = (-scale * (freq - cutoff_freq) * roll_off) + scale;
             if x.is_sign_negative(){
                 *x = 0.0;
             }
@@ -48,7 +48,7 @@ pub fn fir_lpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_r
 }
 
 /// This macro applies a high pass filter (HPF)
-pub fn fir_hpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_rate:f32, cutoff_freq:f32, roll_off:f32) {
+pub fn fir_hpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_rate:f32, cutoff_freq:f32, roll_off:f32, scale:f32) {
     // get baud rate
     let sps = samples.to_vec().len();
 
@@ -60,9 +60,9 @@ pub fn fir_hpf_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, sample_r
     for (index,x) in filter.iter_mut().enumerate() {
         let freq = (index as f32 - ((sps >> 1) as f32)) * step_size;
         if freq >= cutoff_freq{
-            *x = ((freq - cutoff_freq) * roll_off) + 1.0;
-            if *x > 1.0{
-                *x = 1.0;
+            *x = ((freq - cutoff_freq) * roll_off * scale) + scale;
+            if *x > scale{
+                *x = scale;
             }
         }
     }
