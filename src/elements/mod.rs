@@ -14,3 +14,4 @@ pub mod lpf;
 pub mod hpf;
 pub mod bpf;
 pub mod frequency_shift;
+pub mod interpolator;

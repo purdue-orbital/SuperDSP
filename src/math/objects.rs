@@ -224,7 +224,7 @@ impl ElementParameter {
 
     #[cfg(not(feature = "vulkan"))]
     pub fn get_f32_array_mut(&self) -> Arc<Mutex<Vec<f32>>> {
-        self.f32_array_cpu.clone().unwrap()
+        self.f32_array_cpu.as_ref().unwrap().clone()
     }
 
     #[cfg(not(feature = "vulkan"))]
@@ -259,7 +259,7 @@ impl ElementParameter {
 
     #[cfg(feature = "vulkan")]
     pub fn get_buffer_f32_array(&self) -> Subbuffer<[f32]> {
-        self.f32_array_vulkan.clone().unwrap()
+        self.f32_array_vulkan.as_ref().unwrap().clone()
     }
 
 
