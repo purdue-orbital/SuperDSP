@@ -135,8 +135,8 @@ impl CPUOperation for CopyF32 {
         let arr2 = binding.as_mut_slice();
 
         // run
-        for (index, x) in arr2.iter_mut().enumerate() {
-            *x = arr1[index];
+        for (index, x) in arr1.iter().enumerate() {
+            arr2[index] = *x;
         }
     }
 }
