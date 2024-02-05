@@ -24,7 +24,9 @@ fn test_dft_round(){
     // Run once
     pipeline.run();
 
+    dbg!(src.to_vec());
+
     for (index, x) in  src.to_vec().iter().enumerate(){
-        assert!((cmp[index] - x).abs() < 0.001 );
+        assert!((cmp[index] - x).abs() < 0.001);
     }
 }

@@ -16,6 +16,7 @@ use vulkano::pipeline::layout::PipelineDescriptorSetLayoutCreateInfo;
 use vulkano::shader::ShaderModule;
 use vulkano::sync::future::{FenceSignalFuture, NowFuture};
 use vulkano::sync::GpuFuture;
+use crate::math::builder::VULKAN;
 
 mod glsl;
 
@@ -83,6 +84,7 @@ impl Default for Vulkan {
         let fetch_f32 = glsl::compute_shaders::fetch_f32::load(device.clone()).expect("Failed to compile fetch shaders!");
         let dft = glsl::compute_shaders::dft_f32::load(device.clone()).expect("Failed to compile dft shaders!");
         let idft = glsl::compute_shaders::idft_f32::load(device.clone()).expect("Failed to compile idft shaders!");
+        let collapse = glsl::compute_shaders::dft_collapse_f32::load(device.clone()).expect("Failed to compile collapse shaders!");
 
 
         // create hash map
@@ -100,6 +102,7 @@ impl Default for Vulkan {
         compute_shaders.insert("fetch".to_string(), fetch_f32);
         compute_shaders.insert("dft".to_string(), dft);
         compute_shaders.insert("idft".to_string(), idft);
+        compute_shaders.insert("collapse".to_string(), collapse);
 
         // We save these variables so we can execute operations on them later
         Vulkan {
@@ -378,27 +381,63 @@ impl VulkanCommandBuilder {
     }
 
     pub fn dft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>) {
+        let len = i_dest.read().unwrap().len();
+        let width = VULKAN.store_to_vram_var(len as f32);
+
+        let i_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
+        let q_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
+
+        // set first half
         let pipeline = self.stage_pipeline("dft");
         let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_source.clone());
         let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_source);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_scratch.clone());
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_scratch.clone());
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width.clone());
+        let work_group_counts = [len as u32, len as u32, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+
+
+        // collapse
+        let pipeline = self.stage_pipeline("collapse");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_scratch);
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_scratch);
         let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_dest);
         let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
-
-        let work_group_counts = [i_source.read().unwrap().len() as u32, 1, 1];
-        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination];
-
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width);
+        let work_group_counts = [len as u32, 1, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
     pub fn idft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>) {
+        let len = i_dest.read().unwrap().len();
+        let width = VULKAN.store_to_vram_var(len as f32);
+
+        let i_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
+        let q_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
+
+        // set first half
         let pipeline = self.stage_pipeline("idft");
         let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_source.clone());
         let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_source);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_scratch.clone());
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_scratch.clone());
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width.clone());
+        let work_group_counts = [len as u32, len as u32, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+
+
+        // collapse
+        let pipeline = self.stage_pipeline("collapse");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_scratch);
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_scratch);
         let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_dest);
         let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
-
-        let work_group_counts = [i_source.read().unwrap().len() as u32, 1, 1];
-        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination];
-
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width);
+        let work_group_counts = [len as u32, 1, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
 

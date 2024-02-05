@@ -240,7 +240,7 @@ pub mod compute_shaders {
                 src: r"
                     #version 460
 
-                    #define M_PI 3.1415926535897932384626433832795
+                    #define PHI (3.1415926535897932384626433832795 * gl_GlobalInvocationID.x * gl_GlobalInvocationID.y * -2.0 / width.width)
 
                     layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -260,25 +260,14 @@ pub mod compute_shaders {
                         float data[];
                     } q_dest;
 
+                    layout(set = 4, binding = 4) buffer Width {
+                        float width;
+                    } width;
+
+                    // preform first half
                     void main() {
-
-                        uint len = i_src.data.length();
-
-                        uint k = gl_GlobalInvocationID.x;
-                        float phi = 0;
-                        float step = (-2.0 * M_PI * k) / len;
-
-                        i_dest.data[k] = 0;
-                        q_dest.data[k] = 0;
-
-
-                        for (int n = 0; n < len; n++){
-                            phi = step * n;
-
-                            // Set i value
-                            i_dest.data[k] += i_src.data[n] * cos(phi) - q_src.data[n] * sin(phi);
-                            q_dest.data[k] += i_src.data[n] * sin(phi) + q_src.data[n] * cos(phi);
-                        }
+                        i_dest.data[gl_GlobalInvocationID.x * uint(width.width) + gl_GlobalInvocationID.y] = i_src.data[gl_GlobalInvocationID.y] * cos(PHI) - q_src.data[gl_GlobalInvocationID.y] * sin(PHI);
+                        q_dest.data[gl_GlobalInvocationID.x * uint(width.width) + gl_GlobalInvocationID.y] = i_src.data[gl_GlobalInvocationID.y] * sin(PHI) + q_src.data[gl_GlobalInvocationID.y] * cos(PHI);
                     }
                 ",
         }
@@ -289,7 +278,7 @@ pub mod compute_shaders {
                 src: r"
                     #version 460
 
-                    #define M_PI 3.1415926535897932384626433832795
+                    #define PHI (3.1415926535897932384626433832795 * gl_GlobalInvocationID.x * gl_GlobalInvocationID.y * 2.0 / width.width )
 
                     layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -309,28 +298,61 @@ pub mod compute_shaders {
                         float data[];
                     } q_dest;
 
+                    layout(set = 4, binding = 4) buffer Width {
+                        float width;
+                    } width;
+
+                    // preform first half
                     void main() {
-                        uint len = i_src.data.length();
+                        uint index = gl_GlobalInvocationID.x * uint(width.width) + gl_GlobalInvocationID.y;
 
-                        uint n = gl_GlobalInvocationID.x;
-                        float phi = 0;
-                        float step = (2.0 * M_PI * n) / len;
+                        i_dest.data[index] = (i_src.data[gl_GlobalInvocationID.y] * cos(PHI) - q_src.data[gl_GlobalInvocationID.y] * sin(PHI)) / width.width;
+                        q_dest.data[index] = (i_src.data[gl_GlobalInvocationID.y] * sin(PHI) + q_src.data[gl_GlobalInvocationID.y] * cos(PHI)) / width.width;
+                    }
+                ",
+        }
+    }
 
-                        i_dest.data[n] = 0;
-                        q_dest.data[n] = 0;
+    /// This is a "post-process" cleanup
+    pub mod dft_collapse_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
 
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-                        for (int k = 0; k < len; k++){
-                            phi = step * k;
+                    layout(set = 0, binding = 0) buffer I_Source {
+                        float data[];
+                    } i_src;
 
+                    layout(set = 1, binding = 1) buffer Q_Source {
+                        float data[];
+                    } q_src;
 
-                            // Set i value
-                            i_dest.data[n] += i_src.data[k] * cos(phi) - q_src.data[k] * sin(phi);
-                            q_dest.data[n] += i_src.data[k] * sin(phi) + q_src.data[k] * cos(phi);
+                    layout(set = 2, binding = 2) buffer I_Dest {
+                        float data[];
+                    } i_dest;
+
+                    layout(set = 3, binding = 3) buffer Q_Dest {
+                        float data[];
+                    } q_dest;
+
+                    layout(set = 4, binding = 4) buffer Width {
+                        float width;
+                    } width;
+
+                    void main() {
+                        uint w = uint(width.width);
+                        uint index = gl_GlobalInvocationID.x * w;
+
+                        for(int i = 1; i < w; i++){
+                            i_src.data[index] += i_src.data[index + i];
+                            q_src.data[index] += q_src.data[index + i];
                         }
-                        
-                        i_dest.data[n] /= float(len);
-                        q_dest.data[n] /= float(len);
+
+                        i_dest.data[gl_GlobalInvocationID.x] = i_src.data[index];
+                        q_dest.data[gl_GlobalInvocationID.x] = q_src.data[index];
                     }
                 ",
         }
