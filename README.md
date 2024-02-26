@@ -23,9 +23,9 @@ applications or sound design.
     - [ ] ???
 - [ ] Frequency and Phase Locked Loops
 - [ ] Rational Resamplers
-- [ ] Filters
-    - [ ] Low pass filters
-    - [ ] Pass-band filters
+- [x] Filters
+    - [x] Low pass filters
+    - [x] Pass-band filters
 - [ ] Modulation and Demodulation
     - [ ] BPSK
     - [ ] QPSK

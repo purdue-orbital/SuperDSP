@@ -7,6 +7,7 @@ pub mod vulkan;
 
 #[cfg(not(feature = "vulkan"))]
 pub mod cpu;
+mod fpga;
 
 pub mod prelude {
     pub use crate::math::builder::Workflow;

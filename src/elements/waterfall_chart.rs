@@ -33,7 +33,6 @@ impl Element for WaterfallChart {
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
         self.len = Some(samples.get_complex_f32().to_vec().len());
-        dbg!(self.len);
         self.arr = Some(ComplexF32::new(vec![Complex::new(0.0, 0.0); self.len.unwrap()]));
         dft(builder, &samples.get_complex_f32(), self.arr.as_ref().unwrap());
         fft_shift(builder, self.arr.as_ref().unwrap());

@@ -1,36 +1,59 @@
-use crate::elements::macros::fir::fir_lpf_dft;
+use num_complex::Complex;
+use crate::elements::macros::fir::{fir_bpf_dft};
 use crate::math::builder::WorkflowBuilder;
 use crate::math::prelude::*;
 
-/// Zero padding can increase frequency if done in the time domain so preform DFT and FFT shift
-/// before zero pad if you want to interpolate preserving data integrity
 pub fn zero_pad(builder: &mut WorkflowBuilder, samples: &mut ComplexF32, upsample_amount:usize){
-    // make array of zeros
-    let len = samples.get_real_array_wrapped().get_f32_array().len();
-    let zeros = vec![0.0; len * upsample_amount];
-    let zeros_ram = ElementParameter::new_f32_array(zeros.as_slice());
+    // calculate new lengths
+    let og_len = samples.get_real_array_wrapped().get_f32_array().len();
+    let new_len = og_len * upsample_amount;
+    
+    // create array of indexes
+    let mut indexes = Vec::with_capacity(new_len);
+    
+    // create mask
+    let mut mask = Vec::with_capacity(new_len);
+    
+    let empty_output = vec![Complex::new(0.0,0.0);new_len];
+    
+    // add elements
+    for x in 0..og_len{
+        // add 1 to mask
+        mask.push(1.0);
+        
+        // add index
+        indexes.push(x as f32);
+        
+        // add redundant 
+        for _ in 1..upsample_amount{
+            // add 0 to mask
+            mask.push(0.0);
+            
+            // add index
+            indexes.push(x as f32)
+        }
+    }
+    
+    // put arrays into ram
+    let indexes_ram = ElementParameter::new_f32_array(indexes.as_slice());
+    let mask_ram = ElementParameter::new_f32_array(mask.as_slice());
+    let padded_ram = ComplexF32::new(empty_output);
+    
+    // fetch indexes
+    builder.fetch_f32(&samples.get_real_array_wrapped(),&indexes_ram,&padded_ram.get_real_array_wrapped());
+    builder.fetch_f32(&samples.get_imag_array_wrapped(),&indexes_ram,&padded_ram.get_imag_array_wrapped());
 
-    // make scratch space
-    let scratch = vec![0.0; len * upsample_amount];
-    let scratch_ram_i = ElementParameter::new_f32_array(scratch.as_slice());
-    let scratch_ram_q = ElementParameter::new_f32_array(scratch.as_slice());
-
-    // copy data over
-    builder.copy_f32(&zeros_ram,&scratch_ram_i);
-    builder.copy_f32(&zeros_ram,&scratch_ram_q);
-    builder.copy_f32(&samples.get_real_array_wrapped(),&scratch_ram_i);
-    builder.copy_f32(&samples.get_real_array_wrapped(),&scratch_ram_q);
-
-    samples.set_real_array_wrapped(&scratch_ram_i);
-    samples.set_imag_array_wrapped(&scratch_ram_q);
+    // apply mask to fetched data
+    builder.pointwise_multiply_f32(&mask_ram,&padded_ram.get_real_array_wrapped());
+    builder.pointwise_multiply_f32(&mask_ram,&padded_ram.get_imag_array_wrapped());
+    
+    // set new output
+    samples.set_real_array_wrapped(&padded_ram.get_real_array_wrapped());
+    samples.set_imag_array_wrapped(&padded_ram.get_imag_array_wrapped());
 }
 
-pub fn interpolate(builder: &mut WorkflowBuilder, samples:&mut ComplexF32, upsample_amount:usize, original_sample_rate:f32, lpf_frequency:f32, roll_off:f32){
+pub fn interpolate(builder: &mut WorkflowBuilder, samples:&mut ComplexF32, upsample_amount:usize, original_sample_rate:f32, roll_off:f32){
     zero_pad(builder, samples, upsample_amount);
 
-    dbg!(samples.get_real_array_wrapped().get_f32_array().len());
-
-    fir_lpf_dft(builder, samples, original_sample_rate, lpf_frequency, roll_off, upsample_amount as f32);
-    
-    dbg!(samples.get_real_array_wrapped().get_f32_array().len());
+    fir_bpf_dft(builder,samples,original_sample_rate * upsample_amount as f32,roll_off,-original_sample_rate/2.0,original_sample_rate/2.0)
 }

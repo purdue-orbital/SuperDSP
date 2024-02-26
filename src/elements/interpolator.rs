@@ -17,13 +17,11 @@ impl Element for Interpolator {
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
-        let mut copy = &mut samples.get_complex_f32();
+        let copy = &mut samples.get_complex_f32();
 
-        interpolate(builder, &mut copy, self.upsample_amount, self.original_sample_rate, self.lpf_frequency, self.roll_off);
+        interpolate(builder, copy, self.upsample_amount, self.original_sample_rate, self.roll_off);
 
         samples.set_complex_f32(copy.clone());
-        
-        dbg!(copy.get_real_array_wrapped().get_f32_array().len());
     }
 
     fn run(&mut self, _samples: &ElementParameter) {}
