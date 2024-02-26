@@ -80,8 +80,13 @@ pub fn interpolate(builder: &mut WorkflowBuilder, samples:&mut ComplexF32, upsam
     fir_bpf_dft(builder,samples,original_sample_rate * upsample_amount as f32,roll_off,-original_sample_rate/2.0,original_sample_rate/2.0)
 }
 
-pub fn decimation(builder: &mut WorkflowBuilder, samples:&mut ComplexF32, downsample_amount:usize, original_sample_rate:f32, roll_off:f32){
+pub fn decimate(builder: &mut WorkflowBuilder, samples:&mut ComplexF32, downsample_amount:usize, original_sample_rate:f32, roll_off:f32){
     downsample(builder, samples, downsample_amount);
 
     fir_bpf_dft(builder,samples,original_sample_rate / downsample_amount as f32,roll_off,-original_sample_rate/2.0,original_sample_rate/2.0)
+}
+
+pub fn rational_resampler(builder: &mut WorkflowBuilder, samples:&mut ComplexF32, original_sample_rate:f32, interpolation_ratio: usize, decimation_ratio:usize, roll_off:f32){
+    interpolate(builder,samples,interpolation_ratio,original_sample_rate,1.0);
+    decimate(builder,samples,decimation_ratio,original_sample_rate * interpolation_ratio as f32, roll_off);
 }

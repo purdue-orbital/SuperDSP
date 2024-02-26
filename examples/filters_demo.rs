@@ -5,6 +5,7 @@ use rustdsp::elements::signal_generator::SignalGenerator;
 use rustdsp::elements::time_chart::TimeChart;
 use rustdsp::elements::waterfall_chart::WaterfallChart;
 use rustdsp::elements::interpolator::Interpolator;
+use rustdsp::elements::rational_resampler::RationalResampler;
 
 fn main() {
     let sps = 16;
@@ -30,7 +31,13 @@ fn main() {
     builder.add(WaterfallChart::new());
 
     builder.add(TimeChart::new(10 * 2 * sps));
-    
 
+    builder.add(RationalResampler::new(16,3, sample_rate, 1.0));
+    builder.add(Gain::new(16.0));
+
+    builder.add(WaterfallChart::new());
+
+    builder.add(TimeChart::new(10 * 2 * sps));
+    
     builder.build().run();
 }

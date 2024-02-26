@@ -17,3 +17,4 @@ pub mod frequency_shift;
 pub mod interpolator;
 pub mod gain;
 pub mod decimator;
+pub mod rational_resampler;
