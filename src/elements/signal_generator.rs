@@ -1,5 +1,6 @@
 use std::thread::sleep;
 use std::time::Duration;
+
 use crate::elements::element::Element;
 use crate::elements::macros::wave_generators::wave_generator_complex_time_banked;
 use crate::math::prelude::*;
@@ -12,7 +13,7 @@ pub struct SignalGenerator {
     sample_rate: f32,
     frequency: f32,
     time_delay: f32,
-    delay:bool
+    delay: bool,
 }
 
 impl Element for SignalGenerator {
@@ -41,14 +42,13 @@ impl Element for SignalGenerator {
 }
 
 impl SignalGenerator {
-    pub fn new(frequency: f32, sample_rate: f32, sps: usize, delay:bool) -> SignalGenerator {
-
+    pub fn new(frequency: f32, sample_rate: f32, sps: usize, delay: bool) -> SignalGenerator {
         SignalGenerator {
             sps,
             sample_rate,
             frequency,
             time_delay: sps as f32 / sample_rate,
-            delay
+            delay,
         }
     }
 }

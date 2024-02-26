@@ -1,15 +1,15 @@
 use crate::elements::element::Element;
-use crate::elements::macros::resampling::{rational_resampler};
+use crate::elements::macros::resampling::rational_resampler;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
 pub struct RationalResampler {
-    upsample_amount:usize,
-    downsample_amount:usize,
-    original_sample_rate:f32,
-    roll_off:f32
+    upsample_amount: usize,
+    downsample_amount: usize,
+    original_sample_rate: f32,
+    roll_off: f32,
 }
 
 impl Element for RationalResampler {
@@ -36,12 +36,12 @@ impl Element for RationalResampler {
 }
 
 impl RationalResampler {
-    pub fn new(upsample_amount:usize, downsample_amount:usize, original_sample_rate:f32, roll_off:f32) -> RationalResampler {
+    pub fn new(upsample_amount: usize, downsample_amount: usize, original_sample_rate: f32, roll_off: f32) -> RationalResampler {
         RationalResampler {
             upsample_amount,
             downsample_amount,
             original_sample_rate,
-            roll_off
+            roll_off,
         }
     }
 }

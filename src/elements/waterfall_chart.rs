@@ -1,4 +1,4 @@
-use num_complex::{Complex};
+use num_complex::Complex;
 
 use crate::elements::element::Element;
 use crate::elements::macros::dft::{dft, fft_shift};
@@ -11,7 +11,7 @@ use crate::ui::charts::pixel_chart::PixelChart;
 pub struct WaterfallChart {
     boxed_chart: Option<Box<PixelChart>>,
     arr: Option<ComplexF32>,
-    len: Option<usize>
+    len: Option<usize>,
 }
 
 impl WaterfallChart {

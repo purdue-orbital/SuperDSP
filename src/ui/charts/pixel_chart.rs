@@ -1,5 +1,6 @@
 use std::collections::VecDeque;
 use std::sync::{Arc, RwLock};
+
 use eframe::egui::{ColorImage, Image, TextureOptions, Ui, Vec2};
 
 use crate::ui::charts::chart::Chart;
@@ -35,7 +36,6 @@ impl PixelChart {
 
 impl Chart for PixelChart {
     fn update(&self, ui: &mut Ui) {
-
         let binding = self.pixel_array.read().unwrap().clone();
 
         let arr = binding.as_slices().0;

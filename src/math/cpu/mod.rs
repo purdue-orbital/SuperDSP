@@ -1,6 +1,5 @@
-use std::sync::{Arc, Mutex, RwLock};
-
 use crate::math::cpu::ops::*;
+use std::sync::{Arc, Mutex, RwLock};
 
 mod ops;
 

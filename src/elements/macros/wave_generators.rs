@@ -32,7 +32,6 @@ pub fn wave_generator_complex_time_banked(builder: &mut WorkflowBuilder, sample_
     let max = ElementParameter::new_f32(2.0 * sample_rate);
 
 
-
     // create complex value which is returned
     let to_return = ComplexF32::new(vec![Complex::new(0.0, 0.0); sps]);
 

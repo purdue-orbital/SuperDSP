@@ -1,7 +1,7 @@
 use crate::math::prelude::*;
 
 /// This will preform dft on an input array and send it to the output array
-pub fn dft(builder: &mut WorkflowBuilder, samples:&ComplexF32, out: &ComplexF32){
+pub fn dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, out: &ComplexF32) {
     let i_arr = samples.get_real_array_wrapped();
     let q_arr = samples.get_imag_array_wrapped();
 
@@ -12,7 +12,7 @@ pub fn dft(builder: &mut WorkflowBuilder, samples:&ComplexF32, out: &ComplexF32)
 }
 
 /// This will preform idft on a input array and send it to the output array
-pub fn idft(builder: &mut WorkflowBuilder, samples:&ComplexF32, out: &ComplexF32){
+pub fn idft(builder: &mut WorkflowBuilder, samples: &ComplexF32, out: &ComplexF32) {
     let i_arr = samples.get_real_array_wrapped();
     let q_arr = samples.get_imag_array_wrapped();
 
@@ -25,7 +25,7 @@ pub fn idft(builder: &mut WorkflowBuilder, samples:&ComplexF32, out: &ComplexF32
 
 /// This reorders the buffer, so that the center component of the dft is the dc or the center frequency of interest and
 /// the ends are the nyquist frequencies
-pub fn fft_shift(builder: &mut WorkflowBuilder, samples:&ComplexF32){
+pub fn fft_shift(builder: &mut WorkflowBuilder, samples: &ComplexF32) {
 
     // divide by 2
     let len = samples.to_vec().len();
@@ -38,7 +38,7 @@ pub fn fft_shift(builder: &mut WorkflowBuilder, samples:&ComplexF32){
 
     // create index array
     let mut index_arr = vec![];
-    for x in 0..len{
+    for x in 0..len {
         index_arr.push(((x + k) % len) as f32);
     }
 
@@ -53,11 +53,11 @@ pub fn fft_shift(builder: &mut WorkflowBuilder, samples:&ComplexF32){
     let q_arr = samples.get_imag_array_wrapped();
 
     // do shift on i array
-    builder.fetch_f32(&i_arr,&index_array_ram,&scratch);
-    builder.copy_f32(&scratch,&i_arr);
+    builder.fetch_f32(&i_arr, &index_array_ram, &scratch);
+    builder.copy_f32(&scratch, &i_arr);
 
 
     // do shift on q array
-    builder.fetch_f32(&q_arr,&index_array_ram,&scratch);
-    builder.copy_f32(&scratch,&q_arr);
+    builder.fetch_f32(&q_arr, &index_array_ram, &scratch);
+    builder.copy_f32(&scratch, &q_arr);
 }

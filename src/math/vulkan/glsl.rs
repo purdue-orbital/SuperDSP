@@ -272,6 +272,7 @@ pub mod compute_shaders {
                 ",
         }
     }
+
     pub mod idft_f32 {
         vulkano_shaders::shader! {
                 ty: "compute",

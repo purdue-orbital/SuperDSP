@@ -199,7 +199,6 @@ pub struct IDFTF32;
 
 impl CPUOperation for IDFTF32 {
     fn run(&mut self, data: &mut Data) {
-
         let binding = data.f32_arrays[0].lock().unwrap();
         let i_src = binding.as_slice();
 
@@ -218,7 +217,6 @@ impl CPUOperation for IDFTF32 {
 
         // run
         for n in 0..len {
-
             i_dest[n] = 0.0;
             q_dest[n] = 0.0;
 

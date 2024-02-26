@@ -1,4 +1,5 @@
 use num_complex::Complex;
+
 use crate::elements::element::Element;
 use crate::elements::macros::wave_generators::wave_generator_complex_time_banked;
 use crate::math::prelude::*;
@@ -19,7 +20,7 @@ impl Element for FrequencyShift {
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
         // create wave generator
         let arr = wave_generator_complex_time_banked(builder, self.sample_rate, self.frequency, self.sps);
-        let scratch = ComplexF32::new(vec![Complex::new(0.0,0.0);self.sps]);
+        let scratch = ComplexF32::new(vec![Complex::new(0.0, 0.0); self.sps]);
 
         // get two signals seperated
         let src_i = arr.get_real_array_wrapped();
@@ -35,23 +36,23 @@ impl Element for FrequencyShift {
         let flip = ElementParameter::new_f32(-1.0);
 
         // copy to scratch
-        builder.copy_f32(&samples_i,&scratch_i);
-        builder.copy_f32(&samples_q,&scratch_q);
+        builder.copy_f32(&samples_i, &scratch_i);
+        builder.copy_f32(&samples_q, &scratch_q);
 
         // distribute and multiply with real part
-        builder.pointwise_multiply_f32(&src_i,&samples_i);
-        builder.pointwise_multiply_f32(&src_i,&samples_q); // samples_q is imaginary
+        builder.pointwise_multiply_f32(&src_i, &samples_i);
+        builder.pointwise_multiply_f32(&src_i, &samples_q); // samples_q is imaginary
 
         // distribute and multiply with imaginary part
-        builder.pointwise_multiply_f32(&src_q,&scratch_i); // scratch_i is imaginary
-        builder.pointwise_multiply_f32(&src_q,&scratch_q); // scratch_q is no longer imaginary
+        builder.pointwise_multiply_f32(&src_q, &scratch_i); // scratch_i is imaginary
+        builder.pointwise_multiply_f32(&src_q, &scratch_q); // scratch_q is no longer imaginary
 
         // i * i = -1 so fix
-        builder.scalar_multiply_f32(&scratch_q,&flip);
+        builder.scalar_multiply_f32(&scratch_q, &flip);
 
         // add seperated parts together (Euler's equation)
-        builder.add_f32(&scratch_q,&samples_i);
-        builder.add_f32(&scratch_i,&samples_q);
+        builder.add_f32(&scratch_q, &samples_i);
+        builder.add_f32(&scratch_i, &samples_q);
     }
 
     fn run(&mut self, _samples: &ElementParameter) {}

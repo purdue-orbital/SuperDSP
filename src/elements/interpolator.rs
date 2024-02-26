@@ -6,9 +6,9 @@ use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
 pub struct Interpolator {
-    upsample_amount:usize, 
-    original_sample_rate:f32,
-    roll_off:f32
+    upsample_amount: usize,
+    original_sample_rate: f32,
+    roll_off: f32,
 }
 
 impl Element for Interpolator {
@@ -35,11 +35,11 @@ impl Element for Interpolator {
 }
 
 impl Interpolator {
-    pub fn new(upsample_amount:usize, original_sample_rate:f32, roll_off:f32) -> Interpolator {
+    pub fn new(upsample_amount: usize, original_sample_rate: f32, roll_off: f32) -> Interpolator {
         Interpolator {
             upsample_amount,
             original_sample_rate,
-            roll_off
+            roll_off,
         }
     }
 }

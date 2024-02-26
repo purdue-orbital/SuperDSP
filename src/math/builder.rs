@@ -1,18 +1,17 @@
 #[cfg(feature = "vulkan")]
 use std::sync::Arc;
+
 #[cfg(feature = "vulkan")]
 use lazy_static::lazy_static;
 #[cfg(feature = "vulkan")]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
-#[cfg(feature = "vulkan")]
-use crate::math::vulkan::{Vulkan, VulkanCommandBuilder};
 
 #[cfg(not(feature = "vulkan"))]
 use crate::math::cpu::{CPUCommandBuilder, CPUPipeline};
-
 use crate::math::objects::ElementParameter;
 use crate::math::traits::PlatformSpecificOperations;
-
+#[cfg(feature = "vulkan")]
+use crate::math::vulkan::{Vulkan, VulkanCommandBuilder};
 
 /// this will increment the number of operations by one in this workflow
 fn increment_ops(builder: &mut WorkflowBuilder) {

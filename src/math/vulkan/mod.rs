@@ -16,6 +16,7 @@ use vulkano::pipeline::layout::PipelineDescriptorSetLayoutCreateInfo;
 use vulkano::shader::ShaderModule;
 use vulkano::sync::future::{FenceSignalFuture, NowFuture};
 use vulkano::sync::GpuFuture;
+
 use crate::math::builder::VULKAN;
 
 mod glsl;
@@ -384,8 +385,8 @@ impl VulkanCommandBuilder {
         let len = i_dest.read().unwrap().len();
         let width = VULKAN.store_to_vram_var(len as f32);
 
-        let i_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
-        let q_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
+        let i_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
+        let q_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
 
         // set first half
         let pipeline = self.stage_pipeline("dft");
@@ -395,7 +396,7 @@ impl VulkanCommandBuilder {
         let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_scratch.clone());
         let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width.clone());
         let work_group_counts = [len as u32, len as u32, 1];
-        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
 
 
@@ -407,15 +408,15 @@ impl VulkanCommandBuilder {
         let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
         let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width);
         let work_group_counts = [len as u32, 1, 1];
-        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
     pub fn idft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>) {
         let len = i_dest.read().unwrap().len();
         let width = VULKAN.store_to_vram_var(len as f32);
 
-        let i_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
-        let q_scratch = VULKAN.store_to_vram_array(vec![0.0;len.pow(2)].as_slice());
+        let i_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
+        let q_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
 
         // set first half
         let pipeline = self.stage_pipeline("idft");
@@ -425,7 +426,7 @@ impl VulkanCommandBuilder {
         let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_scratch.clone());
         let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width.clone());
         let work_group_counts = [len as u32, len as u32, 1];
-        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
 
 
@@ -437,7 +438,7 @@ impl VulkanCommandBuilder {
         let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
         let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width);
         let work_group_counts = [len as u32, 1, 1];
-        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination,descriptor_set_width];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
 

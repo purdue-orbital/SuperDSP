@@ -23,8 +23,8 @@ impl Element for SignalAdder {
         let src_i = arr.get_real_array_wrapped();
         let src_q = arr.get_imag_array_wrapped();
 
-        builder.add_f32(&src_i,&samples.get_complex_f32().get_real_array_wrapped());
-        builder.add_f32(&src_q,&samples.get_complex_f32().get_imag_array_wrapped());
+        builder.add_f32(&src_i, &samples.get_complex_f32().get_real_array_wrapped());
+        builder.add_f32(&src_q, &samples.get_complex_f32().get_imag_array_wrapped());
     }
 
     fn run(&mut self, _samples: &ElementParameter) {}
@@ -40,7 +40,6 @@ impl Element for SignalAdder {
 
 impl SignalAdder {
     pub fn new(frequency: f32, sample_rate: f32, sps: usize) -> SignalAdder {
-
         SignalAdder {
             sps,
             sample_rate,
