@@ -1,24 +1,24 @@
 use crate::elements::element::Element;
-use crate::elements::macros::resampling::interpolate;
+use crate::elements::macros::resampling::decimation;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
-pub struct Interpolator {
-    upsample_amount:usize, 
-    original_sample_rate:f32,
-    roll_off:f32
+pub struct Decimator {
+    downsample_amount: usize,
+    original_sample_rate: f32,
+    roll_off: f32,
 }
 
-impl Element for Interpolator {
+impl Element for Decimator {
     #[cfg(feature = "ui")]
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
         let copy = &mut samples.get_complex_f32();
 
-        interpolate(builder, copy, self.upsample_amount, self.original_sample_rate, self.roll_off);
+        decimation(builder, copy, self.downsample_amount, self.original_sample_rate, self.roll_off);
 
         samples.set_complex_f32(copy.clone());
     }
@@ -34,12 +34,12 @@ impl Element for Interpolator {
     }
 }
 
-impl Interpolator {
-    pub fn new(upsample_amount:usize, original_sample_rate:f32, roll_off:f32) -> Interpolator {
-        Interpolator {
-            upsample_amount,
+impl Decimator {
+    pub fn new(downsample_amount: usize, original_sample_rate: f32, roll_off: f32) -> Decimator {
+        Decimator {
+            downsample_amount,
             original_sample_rate,
-            roll_off
+            roll_off,
         }
     }
 }

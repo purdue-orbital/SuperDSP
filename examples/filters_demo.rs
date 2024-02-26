@@ -1,4 +1,5 @@
 use rustdsp::elements::builder::{PipelineBuilder};
+use rustdsp::elements::decimator::Decimator;
 use rustdsp::elements::gain::Gain;
 use rustdsp::elements::signal_generator::SignalGenerator;
 use rustdsp::elements::time_chart::TimeChart;
@@ -17,11 +18,17 @@ fn main() {
     
     builder.add(WaterfallChart::new());
 
-    builder.add(Interpolator::new(16, sample_rate, frequency, 1.0));
+    builder.add(Interpolator::new(16, sample_rate,1.0));
     builder.add(Gain::new(16.0));
 
     builder.add(WaterfallChart::new());
     
+    builder.add(TimeChart::new(10 * 2 * sps));
+
+    builder.add(Decimator::new(16, sample_rate, 1.0));
+
+    builder.add(WaterfallChart::new());
+
     builder.add(TimeChart::new(10 * 2 * sps));
     
 
