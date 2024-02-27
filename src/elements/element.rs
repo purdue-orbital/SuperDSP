@@ -11,7 +11,7 @@ pub trait Element: ElementClone + Send {
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter);
 
     /// This will run if halt is returns "true"
-    fn run(&mut self, samples: &ElementParameter);
+    fn run(&mut self, samples: &mut ElementParameter);
 
     /// This tells the pipeline builder to stop and run the "run" function. You should only do this if you absolutely
     /// need to

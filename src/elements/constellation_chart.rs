@@ -29,7 +29,7 @@ impl Element for ConstellationChart {
 
     fn init(&mut self, _builder: &mut WorkflowBuilder, _samples: &mut ElementParameter) {}
 
-    fn run(&mut self, samples: &ElementParameter) {
+    fn run(&mut self, samples: &mut ElementParameter) {
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 
         for x in samples.get_complex_f32().to_vec().iter().copied() {

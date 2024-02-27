@@ -19,7 +19,7 @@ impl Element for LPF {
         fir_lpf_dft(builder, &samples.get_complex_f32(), self.sample_rate, self.cutoff_frequency, self.roll_off, 1.0)
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {}
+    fn run(&mut self, _samples: &mut ElementParameter) {}
 
     fn halt(&self) -> bool {
         false

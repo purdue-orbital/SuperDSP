@@ -28,7 +28,7 @@ impl Element for SignalGenerator {
         samples.set_complex_f32(arr)
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {
+    fn run(&mut self, _samples: &mut ElementParameter) {
         sleep(Duration::from_secs_f32(self.time_delay))
     }
 

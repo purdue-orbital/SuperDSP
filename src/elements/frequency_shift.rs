@@ -55,7 +55,7 @@ impl Element for FrequencyShift {
         builder.add_f32(&scratch_i, &samples_q);
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {}
+    fn run(&mut self, _samples: &mut ElementParameter) {}
 
     fn halt(&self) -> bool {
         false

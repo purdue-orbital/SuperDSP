@@ -5,26 +5,24 @@ use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
-pub struct SignalAdder {
+pub struct FrequencyModulation {
     sps: usize,
+    carrier_frequency: f32,
     sample_rate: f32,
-    frequency: f32,
 }
 
-impl Element for SignalAdder {
+impl Element for FrequencyModulation {
     #[cfg(feature = "ui")]
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
     fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
-        // create wave generator
-        let arr = wave_generator_complex_time_banked(builder, self.sample_rate, self.frequency, self.sps);
+        // create new samples output
+        let output = wave_generator_complex_time_banked(builder, self.sample_rate, self.carrier_frequency, self.sps);
 
-        // add two signals together
-        let src_i = arr.get_real_array_wrapped();
-        let src_q = arr.get_imag_array_wrapped();
+        builder.scalar_multiply_f32(&output.get_real_array_wrapped(), samples);
+        builder.scalar_multiply_f32(&output.get_imag_array_wrapped(), samples);
 
-        builder.add_f32(&src_i, &samples.get_complex_f32().get_real_array_wrapped());
-        builder.add_f32(&src_q, &samples.get_complex_f32().get_imag_array_wrapped());
+        samples.set_complex_f32(output);
     }
 
     fn run(&mut self, _samples: &mut ElementParameter) {}
@@ -34,16 +32,16 @@ impl Element for SignalAdder {
     }
 
     fn is_source(&self) -> bool {
-        true
+        false
     }
 }
 
-impl SignalAdder {
-    pub fn new(frequency: f32, sample_rate: f32, sps: usize) -> SignalAdder {
-        SignalAdder {
+impl FrequencyModulation {
+    pub fn new(sps: usize, carrier_frequency: f32, sample_rate: f32) -> FrequencyModulation {
+        FrequencyModulation {
             sps,
+            carrier_frequency,
             sample_rate,
-            frequency,
         }
     }
 }

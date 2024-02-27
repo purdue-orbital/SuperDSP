@@ -20,7 +20,7 @@ impl Element for BPF {
         fir_bpf_dft(builder, &samples.get_complex_f32(), self.sample_rate, self.roll_off, self.lower_frequency_limit, self.upper_frequency_limit);
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {}
+    fn run(&mut self, _samples: &mut ElementParameter) {}
 
     fn halt(&self) -> bool {
         false

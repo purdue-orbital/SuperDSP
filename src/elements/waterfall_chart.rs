@@ -38,7 +38,7 @@ impl Element for WaterfallChart {
         fft_shift(builder, self.arr.as_ref().unwrap());
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {
+    fn run(&mut self, _samples: &mut ElementParameter) {
         // send dft to pixel chart
         for x in self.arr.as_ref().unwrap().to_vec() {
             // we only need the real component as the imaginary component is just phase data

@@ -23,7 +23,7 @@ impl Element for Decimator {
         samples.set_complex_f32(copy.clone());
     }
 
-    fn run(&mut self, _samples: &ElementParameter) {}
+    fn run(&mut self, _samples: &mut ElementParameter) {}
 
     fn halt(&self) -> bool {
         false
