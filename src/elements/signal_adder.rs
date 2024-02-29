@@ -1,5 +1,5 @@
 use crate::elements::element::Element;
-use crate::elements::macros::wave_generators::wave_generator_complex_time_banked;
+use crate::elements::prefabs::wave_generators::wave_generator_complex_time_banked;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;

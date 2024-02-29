@@ -1,5 +1,5 @@
 use crate::elements::element::Element;
-use crate::elements::macros::resampling::decimate;
+use crate::elements::prefabs::resampling::decimate;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;

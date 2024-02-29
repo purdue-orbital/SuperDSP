@@ -1,5 +1,5 @@
 use crate::elements::element::Element;
-use crate::elements::macros::resampling::interpolate;
+use crate::elements::prefabs::resampling::interpolate;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;

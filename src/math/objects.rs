@@ -234,8 +234,14 @@ impl ElementParameter {
 
     #[cfg(not(feature = "vulkan"))]
     pub fn set_f32_array(&mut self, arr: &[f32]) {
+        
+        if self.f32_array_cpu.is_some() {
+            self.f32_array_cpu.as_mut().unwrap().lock().unwrap().copy_from_slice(arr);
+        }else{
+            self.f32_array_cpu = Some(Arc::new(Mutex::new(arr.to_vec())));
+        }
+        
         self.vtype = F32Array;
-        self.f32_array_cpu = Some(Arc::new(Mutex::new(arr.to_vec())));
     }
 
     #[cfg(not(feature = "vulkan"))]
@@ -271,7 +277,12 @@ impl ElementParameter {
 
     #[cfg(feature = "vulkan")]
     pub fn set_f32_array(&mut self, arr: &[f32]) {
+        if self.f32_array_vulkan.is_some() {
+            self.f32_array_vulkan.as_mut().unwrap().write().unwrap().copy_from_slice(arr);
+        }else{
+            self.f32_array_vulkan = Some(VULKAN.store_to_vram_array(arr));
+        }
+        
         self.vtype = F32Array;
-        self.f32_array_vulkan = Some(VULKAN.store_to_vram_array(arr));
     }
 }

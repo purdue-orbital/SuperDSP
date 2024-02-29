@@ -1,6 +1,6 @@
 use num_complex::Complex;
 
-use crate::elements::macros::fir::fir_bpf_dft;
+use crate::elements::prefabs::fir::fir_bpf_dft;
 use crate::math::builder::WorkflowBuilder;
 use crate::math::prelude::*;
 

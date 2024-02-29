@@ -1,7 +1,7 @@
 use criterion::{Criterion, criterion_group, criterion_main};
 use num_complex::Complex;
-use rustdsp::elements::macros::dft::{dft, idft};
-use rustdsp::elements::macros::wave_generators::wave_generator_complex_time_banked;
+use rustdsp::elements::prefabs::dft::{dft, idft};
+use rustdsp::elements::prefabs::wave_generators::wave_generator_complex_time_banked;
 use rustdsp::math::prelude::*;
 
 fn build() -> Workflow{

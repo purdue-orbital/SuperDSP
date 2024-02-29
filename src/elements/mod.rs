@@ -8,7 +8,7 @@ pub mod constellation_chart;
 
 #[cfg(feature = "ui")]
 pub mod waterfall_chart;
-pub mod macros;
+pub mod prefabs;
 pub mod signal_adder;
 pub mod lpf;
 pub mod hpf;
@@ -21,4 +21,5 @@ pub mod gain;
 pub mod frequency_modulation;
 pub mod decimator;
 pub mod data_trigger;
-mod pack;
+pub mod pack;
+pub mod frequency_demodulation;

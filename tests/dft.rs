@@ -1,5 +1,5 @@
 use num_complex::{Complex, ComplexFloat};
-use rustdsp::elements::macros::dft::{dft, idft};
+use rustdsp::elements::prefabs::dft::{dft, idft};
 use rustdsp::math::prelude::*;
 
 #[test]

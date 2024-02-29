@@ -2,7 +2,7 @@ use std::thread::sleep;
 use std::time::Duration;
 
 use crate::elements::element::Element;
-use crate::elements::macros::wave_generators::wave_generator_complex_time_banked;
+use crate::elements::prefabs::wave_generators::wave_generator_complex_time_banked;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
@@ -24,7 +24,7 @@ impl Element for SignalGenerator {
         // create wave generator
         let arr = wave_generator_complex_time_banked(builder, self.sample_rate, self.frequency, self.sps);
 
-        // set output as the out of the wave generator
+        // set output as out of the wave generator
         samples.set_complex_f32(arr)
     }
 

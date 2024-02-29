@@ -72,14 +72,13 @@ impl PipelineBuilder {
             window_builder: Some(WindowBuilder::new()),
         }
     }
-
     pub fn add<T: Element + 'static>(&mut self, mut element: T) {
 
         // initialize
         element.init(&mut self.current_workflow, &mut self.buffer);
 
         #[cfg(feature = "ui")]
-        element.build_window(&mut self.window_builder.as_mut().unwrap());
+        element.build_window(self.window_builder.as_mut().unwrap());
 
         // check if workflow halts
         if element.halt() {

@@ -7,6 +7,7 @@ pub mod wave_generators;
 pub mod dft;
 pub mod fir;
 pub mod resampling;
+mod correlation;
 
 pub trait Part {
     fn add_to_builder(builder: &mut WorkflowBuilder, samples: &mut ElementParameter);

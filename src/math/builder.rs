@@ -1,16 +1,21 @@
+use std::sync::Arc;
+#[cfg(feature = "fpga")]
 #[cfg(feature = "vulkan")]
+#[cfg(feature = "ui")]
+
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use std::sync::Arc;
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use lazy_static::lazy_static;
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
 
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 use crate::math::cpu::{CPUCommandBuilder, CPUPipeline};
 use crate::math::objects::ElementParameter;
 use crate::math::traits::PlatformSpecificOperations;
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use crate::math::vulkan::{Vulkan, VulkanCommandBuilder};
 
 /// this will increment the number of operations by one in this workflow
@@ -21,13 +26,12 @@ fn increment_ops(builder: &mut WorkflowBuilder) {
 //----------------------------------------------------------------------------------------------------------------------
 // CPU Mode
 //----------------------------------------------------------------------------------------------------------------------
-
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 pub struct Workflow {
     pipeline: CPUPipeline,
 }
-
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 impl Workflow {
     pub fn run(&mut self) {
         self.pipeline.run();
@@ -37,7 +41,7 @@ impl Workflow {
 
 /// This builder is a wrapper class around the CPU and GPU compute method that will dynamically switch depending on the
 /// feature set
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 pub struct WorkflowBuilder {
     cpu_builder: CPUCommandBuilder,
 
@@ -46,7 +50,7 @@ pub struct WorkflowBuilder {
 }
 
 
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 impl Default for WorkflowBuilder {
     fn default() -> Self {
         WorkflowBuilder {
@@ -56,7 +60,7 @@ impl Default for WorkflowBuilder {
     }
 }
 
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 impl PlatformSpecificOperations for WorkflowBuilder {
     fn build(&mut self) -> Workflow {
         Workflow {
@@ -66,6 +70,9 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 
     fn pointwise_multiply_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
         self.cpu_builder.elementwise_multiply_f32(src.get_f32_array_mut(), dest.get_f32_array_mut())
+    }
+    fn pointwise_divide_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
+        self.cpu_builder.elementwise_divide_f32(src.get_f32_array_mut(), dest.get_f32_array_mut())
     }
     fn convolution_f32(&mut self, src1: &ElementParameter, src2: &ElementParameter, dest: &mut ElementParameter) {
         let size = src1.get_f32_array().len() + src2.get_f32_array().len() - 1;
@@ -93,6 +100,13 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 
     fn cos_f32(&mut self, src: &ElementParameter) {
         self.cpu_builder.cos_f32(src.get_f32_array_mut());
+
+        increment_ops(self);
+    }
+
+
+    fn sqrt_f32(&mut self, src: &ElementParameter) {
+        self.cpu_builder.sqrt_f32(src.get_f32_array_mut());
 
         increment_ops(self);
     }
@@ -142,18 +156,18 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 lazy_static!(
     pub static ref VULKAN: Vulkan = Vulkan::default();
 );
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 #[derive(Clone)]
 pub struct Workflow {
     pipeline: Arc<PrimaryAutoCommandBuffer>,
 }
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 impl Workflow {
     pub fn run(&mut self) {
         VULKAN.run_command_builder(self.pipeline.clone()).wait(None).unwrap();
@@ -161,7 +175,7 @@ impl Workflow {
 }
 
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 pub struct WorkflowBuilder {
     vulkan_builder: VulkanCommandBuilder,
 
@@ -169,7 +183,7 @@ pub struct WorkflowBuilder {
     pub(crate) num_operations: usize,
 }
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 impl Default for WorkflowBuilder {
     fn default() -> Self {
         WorkflowBuilder {
@@ -179,7 +193,7 @@ impl Default for WorkflowBuilder {
     }
 }
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 impl PlatformSpecificOperations for WorkflowBuilder {
     fn build(&mut self) -> Workflow {
         Workflow {
@@ -188,6 +202,11 @@ impl PlatformSpecificOperations for WorkflowBuilder {
     }
     fn pointwise_multiply_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
         self.vulkan_builder.elementwise_multiply_f32(src.get_buffer_f32_array(), dest.get_buffer_f32_array());
+
+        increment_ops(self);
+    }
+    fn pointwise_divide_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
+        self.vulkan_builder.elementwise_divide_f32(src.get_buffer_f32_array(), dest.get_buffer_f32_array());
 
         increment_ops(self);
     }
@@ -208,6 +227,11 @@ impl PlatformSpecificOperations for WorkflowBuilder {
     }
     fn cos_f32(&mut self, src: &ElementParameter) {
         self.vulkan_builder.cos_f32(src.get_buffer_f32_array());
+
+        increment_ops(self);
+    }
+    fn sqrt_f32(&mut self, src: &ElementParameter) {
+        self.vulkan_builder.sqrt_f32(src.get_buffer_f32_array());
 
         increment_ops(self);
     }
@@ -248,5 +272,71 @@ impl PlatformSpecificOperations for WorkflowBuilder {
         self.vulkan_builder.idft_f32(i_src.get_buffer_f32_array(), q_src.get_buffer_f32_array(), i_dest.get_buffer_f32_array(), q_dest.get_buffer_f32_array());
 
         increment_ops(self);
+    }
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
+// FPGA Mode
+//----------------------------------------------------------------------------------------------------------------------
+
+#[cfg(all(feature = "fpga",not(feature = "vulkan"),not(feature = "ui")))]
+#[derive(Clone)]
+pub struct Workflow {
+}
+
+#[cfg(all(feature = "fpga",not(feature = "vulkan"),not(feature = "ui")))]
+impl Workflow {
+    pub fn run(&mut self) {
+    }
+}
+
+#[cfg(all(feature = "fpga",not(feature = "vulkan"),not(feature = "ui")))]
+pub struct WorkflowBuilder {
+    /// this is the number of operations stored in this builder
+    pub(crate) num_operations: usize,
+}
+
+#[cfg(all(feature = "fpga",not(feature = "vulkan"),not(feature = "ui")))]
+impl Default for WorkflowBuilder {
+    fn default() -> Self {
+        WorkflowBuilder {
+            num_operations: 0,
+        }
+    }
+}
+
+#[cfg(all(feature = "fpga",not(feature = "vulkan"),not(feature = "ui")))]
+impl PlatformSpecificOperations for WorkflowBuilder {
+    fn build(&mut self) -> Workflow {
+        Workflow {
+        }
+    }
+    fn pointwise_multiply_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
+    }
+    fn convolution_f32(&mut self, src1: &ElementParameter, src2: &ElementParameter, dest: &mut ElementParameter) {
+    }
+    fn scalar_multiply_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter) {
+    }
+    fn sin_f32(&mut self, src: &ElementParameter) {
+    }
+    fn cos_f32(&mut self, src: &ElementParameter) {
+    }
+    fn mod_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter) {
+    }
+
+    fn add_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
+    }
+    fn scalar_add_f32(&mut self, src: &ElementParameter, scalar: &ElementParameter) {
+    }
+    fn copy_f32(&mut self, src: &ElementParameter, dest: &ElementParameter) {
+    }
+
+    fn fetch_f32(&mut self, src: &ElementParameter, indexes: &ElementParameter, dest: &ElementParameter) {
+    }
+
+    fn dft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
+    }
+    fn idft_f32(&mut self, i_src: &ElementParameter, q_src: &ElementParameter, i_dest: &ElementParameter, q_dest: &ElementParameter) {
     }
 }

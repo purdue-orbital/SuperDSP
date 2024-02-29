@@ -2,12 +2,14 @@ pub mod builder;
 pub mod traits;
 pub mod objects;
 
-#[cfg(feature = "vulkan")]
+#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 pub mod vulkan;
 
-#[cfg(not(feature = "vulkan"))]
+#[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 pub mod cpu;
-mod fpga;
+
+#[cfg(all(feature = "fpga",not(feature = "vulkan"),not(feature = "ui")))]
+pub mod fpga;
 
 pub mod prelude {
     pub use crate::math::builder::Workflow;

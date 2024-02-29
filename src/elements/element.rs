@@ -4,7 +4,7 @@ use crate::ui::charts::builder::WindowBuilder;
 
 pub trait Element: ElementClone + Send {
     #[cfg(feature = "ui")]
-    /// This will run to setup the window
+    /// This will run to set up the window
     fn build_window(&mut self, win_builder: &mut WindowBuilder);
 
     /// This is the main workflow setup. This runs before build window. Samples is the input and output buffer

@@ -1,6 +1,6 @@
 use num_complex::Complex;
 
-use crate::elements::macros::dft::fft_shift;
+use crate::elements::prefabs::dft::fft_shift;
 use crate::math::prelude::*;
 
 pub fn fir_filter_dft(builder: &mut WorkflowBuilder, samples: &ComplexF32, fir_filter: &ElementParameter) {

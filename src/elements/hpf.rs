@@ -1,5 +1,5 @@
 use crate::elements::element::Element;
-use crate::elements::macros::fir::fir_hpf_dft;
+use crate::elements::prefabs::fir::fir_hpf_dft;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;

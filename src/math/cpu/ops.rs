@@ -29,6 +29,23 @@ impl CPUOperation for ElementwiseMultiplyF32 {
     }
 }
 
+pub struct ElementwiseDivideF32;
+
+impl CPUOperation for ElementwiseDivideF32 {
+    fn run(&mut self, data: &mut Data) {
+        let binding = data.f32_arrays[0].lock().unwrap();
+        let arr1 = binding.as_slice();
+
+        let mut binding = data.f32_arrays[1].lock().unwrap();
+        let arr2 = binding.as_mut_slice();
+
+        // run
+        for (index, x) in arr2.iter_mut().enumerate() {
+            *x /= arr1[index];
+        }
+    }
+}
+
 pub struct ConvolutionF32;
 
 impl CPUOperation for ConvolutionF32 {
@@ -63,6 +80,7 @@ impl CPUOperation for ScalarMultiplyF32 {
     }
 }
 
+
 pub struct SinF32;
 
 impl CPUOperation for SinF32 {
@@ -79,6 +97,16 @@ impl CPUOperation for CosF32 {
     fn run(&mut self, data: &mut Data) {
         for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
             *x = x.cos();
+        }
+    }
+}
+
+pub struct SqrtF32;
+
+impl CPUOperation for SqrtF32 {
+    fn run(&mut self, data: &mut Data) {
+        for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
+            unsafe { *x = x.sqrt(); }
         }
     }
 }

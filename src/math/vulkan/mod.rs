@@ -74,10 +74,12 @@ impl Default for Vulkan {
 
         // compile compute shaders
         let pw_mul = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile point wise multiplication shaders!");
+        let pw_div = glsl::compute_shaders::pointwise_divide_f32::load(device.clone()).expect("Failed to compile division shaders!");
         let convolve = glsl::compute_shaders::convolution_f32::load(device.clone()).expect("Failed to compile convolution shaders!");
         let s_mul = glsl::compute_shaders::scalar_multiplication_f32::load(device.clone()).expect("Failed to compile scalar multiplication shaders!");
         let sin = glsl::compute_shaders::sin_f32::load(device.clone()).expect("Failed to compile sine shaders!");
         let cos = glsl::compute_shaders::cos_f32::load(device.clone()).expect("Failed to compile cosine shaders!");
+        let sqrt = glsl::compute_shaders::sqrt_f32::load(device.clone()).expect("Failed to compile sqrt shaders!");
         let mod_f32 = glsl::compute_shaders::mod_f32::load(device.clone()).expect("Failed to compile mod shaders!");
         let add_f32 = glsl::compute_shaders::add_f32::load(device.clone()).expect("Failed to compile add shaders!");
         let s_add_f32 = glsl::compute_shaders::scalar_add_f32::load(device.clone()).expect("Failed to compile scalar add shaders!");
@@ -87,15 +89,16 @@ impl Default for Vulkan {
         let idft = glsl::compute_shaders::idft_f32::load(device.clone()).expect("Failed to compile idft shaders!");
         let collapse = glsl::compute_shaders::dft_collapse_f32::load(device.clone()).expect("Failed to compile collapse shaders!");
 
-
         // create hash map
         let mut compute_shaders = HashMap::default();
 
         compute_shaders.insert("pw mul".to_string(), pw_mul);
+        compute_shaders.insert("pw div".to_string(), pw_div);
         compute_shaders.insert("convolve".to_string(), convolve);
         compute_shaders.insert("s mul".to_string(), s_mul);
         compute_shaders.insert("sin".to_string(), sin);
         compute_shaders.insert("cos".to_string(), cos);
+        compute_shaders.insert("sqrt".to_string(), sqrt);
         compute_shaders.insert("mod".to_string(), mod_f32);
         compute_shaders.insert("add".to_string(), add_f32);
         compute_shaders.insert("s add".to_string(), s_add_f32);
@@ -271,6 +274,17 @@ impl VulkanCommandBuilder {
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
 
+    pub fn elementwise_divide_f32(&mut self, source: Subbuffer<[f32]>, destination: Subbuffer<[f32]>) {
+        let pipeline = self.stage_pipeline("pw div");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(), 1, 1, destination);
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source, descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
     pub fn convolution_f32(&mut self, source1: Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]> {
         // Create buffer that will be returned
         let size = source1.read().unwrap().len() + source2.read().unwrap().len() - 1;
@@ -315,6 +329,18 @@ impl VulkanCommandBuilder {
 
     pub fn cos_f32(&mut self, source: Subbuffer<[f32]>) {
         let pipeline = self.stage_pipeline("cos");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
+
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
+
+    pub fn sqrt_f32(&mut self, source: Subbuffer<[f32]>) {
+        let pipeline = self.stage_pipeline("sqrt");
         let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
 
 

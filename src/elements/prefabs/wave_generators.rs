@@ -1,6 +1,6 @@
 use num_complex::Complex;
 
-use crate::elements::macros::time_bank::time_bank;
+use crate::elements::prefabs::time_bank::time_bank;
 use crate::math::objects::{ComplexF32, ElementParameter};
 use crate::math::prelude::*;
 
