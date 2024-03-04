@@ -1,6 +1,6 @@
 [package]
 name = "rustdsp"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -11,10 +11,10 @@ egui_plot = { version = "0.26.2", optional = true }
 eframe = { version = "0.26.2", optional = true }
 egui_extras = { version = "0.26.2", optional = true }
 vulkano = { version = "0.34.1", optional = true }
-bytemuck = { version = "1.14.0", optional = true }
+bytemuck = { version = "1.14.3", optional = true }
 vulkano-shaders = { version = "0.34.0", optional = true }
 rust-hdl = { version = "0.46.0", optional = true }
-log = "0.4.20"
+log = "0.4.21"
 
 [features]
 # Vulkan GPU compute
