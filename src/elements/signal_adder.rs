@@ -1,6 +1,3 @@
-use std::thread::sleep;
-use std::time::Duration;
-
 use crate::elements::element::Element;
 use crate::elements::prefabs::wave_generators::wave_generator_complex_time_banked;
 use crate::math::prelude::*;
@@ -8,15 +5,13 @@ use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 
 #[derive(Clone)]
-pub struct SignalGenerator {
+pub struct SignalAdder {
     sps: usize,
     sample_rate: f32,
     frequency: f32,
-    time_delay: f32,
-    delay: bool,
 }
 
-impl Element for SignalGenerator {
+impl Element for SignalAdder {
     #[cfg(feature = "ui")]
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
@@ -24,31 +19,32 @@ impl Element for SignalGenerator {
         // create wave generator
         let arr = wave_generator_complex_time_banked(builder, self.sample_rate, self.frequency, self.sps);
 
-        // set output as out of the wave generator
-        samples.set_complex_f32(arr)
+        // add two signals together
+        let src_i = arr.get_real_array_wrapped();
+        let src_q = arr.get_imag_array_wrapped();
+
+        builder.add_f32(&src_i, &samples.get_complex_f32().get_real_array_wrapped());
+        builder.add_f32(&src_q, &samples.get_complex_f32().get_imag_array_wrapped());
     }
 
-    fn run(&mut self, _samples: &mut ElementParameter) {
-        sleep(Duration::from_secs_f32(self.time_delay))
-    }
+    fn run(&mut self, _samples: &mut ElementParameter) {}
 
     fn halt(&self) -> bool {
-        self.delay
+        false
     }
     fn stop(&self, samples: &mut ElementParameter) -> bool { false }
+
     fn is_source(&self) -> bool {
         true
     }
 }
 
-impl SignalGenerator {
-    pub fn new(frequency: f32, sample_rate: f32, sps: usize, delay: bool) -> SignalGenerator {
-        SignalGenerator {
+impl SignalAdder {
+    pub fn new(frequency: f32, sample_rate: f32, sps: usize) -> SignalAdder {
+        SignalAdder {
             sps,
             sample_rate,
             frequency,
-            time_delay: sps as f32 / sample_rate,
-            delay,
         }
     }
 }

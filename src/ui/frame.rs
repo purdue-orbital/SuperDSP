@@ -22,13 +22,13 @@ impl Frame {
         self.charts = array;
     }
 
-    pub fn create(self, cc: &eframe::CreationContext<'_>) -> Frame {
+    pub fn create(self) -> Frame {
         self
     }
 }
 
 impl App for Frame {
-    fn update(&mut self, ctx: &Context, frame: &mut eframe::Frame) {
+    fn update(&mut self, ctx: &Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
             egui::ScrollArea::new([false, true]).show(ui, |ui| {
                 for x in self.charts.as_slice() {

@@ -1,78 +1,57 @@
-use std::sync::Arc;
-
 use num_complex::Complex;
-use rustfft::Fft;
 
 use crate::elements::element::Element;
+use crate::elements::prefabs::dft::{dft, fft_shift};
 use crate::math::builder::WorkflowBuilder;
-use crate::math::objects::ElementParameter;
+use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 use crate::ui::charts::pixel_chart::PixelChart;
 
 #[derive(Clone)]
 pub struct WaterfallChart {
     boxed_chart: Option<Box<PixelChart>>,
-    len: usize,
-    fft: Arc<dyn Fft<f32>>,
+    arr: Option<ComplexF32>,
+    len: Option<usize>,
 }
 
 impl WaterfallChart {
-    pub fn new(len: usize) -> WaterfallChart {
-        let mut planner = rustfft::FftPlanner::new();
-        let fft = planner.plan_fft_forward(len);
-
+    pub fn new() -> WaterfallChart {
         WaterfallChart {
             boxed_chart: None,
-            len,
-            fft,
+            arr: None,
+            len: None,
         }
     }
 }
 
 impl Element for WaterfallChart {
     fn build_window(&mut self, win_builder: &mut WindowBuilder) {
-        let chart = PixelChart::new(self.len, 100);
+        let chart = PixelChart::new(self.len.unwrap(), 100);
 
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }
 
-    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
+    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
+        self.len = Some(samples.get_complex_f32().to_vec().len());
+        self.arr = Some(ComplexF32::new(vec![Complex::new(0.0, 0.0); self.len.unwrap()]));
+        dft(builder, &samples.get_complex_f32(), self.arr.as_ref().unwrap());
+        fft_shift(builder, self.arr.as_ref().unwrap());
+    }
 
-    fn run(&mut self, samples: &ElementParameter) {
-
-        // get chart
-        let unwrapped = self.boxed_chart.as_mut().unwrap();
-
-        // make a copy (as fft is done in place)
-        let mut samples_clone: Vec<Complex<f32>> = samples.get_complex_f32().to_vec();
-
-        // fft
-        self.fft.process(samples_clone.as_mut_slice());
-
-        // divide by 2
-        let mut k = samples_clone.len() >> 1;
-
-        // preform fft shift
-        if samples_clone.len() % 2 == 1 {
-            k += 1
-        }
-
-        samples_clone.rotate_right(k);
-
-
-        // send fft to pixel chart
-        for x in samples_clone {
-
+    fn run(&mut self, _samples: &mut ElementParameter) {
+        // send dft to pixel chart
+        for x in self.arr.as_ref().unwrap().to_vec() {
             // we only need the real component as the imaginary component is just phase data
-            let normalized = (((x.norm_sqr().sqrt()) / self.len as f32) * 255.0) as u8;
+            let normalized = ((x.norm_sqr().sqrt() / self.len.unwrap() as f32) * 255.0) as u8;
 
-            unwrapped.add(normalized, 0, 255 - normalized);
+            self.boxed_chart.as_mut().unwrap().add(normalized, 0, 255 - normalized);
         }
     }
 
     fn halt(&self) -> bool {
         true
     }
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
 
     fn is_source(&self) -> bool {
         false

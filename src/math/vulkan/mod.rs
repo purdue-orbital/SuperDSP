@@ -17,6 +17,8 @@ use vulkano::shader::ShaderModule;
 use vulkano::sync::future::{FenceSignalFuture, NowFuture};
 use vulkano::sync::GpuFuture;
 
+use crate::math::builder::VULKAN;
+
 mod glsl;
 
 #[derive(Clone)]
@@ -50,7 +52,7 @@ impl Default for Vulkan {
             .iter()
             .enumerate()
             .position(|(_queue_family_index, queue_family_properties)| {
-                queue_family_properties.queue_flags.contains(QueueFlags::GRAPHICS)
+                queue_family_properties.queue_flags.contains(QueueFlags::GRAPHICS | QueueFlags::COMPUTE)
             })
             .expect("couldn't find a graphical queue family") as u32;
 
@@ -72,27 +74,39 @@ impl Default for Vulkan {
 
         // compile compute shaders
         let pw_mul = glsl::compute_shaders::pointwise_multiplication_f32::load(device.clone()).expect("Failed to compile point wise multiplication shaders!");
+        let pw_div = glsl::compute_shaders::pointwise_divide_f32::load(device.clone()).expect("Failed to compile division shaders!");
         let convolve = glsl::compute_shaders::convolution_f32::load(device.clone()).expect("Failed to compile convolution shaders!");
         let s_mul = glsl::compute_shaders::scalar_multiplication_f32::load(device.clone()).expect("Failed to compile scalar multiplication shaders!");
         let sin = glsl::compute_shaders::sin_f32::load(device.clone()).expect("Failed to compile sine shaders!");
         let cos = glsl::compute_shaders::cos_f32::load(device.clone()).expect("Failed to compile cosine shaders!");
+        let sqrt = glsl::compute_shaders::sqrt_f32::load(device.clone()).expect("Failed to compile sqrt shaders!");
         let mod_f32 = glsl::compute_shaders::mod_f32::load(device.clone()).expect("Failed to compile mod shaders!");
         let add_f32 = glsl::compute_shaders::add_f32::load(device.clone()).expect("Failed to compile add shaders!");
         let s_add_f32 = glsl::compute_shaders::scalar_add_f32::load(device.clone()).expect("Failed to compile scalar add shaders!");
         let copy = glsl::compute_shaders::copy_f32::load(device.clone()).expect("Failed to compile copy shaders!");
+        let fetch_f32 = glsl::compute_shaders::fetch_f32::load(device.clone()).expect("Failed to compile fetch shaders!");
+        let dft = glsl::compute_shaders::dft_f32::load(device.clone()).expect("Failed to compile dft shaders!");
+        let idft = glsl::compute_shaders::idft_f32::load(device.clone()).expect("Failed to compile idft shaders!");
+        let collapse = glsl::compute_shaders::dft_collapse_f32::load(device.clone()).expect("Failed to compile collapse shaders!");
 
         // create hash map
         let mut compute_shaders = HashMap::default();
 
         compute_shaders.insert("pw mul".to_string(), pw_mul);
+        compute_shaders.insert("pw div".to_string(), pw_div);
         compute_shaders.insert("convolve".to_string(), convolve);
         compute_shaders.insert("s mul".to_string(), s_mul);
         compute_shaders.insert("sin".to_string(), sin);
         compute_shaders.insert("cos".to_string(), cos);
+        compute_shaders.insert("sqrt".to_string(), sqrt);
         compute_shaders.insert("mod".to_string(), mod_f32);
         compute_shaders.insert("add".to_string(), add_f32);
         compute_shaders.insert("s add".to_string(), s_add_f32);
         compute_shaders.insert("copy".to_string(), copy);
+        compute_shaders.insert("fetch".to_string(), fetch_f32);
+        compute_shaders.insert("dft".to_string(), dft);
+        compute_shaders.insert("idft".to_string(), idft);
+        compute_shaders.insert("collapse".to_string(), collapse);
 
         // We save these variables so we can execute operations on them later
         Vulkan {
@@ -154,7 +168,6 @@ impl Vulkan {
 
 /// This is a wrapper struct around the Vulkan CommandBuffer used to make vulkan compute pipelines
 pub struct VulkanCommandBuilder {
-    command_buffer_allocator: StandardCommandBufferAllocator,
     builder: Option<AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>>,
     compute_shaders: HashMap<String, Arc<ShaderModule>>,
     device: Arc<Device>,
@@ -175,7 +188,6 @@ impl VulkanCommandBuilder {
         ).unwrap();
 
         VulkanCommandBuilder {
-            command_buffer_allocator,
             builder: Some(builder),
             compute_shaders,
             device: device.clone(),
@@ -262,6 +274,17 @@ impl VulkanCommandBuilder {
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
 
+    pub fn elementwise_divide_f32(&mut self, source: Subbuffer<[f32]>, destination: Subbuffer<[f32]>) {
+        let pipeline = self.stage_pipeline("pw div");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(), 1, 1, destination);
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source, descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
     pub fn convolution_f32(&mut self, source1: Subbuffer<[f32]>, source2: Subbuffer<[f32]>) -> Subbuffer<[f32]> {
         // Create buffer that will be returned
         let size = source1.read().unwrap().len() + source2.read().unwrap().len() - 1;
@@ -315,6 +338,18 @@ impl VulkanCommandBuilder {
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
 
+
+    pub fn sqrt_f32(&mut self, source: Subbuffer<[f32]>) {
+        let pipeline = self.stage_pipeline("sqrt");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source.clone());
+
+
+        let work_group_counts = [source.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
     pub fn mod_f32(&mut self, source: Subbuffer<[f32]>, scalar: Subbuffer<f32>) {
         let pipeline = self.stage_pipeline("mod");
         let descriptor_set_source = self.set_layout_array(pipeline.clone(), 1, 1, source.clone());
@@ -359,6 +394,80 @@ impl VulkanCommandBuilder {
 
         self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
     }
+
+    pub fn fetch_f32(&mut self, source: Subbuffer<[f32]>, indexes: Subbuffer<[f32]>, destination: Subbuffer<[f32]>) {
+        let pipeline = self.stage_pipeline("fetch");
+        let descriptor_set_source = self.set_layout_array(pipeline.clone(), 0, 0, source);
+        let descriptor_set_indexes = self.set_layout_array(pipeline.clone(), 1, 1, indexes.clone());
+        let descriptor_set_destination = self.set_layout_array(pipeline.clone(), 2, 2, destination);
+
+        let work_group_counts = [indexes.read().unwrap().len() as u32, 1, 1];
+        let arr = [descriptor_set_source, descriptor_set_indexes, descriptor_set_destination];
+
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
+    pub fn dft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>) {
+        let len = i_dest.read().unwrap().len();
+        let width = VULKAN.store_to_vram_var(len as f32);
+
+        let i_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
+        let q_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
+
+        // set first half
+        let pipeline = self.stage_pipeline("dft");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_source.clone());
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_source);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_scratch.clone());
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_scratch.clone());
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width.clone());
+        let work_group_counts = [len as u32, len as u32, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+
+
+        // collapse
+        let pipeline = self.stage_pipeline("collapse");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_scratch);
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_scratch);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_dest);
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width);
+        let work_group_counts = [len as u32, 1, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+    pub fn idft_f32(&mut self, i_source: Subbuffer<[f32]>, q_source: Subbuffer<[f32]>, i_dest: Subbuffer<[f32]>, q_dest: Subbuffer<[f32]>) {
+        let len = i_dest.read().unwrap().len();
+        let width = VULKAN.store_to_vram_var(len as f32);
+
+        let i_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
+        let q_scratch = VULKAN.store_to_vram_array(vec![0.0; len.pow(2)].as_slice());
+
+        // set first half
+        let pipeline = self.stage_pipeline("idft");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_source.clone());
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_source);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_scratch.clone());
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_scratch.clone());
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width.clone());
+        let work_group_counts = [len as u32, len as u32, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+
+
+        // collapse
+        let pipeline = self.stage_pipeline("collapse");
+        let descriptor_set_i_source = self.set_layout_array(pipeline.clone(), 0, 0, i_scratch);
+        let descriptor_set_q_source = self.set_layout_array(pipeline.clone(), 1, 1, q_scratch);
+        let descriptor_set_i_destination = self.set_layout_array(pipeline.clone(), 2, 2, i_dest);
+        let descriptor_set_q_destination = self.set_layout_array(pipeline.clone(), 3, 3, q_dest);
+        let descriptor_set_width = self.set_layout_var(pipeline.clone(), 4, 4, width);
+        let work_group_counts = [len as u32, 1, 1];
+        let arr = [descriptor_set_i_source, descriptor_set_q_source, descriptor_set_i_destination, descriptor_set_q_destination, descriptor_set_width];
+        self.bind_descriptor_sets(pipeline, &arr, work_group_counts);
+    }
+
 
     pub fn build(&mut self) -> Arc<PrimaryAutoCommandBuffer> {
         self.builder.take().unwrap().build().unwrap()

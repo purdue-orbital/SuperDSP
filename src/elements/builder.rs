@@ -6,8 +6,6 @@ use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 
 pub struct Pipeline {
-    sps: usize,
-
     #[cfg(feature = "ui")]
     window: WindowBuilder,
 
@@ -15,18 +13,20 @@ pub struct Pipeline {
 }
 
 impl Pipeline {
-    /// ***THIS WILL HALT THE THREAD AND IT MUST BE THE MAIN THREAD!*** This is because of a limitation set by egui
+    /// ***THIS WILL HALT THE THREAD,
+    /// AND IT MUST BE THE MAIN THREAD!*** This is because of a limitation set by egui
     pub fn run(&mut self) {
         let mut elements = self.pipeline.take();
 
         spawn(move || {
             loop {
-                for x in elements.as_mut().unwrap().as_mut_slice() {
-                    x.run()
+                'inner: for x in elements.as_mut().unwrap().as_mut_slice() {
+                    if x.run(){
+                        break 'inner;
+                    }
                 }
             }
         });
-
 
         #[cfg(feature = "ui")]
         self.window.build()
@@ -42,11 +42,13 @@ struct PipeSegment {
 }
 
 impl PipeSegment {
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> bool {
         if self.element.is_some() {
-            self.element.as_mut().unwrap().run(self.element_input.as_ref().unwrap());
+            self.element.as_mut().unwrap().run(self.element_input.as_mut().unwrap());
+            self.element.as_mut().unwrap().stop(self.element_input.as_mut().unwrap())
         } else {
-            self.workflow.as_mut().unwrap().run()
+            self.workflow.as_mut().unwrap().run();
+            false
         }
     }
 }
@@ -73,14 +75,13 @@ impl PipelineBuilder {
             window_builder: Some(WindowBuilder::new()),
         }
     }
-
     pub fn add<T: Element + 'static>(&mut self, mut element: T) {
 
         // initialize
         element.init(&mut self.current_workflow, &mut self.buffer);
 
         #[cfg(feature = "ui")]
-        element.build_window(&mut self.window_builder.as_mut().unwrap());
+        element.build_window(self.window_builder.as_mut().unwrap());
 
         // check if workflow halts
         if element.halt() {
@@ -105,11 +106,9 @@ impl PipelineBuilder {
         }
     }
 
-    /// This will setup pipeline to run creating a sender, receiver, and pipeline
-    pub fn build(&mut self, sps: usize) -> Pipeline {
+    /// This will set up a pipeline to run creating a sender, receiver, and pipeline
+    pub fn build(&mut self) -> Pipeline {
         Pipeline {
-            sps,
-
             #[cfg(feature = "ui")]
             window: self.window_builder.take().unwrap(),
             pipeline: Some(self.pipeline.take().unwrap()),

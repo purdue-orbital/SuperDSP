@@ -24,6 +24,30 @@ pub mod compute_shaders {
         }
     }
 
+    pub mod pointwise_divide_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer Source {
+                        float data[];
+                    } src;
+
+                    layout(set = 1, binding = 1) buffer Destentaion {
+                        float data[];
+                    } dest;
+
+
+                    void main() {
+                        dest.data[gl_GlobalInvocationID.x] = dest.data[gl_GlobalInvocationID.x] / src.data[gl_GlobalInvocationID.x];
+                    }
+                ",
+        }
+    }
+
     pub mod convolution_f32 {
         vulkano_shaders::shader! {
                 ty: "compute",
@@ -113,6 +137,24 @@ pub mod compute_shaders {
                 ",
         }
     }
+    pub mod sqrt_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer Source {
+                        float data[];
+                    } dest;
+
+                    void main() {
+                        dest.data[gl_GlobalInvocationID.x] = sqrt(dest.data[gl_GlobalInvocationID.x]);
+                    }
+                ",
+        }
+    }
 
     pub mod mod_f32 {
         vulkano_shaders::shader! {
@@ -192,16 +234,169 @@ pub mod compute_shaders {
 
                     layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
-                    layout(set = 0, binding = 0) buffer Scalar {
+                    layout(set = 0, binding = 0) buffer Source {
                         float data[];
                     } src;
 
-                    layout(set = 1, binding = 1) buffer Source {
+                    layout(set = 1, binding = 1) buffer Dest {
                         float data[];
                     } dest;
 
                     void main() {
                         dest.data[gl_GlobalInvocationID.x] = src.data[gl_GlobalInvocationID.x];
+                    }
+                ",
+        }
+    }
+
+    pub mod fetch_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer Source {
+                        float data[];
+                    } src;
+
+                    layout(set = 1, binding = 1) buffer Indexes {
+                        float data[];
+                    } indexes;
+
+                    layout(set = 2, binding = 2) buffer Dest {
+                        float data[];
+                    } dest;
+               
+
+                    void main() {
+                        dest.data[gl_GlobalInvocationID.x] = src.data[int(indexes.data[gl_GlobalInvocationID.x])];
+                    }
+                ",
+        }
+    }
+
+    pub mod dft_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    #define PHI (3.1415926535897932384626433832795 * gl_GlobalInvocationID.x * gl_GlobalInvocationID.y * -2.0 / width.width)
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer I_Source {
+                        float data[];
+                    } i_src;
+
+                    layout(set = 1, binding = 1) buffer Q_Source {
+                        float data[];
+                    } q_src;
+
+                    layout(set = 2, binding = 2) buffer I_Dest {
+                        float data[];
+                    } i_dest;
+
+                    layout(set = 3, binding = 3) buffer Q_Dest {
+                        float data[];
+                    } q_dest;
+
+                    layout(set = 4, binding = 4) buffer Width {
+                        float width;
+                    } width;
+
+                    // preform first half
+                    void main() {
+                        i_dest.data[gl_GlobalInvocationID.x * uint(width.width) + gl_GlobalInvocationID.y] = i_src.data[gl_GlobalInvocationID.y] * cos(PHI) - q_src.data[gl_GlobalInvocationID.y] * sin(PHI);
+                        q_dest.data[gl_GlobalInvocationID.x * uint(width.width) + gl_GlobalInvocationID.y] = i_src.data[gl_GlobalInvocationID.y] * sin(PHI) + q_src.data[gl_GlobalInvocationID.y] * cos(PHI);
+                    }
+                ",
+        }
+    }
+
+    pub mod idft_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    #define PHI (3.1415926535897932384626433832795 * gl_GlobalInvocationID.x * gl_GlobalInvocationID.y * 2.0 / width.width )
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer I_Source {
+                        float data[];
+                    } i_src;
+
+                    layout(set = 1, binding = 1) buffer Q_Source {
+                        float data[];
+                    } q_src;
+
+                    layout(set = 2, binding = 2) buffer I_Dest {
+                        float data[];
+                    } i_dest;
+
+                    layout(set = 3, binding = 3) buffer Q_Dest {
+                        float data[];
+                    } q_dest;
+
+                    layout(set = 4, binding = 4) buffer Width {
+                        float width;
+                    } width;
+
+                    // preform first half
+                    void main() {
+                        uint index = gl_GlobalInvocationID.x * uint(width.width) + gl_GlobalInvocationID.y;
+
+                        i_dest.data[index] = (i_src.data[gl_GlobalInvocationID.y] * cos(PHI) - q_src.data[gl_GlobalInvocationID.y] * sin(PHI)) / width.width;
+                        q_dest.data[index] = (i_src.data[gl_GlobalInvocationID.y] * sin(PHI) + q_src.data[gl_GlobalInvocationID.y] * cos(PHI)) / width.width;
+                    }
+                ",
+        }
+    }
+
+    /// This is a "post-process" cleanup
+    pub mod dft_collapse_f32 {
+        vulkano_shaders::shader! {
+                ty: "compute",
+                src: r"
+                    #version 460
+
+                    layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+                    layout(set = 0, binding = 0) buffer I_Source {
+                        float data[];
+                    } i_src;
+
+                    layout(set = 1, binding = 1) buffer Q_Source {
+                        float data[];
+                    } q_src;
+
+                    layout(set = 2, binding = 2) buffer I_Dest {
+                        float data[];
+                    } i_dest;
+
+                    layout(set = 3, binding = 3) buffer Q_Dest {
+                        float data[];
+                    } q_dest;
+
+                    layout(set = 4, binding = 4) buffer Width {
+                        float width;
+                    } width;
+
+                    void main() {
+                        uint w = uint(width.width);
+                        uint index = gl_GlobalInvocationID.x * w;
+
+                        for(int i = 1; i < w; i++){
+                            i_src.data[index] += i_src.data[index + i];
+                            q_src.data[index] += q_src.data[index + i];
+                        }
+
+                        i_dest.data[gl_GlobalInvocationID.x] = i_src.data[index];
+                        q_dest.data[gl_GlobalInvocationID.x] = q_src.data[index];
                     }
                 ",
         }

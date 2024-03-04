@@ -1,28 +1,33 @@
 [package]
 name = "rustdsp"
-version = "0.2.2"
+version = "0.3.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-num-complex = "0.4.4"
-rand = "0.8.5"
-anyhow = "1.0.79"
-rustfft = "6.1.0"
-bytes = "1.5.0"
-rand_distr = "0.4.3"
-once_cell = "1.18.0"
-lazy_static = "1.4.0"
-egui_plot = { version = "0.25.0", optional = true }
-eframe = { version = "0.25.0", optional = true }
-egui_extras = { version = "0.25.0", optional = true }
+num-complex = "0.4.5"
+lazy_static = { version = "1.4.0", optional = true }
+egui_plot = { version = "0.26.2", optional = true }
+eframe = { version = "0.26.2", optional = true }
+egui_extras = { version = "0.26.2", optional = true }
 vulkano = { version = "0.34.1", optional = true }
-bytemuck = { version = "1.14.0", optional = true }
+bytemuck = { version = "1.14.3", optional = true }
 vulkano-shaders = { version = "0.34.0", optional = true }
+rust-hdl = { version = "0.46.0", optional = true }
+log = "0.4.21"
 
 [features]
 # Vulkan GPU compute
-vulkan = ["dep:vulkano", "dep:bytemuck", "dep:vulkano-shaders"]
+vulkan = ["dep:vulkano", "dep:bytemuck", "dep:vulkano-shaders", "dep:lazy_static"]
 
 # User interface feature
 ui = ["dep:eframe", "dep:egui_extras", "dep:egui_plot"]
+
+fpga = ["dep:rust-hdl"]
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+name = "dft"
+harness = false

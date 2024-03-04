@@ -1,6 +1,5 @@
 use crate::elements::element::Element;
-use crate::math::builder::WorkflowBuilder;
-use crate::math::objects::ElementParameter;
+use crate::math::prelude::*;
 use crate::ui::charts::builder::WindowBuilder;
 use crate::ui::charts::line_chart::LineChart;
 
@@ -27,9 +26,9 @@ impl Element for TimeChart {
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }
 
-    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
+    fn init(&mut self, _builder: &mut WorkflowBuilder, _samples: &mut ElementParameter) {}
 
-    fn run(&mut self, samples: &ElementParameter) {
+    fn run(&mut self, samples: &mut ElementParameter) {
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 
         for x in samples.get_complex_f32().to_vec().iter() {
@@ -40,6 +39,7 @@ impl Element for TimeChart {
     fn halt(&self) -> bool {
         true
     }
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
 
     fn is_source(&self) -> bool {
         false

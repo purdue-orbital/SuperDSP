@@ -27,9 +27,9 @@ impl Element for ConstellationChart {
         self.boxed_chart = Some(win_builder.add_chart(chart));
     }
 
-    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
+    fn init(&mut self, _builder: &mut WorkflowBuilder, _samples: &mut ElementParameter) {}
 
-    fn run(&mut self, samples: &ElementParameter) {
+    fn run(&mut self, samples: &mut ElementParameter) {
         let unwrapped = self.boxed_chart.as_mut().unwrap();
 
         for x in samples.get_complex_f32().to_vec().iter().copied() {
@@ -41,6 +41,7 @@ impl Element for ConstellationChart {
         false
     }
 
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
         false
     }

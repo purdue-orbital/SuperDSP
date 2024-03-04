@@ -1,6 +1,5 @@
+use crate::math::cpu::ops::*;
 use std::sync::{Arc, Mutex, RwLock};
-
-use crate::math::cpu::ops::{AddF32, ConvolutionF32, CopyF32, CosF32, CPUOperation, Data, ElementwiseMultiplyF32, ModF32, ScalarAddF32, ScalarMultiplyF32, SinF32};
 
 mod ops;
 
@@ -54,6 +53,20 @@ impl CPUCommandBuilder {
         self.operations.as_mut().unwrap().push(BoxedCPUOperation {
             buffer: data,
             operation: Box::new(ElementwiseMultiplyF32),
+        })
+    }
+    
+    pub fn elementwise_divide_f32(&mut self, source: Arc<Mutex<Vec<f32>>>, destination: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![source, destination],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(ElementwiseDivideF32),
         })
     }
 
@@ -111,6 +124,21 @@ impl CPUCommandBuilder {
             operation: Box::new(CosF32),
         });
     }
+
+    pub fn sqrt_f32(&mut self, source: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![source],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(SqrtF32),
+        });
+    }
+    
     pub fn mod_f32(&mut self, source: Arc<Mutex<Vec<f32>>>, scalar: Arc<RwLock<f32>>) {
         // create data structure
         let data = Data {
@@ -163,6 +191,48 @@ impl CPUCommandBuilder {
         self.operations.as_mut().unwrap().push(BoxedCPUOperation {
             buffer: data,
             operation: Box::new(CopyF32),
+        })
+    }
+
+    pub fn fetch_f32(&mut self, source: Arc<Mutex<Vec<f32>>>, indexes: Arc<Mutex<Vec<f32>>>, destination: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![source, indexes, destination],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(FetchF32),
+        })
+    }
+
+    pub fn dft_f32(&mut self, i_source: Arc<Mutex<Vec<f32>>>, q_source: Arc<Mutex<Vec<f32>>>, i_dest: Arc<Mutex<Vec<f32>>>, q_dest: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![i_source, q_source, i_dest, q_dest],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(DFTF32),
+        })
+    }
+
+    pub fn idft_f32(&mut self, i_source: Arc<Mutex<Vec<f32>>>, q_source: Arc<Mutex<Vec<f32>>>, i_dest: Arc<Mutex<Vec<f32>>>, q_dest: Arc<Mutex<Vec<f32>>>) {
+        // create data structure
+        let data = Data {
+            f32_arrays: vec![i_source, q_source, i_dest, q_dest],
+            f32_const: vec![],
+        };
+
+        // add to builder
+        self.operations.as_mut().unwrap().push(BoxedCPUOperation {
+            buffer: data,
+            operation: Box::new(IDFTF32),
         })
     }
 }

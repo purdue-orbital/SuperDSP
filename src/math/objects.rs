@@ -9,7 +9,7 @@ use vulkano::buffer::Subbuffer;
 use crate::math::builder::VULKAN;
 use crate::math::objects::ValueTypes::{F32, F32Array};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ComplexF32 {
     #[cfg(not(feature = "vulkan"))]
     real_comp_cpu: Arc<Mutex<Vec<f32>>>,
@@ -136,7 +136,7 @@ impl ComplexF32 {
 }
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum ValueTypes {
     F32Array,
     F32,
@@ -144,7 +144,7 @@ pub enum ValueTypes {
 }
 
 /// This will dynamically switch between types
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ElementParameter {
     vtype: ValueTypes,
 
@@ -224,7 +224,7 @@ impl ElementParameter {
 
     #[cfg(not(feature = "vulkan"))]
     pub fn get_f32_array_mut(&self) -> Arc<Mutex<Vec<f32>>> {
-        self.f32_array_cpu.clone().unwrap()
+        self.f32_array_cpu.as_ref().unwrap().clone()
     }
 
     #[cfg(not(feature = "vulkan"))]
@@ -234,8 +234,28 @@ impl ElementParameter {
 
     #[cfg(not(feature = "vulkan"))]
     pub fn set_f32_array(&mut self, arr: &[f32]) {
+        
+        if self.f32_array_cpu.is_some() && arr.len() == self.f32_array_cpu.as_ref().unwrap().lock().unwrap().len() {
+            self.f32_array_cpu.as_mut().unwrap().lock().unwrap().copy_from_slice(arr);
+        }else{
+            self.f32_array_cpu = Some(Arc::new(Mutex::new(arr.to_vec())));
+        }
+        
         self.vtype = F32Array;
-        self.f32_array_cpu = Some(Arc::new(Mutex::new(arr.to_vec())));
+    }
+
+    #[cfg(not(feature = "vulkan"))]
+    pub fn set_f32_array_wrapped(&mut self, arr: &ElementParameter) {
+        self.f32_array_cpu = arr.f32_array_cpu.clone();
+
+        self.vtype = F32Array;
+    }
+
+    #[cfg(feature = "vulkan")]
+    pub fn set_f32_array_wrapped(&mut self, arr: &ElementParameter) {
+        self.f32_array_vulkan = arr.f32_array_vulkan.clone();
+
+        self.vtype = F32Array;
     }
 
     #[cfg(not(feature = "vulkan"))]
@@ -259,7 +279,7 @@ impl ElementParameter {
 
     #[cfg(feature = "vulkan")]
     pub fn get_buffer_f32_array(&self) -> Subbuffer<[f32]> {
-        self.f32_array_vulkan.clone().unwrap()
+        self.f32_array_vulkan.as_ref().unwrap().clone()
     }
 
 
@@ -271,7 +291,12 @@ impl ElementParameter {
 
     #[cfg(feature = "vulkan")]
     pub fn set_f32_array(&mut self, arr: &[f32]) {
+        if self.f32_array_vulkan.is_some() && arr.len() == self.f32_array_vulkan.as_ref().unwrap().read().unwrap().len() {
+            self.f32_array_vulkan.as_mut().unwrap().write().unwrap().copy_from_slice(arr);
+        }else{
+            self.f32_array_vulkan = Some(VULKAN.store_to_vram_array(arr));
+        }
+        
         self.vtype = F32Array;
-        self.f32_array_vulkan = Some(VULKAN.store_to_vram_array(arr));
     }
 }
