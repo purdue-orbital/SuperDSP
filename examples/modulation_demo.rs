@@ -1,14 +1,10 @@
-use std::io::Sink;
 use std::thread::spawn;
 use rustdsp::elements::builder::PipelineBuilder;
-use rustdsp::elements::code_sink::{CodeSinkComplexF32, CodeSinkF32Array};
+use rustdsp::elements::code_sink::{CodeSinkF32Array};
 use rustdsp::elements::data_trigger::DataTrigger;
-use rustdsp::elements::events::Debug;
 use rustdsp::elements::frequency_demodulation::FrequencyDemodulation;
 use rustdsp::elements::frequency_modulation::FrequencyModulation;
-use rustdsp::elements::pub_sub::PubSub;
 use rustdsp::elements::sliding_buffer::SlidingBuffer;
-use rustdsp::elements::waterfall_chart::WaterfallChart;
 
 fn main() {
     let sps = 16;
