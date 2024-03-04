@@ -35,7 +35,7 @@ impl Element for SignalGenerator {
     fn halt(&self) -> bool {
         self.delay
     }
-
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
         true
     }

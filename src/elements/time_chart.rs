@@ -39,6 +39,7 @@ impl Element for TimeChart {
     fn halt(&self) -> bool {
         true
     }
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
 
     fn is_source(&self) -> bool {
         false

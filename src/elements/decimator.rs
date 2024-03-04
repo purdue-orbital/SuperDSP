@@ -29,6 +29,7 @@ impl Element for Decimator {
         false
     }
 
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
         false
     }

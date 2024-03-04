@@ -106,7 +106,7 @@ pub struct SqrtF32;
 impl CPUOperation for SqrtF32 {
     fn run(&mut self, data: &mut Data) {
         for x in data.f32_arrays[0].lock().unwrap().iter_mut() {
-            unsafe { *x = x.sqrt(); }
+            *x = x.sqrt();
         }
     }
 }
@@ -183,8 +183,8 @@ impl CPUOperation for FetchF32 {
         let dest = binding.as_mut_slice();
 
         // run
-        for (index, x) in dest.iter_mut().enumerate() {
-            *x = src[indexes[index] as usize];
+        for (dest_index,src_index) in indexes.iter().enumerate(){
+            dest[dest_index] = src[*src_index as usize];
         }
     }
 }

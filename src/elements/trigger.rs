@@ -27,6 +27,7 @@ impl Element for Trigger {
         true
     }
 
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
         false
     }

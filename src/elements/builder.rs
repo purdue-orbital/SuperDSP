@@ -20,12 +20,13 @@ impl Pipeline {
 
         spawn(move || {
             loop {
-                for x in elements.as_mut().unwrap().as_mut_slice() {
-                    x.run()
+                'inner: for x in elements.as_mut().unwrap().as_mut_slice() {
+                    if x.run(){
+                        break 'inner;
+                    }
                 }
             }
         });
-
 
         #[cfg(feature = "ui")]
         self.window.build()
@@ -41,11 +42,13 @@ struct PipeSegment {
 }
 
 impl PipeSegment {
-    pub fn run(&mut self) {
+    pub fn run(&mut self) -> bool {
         if self.element.is_some() {
             self.element.as_mut().unwrap().run(self.element_input.as_mut().unwrap());
+            self.element.as_mut().unwrap().stop(self.element_input.as_mut().unwrap())
         } else {
-            self.workflow.as_mut().unwrap().run()
+            self.workflow.as_mut().unwrap().run();
+            false
         }
     }
 }

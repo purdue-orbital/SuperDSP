@@ -41,6 +41,7 @@ impl Element for ConstellationChart {
         false
     }
 
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
         false
     }

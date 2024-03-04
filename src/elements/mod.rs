@@ -23,3 +23,6 @@ pub mod decimator;
 pub mod data_trigger;
 pub mod pack;
 pub mod frequency_demodulation;
+pub mod pub_sub;
+pub mod events;
+pub mod sliding_buffer;

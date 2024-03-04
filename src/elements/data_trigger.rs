@@ -27,6 +27,7 @@ impl Element for DataTrigger {
         true
     }
 
+    fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
         true
     }
