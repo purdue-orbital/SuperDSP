@@ -1,8 +1,8 @@
 use crate::math::objects::ElementParameter;
 
 pub trait Event: Send {
-    /// the run function is called at runtime and returns true or false to allow the pipeline to 
-    /// continue (On false the pipeline will stop making this the last element in the pipe)
+    /// the run function is called at runtime and returns true or false for the pipeline to 
+    /// stop (On true, the pipeline will stop making this the last element in the pipe)
     fn run(&mut self, samples: &mut ElementParameter) -> bool;
 }
 
