@@ -1,7 +1,4 @@
-use std::sync::{Arc, Mutex};
-
 use crate::elements::element::Element;
-use crate::elements::events::Event;
 use crate::math::prelude::*;
 #[cfg(feature = "ui")]
 use crate::ui::charts::builder::WindowBuilder;
@@ -28,8 +25,6 @@ impl Element for SlidingBuffer {
         for x in 0..self.buffer_len{
             shift_indexes.push((x as f32 - 1.0).abs())
         }
-        
-        dbg!(&shift_indexes.len());
         
         // shift buffer
         builder.fetch_f32(buffer, &ElementParameter::new_f32_array(shift_indexes.as_slice()),scratch);

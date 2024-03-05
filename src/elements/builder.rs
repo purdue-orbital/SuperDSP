@@ -29,7 +29,11 @@ impl Pipeline {
         });
 
         #[cfg(feature = "ui")]
-        self.window.build()
+        self.window.build();
+
+        loop {
+            
+        }
     }
 }
 

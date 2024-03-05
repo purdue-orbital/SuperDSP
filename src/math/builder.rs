@@ -1,20 +1,17 @@
-use std::sync::Arc;
 #[cfg(feature = "fpga")]
 #[cfg(feature = "vulkan")]
 #[cfg(feature = "ui")]
-
-#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
-use std::sync::Arc;
 
 #[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use lazy_static::lazy_static;
 #[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
 
+use crate::math::prelude::*;
+use std::sync::Arc;
+
 #[cfg(all(not(feature = "vulkan"), not(feature = "fpga")))]
 use crate::math::cpu::{CPUCommandBuilder, CPUPipeline};
-use crate::math::objects::ElementParameter;
-use crate::math::traits::PlatformSpecificOperations;
 #[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use crate::math::vulkan::{Vulkan, VulkanCommandBuilder};
 

@@ -5,7 +5,6 @@ pub mod signal_generator;
 pub mod time_chart;
 #[cfg(feature = "ui")]
 pub mod constellation_chart;
-
 #[cfg(feature = "ui")]
 pub mod waterfall_chart;
 pub mod prefabs;
