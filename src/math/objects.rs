@@ -7,7 +7,7 @@ use vulkano::buffer::Subbuffer;
 
 #[cfg(feature = "vulkan")]
 use crate::math::builder::VULKAN;
-use crate::math::objects::ValueTypes::{F32, F32Array};
+use crate::math::objects::ValueTypes::{F32, F32Array, F32Complex};
 
 #[derive(Clone, Debug)]
 pub struct ComplexF32 {
@@ -26,7 +26,7 @@ pub struct ComplexF32 {
 
 impl ComplexF32 {
     pub fn new(arr: Vec<Complex<f32>>) -> Self {
-        // split array into two arrays
+        // split an array into two arrays
         let real_arr: Vec<f32> = arr.iter().map(|&val| val.re).collect();
         let imag_arr: Vec<f32> = arr.iter().map(|&val| val.im).collect();
 
@@ -182,7 +182,7 @@ impl ElementParameter {
             #[cfg(feature = "vulkan")]
             f32_vulkan: None,
         };
-
+        
         new.set_f32_array(arr);
 
         new
@@ -206,7 +206,7 @@ impl ElementParameter {
             #[cfg(feature = "vulkan")]
             f32_vulkan: None,
         };
-
+        
         new.set_f32(arr);
 
         new
@@ -267,8 +267,11 @@ impl ElementParameter {
     pub fn get_complex_f32(&self) -> ComplexF32 {
         self.complex_f32.clone().unwrap()
     }
+    
     pub fn set_complex_f32(&mut self, value: ComplexF32) {
         self.complex_f32 = Some(value);
+
+        self.vtype = F32Complex;
     }
 
     #[cfg(feature = "vulkan")]

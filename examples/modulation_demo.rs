@@ -1,10 +1,9 @@
 use std::thread::spawn;
+use num_complex::Complex;
 use rustdsp::elements::builder::PipelineBuilder;
 use rustdsp::elements::code_sink::{CodeSinkF32Array};
-use rustdsp::elements::data_trigger::DataTrigger;
-use rustdsp::elements::frequency_demodulation::FrequencyDemodulation;
-use rustdsp::elements::frequency_modulation::FrequencyModulation;
-use rustdsp::elements::sliding_buffer::SlidingBuffer;
+use rustdsp::elements::data_trigger::{DataTriggerComplex};
+use rustdsp::elements::waterfall_chart::WaterfallChart;
 
 fn main() {
     let sps = 16;
@@ -12,23 +11,16 @@ fn main() {
     let frequency = 125.0;
 
     let mut builder = PipelineBuilder::new();
-    let (element, trigger) = DataTrigger::new();
+    let (element, trigger) = DataTriggerComplex::new(sps);
     let (sink_elem, rx) = CodeSinkF32Array::new();
     
     builder.add(element);
-    builder.add(FrequencyModulation::new(sps,frequency,sample_rate));
-    
-    builder.add(FrequencyDemodulation::new(sps,frequency,sample_rate,sps as f32 / 2.0));
-    
-    builder.add(SlidingBuffer::new(16));
-    
-    builder.add(sink_elem);
+    builder.add(WaterfallChart::new());
     
     
     spawn(move || {
         loop {
-            trigger.send([1.0].to_vec()).unwrap();
-            trigger.send([0.0].to_vec()).unwrap();
+            trigger.send(vec![Complex::new(0.0,0.0);16]).unwrap();
         }
     });
 

@@ -1,9 +1,6 @@
-#[cfg(feature = "fpga")]
-#[cfg(feature = "vulkan")]
-#[cfg(feature = "ui")]
-
-#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
+#[cfg(all(feature = "vulkan", not(feature = "fpga")))]
 use lazy_static::lazy_static;
+
 #[cfg(all(feature = "vulkan",not(feature = "fpga")))]
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
 
@@ -153,7 +150,7 @@ impl PlatformSpecificOperations for WorkflowBuilder {
 //----------------------------------------------------------------------------------------------------------------------
 
 
-#[cfg(all(feature = "vulkan",not(feature = "fpga")))]
+#[cfg(all(feature = "vulkan", not(feature = "fpga")))]
 lazy_static!(
     pub static ref VULKAN: Vulkan = Vulkan::default();
 );

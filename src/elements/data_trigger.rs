@@ -12,7 +12,6 @@ pub struct DataTrigger {
     rx: Arc<Mutex<Receiver<Vec<f32>>>>,
 }
 
-
 impl Element for DataTrigger {
     #[cfg(feature = "ui")]
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
@@ -48,6 +47,8 @@ impl DataTrigger {
 #[derive(Clone)]
 pub struct DataTriggerComplex {
     rx: Arc<Mutex<Receiver<Vec<Complex<f32>>>>>,
+    element: ComplexF32,
+    not_set: bool,
 }
 
 
@@ -55,18 +56,14 @@ impl Element for DataTriggerComplex {
     #[cfg(feature = "ui")]
     fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
 
-    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {}
-
+    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
+        samples.set_complex_f32(self.element.clone());
+    }
     fn run(&mut self, _samples: &mut ElementParameter) {
-        // wait till the trigger has been tripped
         _samples.get_complex_f32().get_real_array_wrapped().set_f32_array(self.rx.lock().unwrap().recv().unwrap().iter().map(|v| v.re).collect::<Vec<f32>>().as_slice());
         _samples.get_complex_f32().get_imag_array_wrapped().set_f32_array(self.rx.lock().unwrap().recv().unwrap().iter().map(|v| v.im).collect::<Vec<f32>>().as_slice());
-
     }
-
-    fn halt(&self) -> bool {
-        true
-    }
+    fn halt(&self) -> bool { true }
 
     fn stop(&self, samples: &mut ElementParameter) -> bool { false }
     fn is_source(&self) -> bool {
@@ -75,11 +72,13 @@ impl Element for DataTriggerComplex {
 }
 
 impl DataTriggerComplex {
-    pub fn new() -> (DataTriggerComplex, Sender<Vec<Complex<f32>>>) {
+    pub fn new(sps:usize) -> (DataTriggerComplex, Sender<Vec<Complex<f32>>>) {
         let (tx, rx) = mpsc::channel();
 
         (DataTriggerComplex {
-            rx: Arc::new(Mutex::new(rx))
+            rx: Arc::new(Mutex::new(rx)),
+            element: ComplexF32::new(vec![Complex::new(0.0,0.0);sps]),
+            not_set: true,
         }, tx)
     }
 }
