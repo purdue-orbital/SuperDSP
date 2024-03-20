@@ -56,3 +56,42 @@ impl SlidingBuffer {
         }
     }
 }
+
+#[derive(Clone)]
+pub struct InverseSlidingBuffer {
+}
+
+impl Element for InverseSlidingBuffer {
+    #[cfg(feature = "ui")]
+    fn build_window(&mut self, _win_builder: &mut WindowBuilder) {}
+
+    fn init(&mut self, builder: &mut WorkflowBuilder, samples: &mut ElementParameter) {
+        let len = samples.get_f32_array().len();
+
+        // Create buffer and index to fetch from
+        let buffer = &ElementParameter::new_f32_array(vec![0.0;1].as_slice());
+        let index = &ElementParameter::new_f32_array(&[0.0]);
+        
+        builder.fetch_f32(samples,index,buffer);
+        samples.set_f32_array_wrapped(buffer);
+    }
+
+    fn run(&mut self, _samples: &mut ElementParameter) {}
+
+    fn halt(&self) -> bool {
+        false
+    }
+
+    fn stop(&self, samples: &mut ElementParameter) -> bool {false}
+
+    fn is_source(&self) -> bool {
+        false
+    }
+}
+
+impl InverseSlidingBuffer {
+    pub fn new() -> InverseSlidingBuffer {
+        InverseSlidingBuffer {
+        }
+    }
+}

@@ -26,3 +26,6 @@ pub mod pub_sub;
 pub mod events;
 pub mod sliding_buffer;
 pub mod code_sink;
+pub mod bit_trigger;
+pub mod data_bucket;
+pub mod conditional_elements;

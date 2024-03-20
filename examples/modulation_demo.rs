@@ -1,8 +1,15 @@
-use std::thread::spawn;
-use num_complex::Complex;
+use std::thread::{sleep, spawn};
+use std::time::Duration;
+use rustdsp::elements::bit_trigger::BitTrigger;
 use rustdsp::elements::builder::PipelineBuilder;
 use rustdsp::elements::code_sink::{CodeSinkF32Array};
-use rustdsp::elements::data_trigger::{DataTriggerComplex};
+use rustdsp::elements::conditional_elements::ConditionalBitMatch;
+use rustdsp::elements::data_bucket::DataBucket;
+use rustdsp::elements::events::Debug;
+use rustdsp::elements::frequency_demodulation::FrequencyDemodulation;
+use rustdsp::elements::frequency_modulation::FrequencyModulation;
+use rustdsp::elements::pub_sub::PubSub;
+use rustdsp::elements::sliding_buffer::{InverseSlidingBuffer, SlidingBuffer};
 use rustdsp::elements::waterfall_chart::WaterfallChart;
 
 fn main() {
@@ -11,22 +18,34 @@ fn main() {
     let frequency = 125.0;
 
     let mut builder = PipelineBuilder::new();
-    let (element, trigger) = DataTriggerComplex::new(sps);
-    let (sink_elem, rx) = CodeSinkF32Array::new();
+    let (element, trigger) = BitTrigger::new();
+    let (reset,conditional) = ConditionalBitMatch::new(&[0,0,0,0,1,0,0,1]);
+    let (bucket,bucket_elem) = DataBucket::new(16);
     
     builder.add(element);
+    builder.add(FrequencyModulation::new(sps,frequency,sample_rate));
     builder.add(WaterfallChart::new());
+    builder.add(FrequencyDemodulation::new(sps,frequency,sample_rate,8.0));
+    builder.add(SlidingBuffer::new(8));
+    builder.add(conditional);
+    builder.add(InverseSlidingBuffer::new());
+    builder.add(bucket_elem);
+
     
     
     spawn(move || {
         loop {
-            trigger.send(vec![Complex::new(0.0,0.0);16]).unwrap();
+            trigger.send(vec![9]).unwrap();
+
+            sleep(Duration::from_secs(1));
         }
     });
 
     spawn(move || {
         loop {
-            let data = rx.recv().unwrap();
+            let data = bucket.recv().unwrap();
+
+            reset.send(()).unwrap();
             
             dbg!(&data);
         }
