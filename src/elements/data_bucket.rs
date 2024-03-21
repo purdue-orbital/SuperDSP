@@ -75,7 +75,6 @@ impl Element for DataBucket {
             self.buffer.reverse();
             self.tx.send(self.buffer.clone()).unwrap();
             self.buffer = Vec::with_capacity(self.buffer.len());
-            dbg!("reset!");
         }
     }
 
