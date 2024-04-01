@@ -31,9 +31,10 @@ impl Pipeline {
         #[cfg(feature = "ui")]
         self.window.build();
 
-        loop {
-            
-        }
+
+
+        #[cfg(not(feature = "ui"))]
+        loop {}
     }
 }
 

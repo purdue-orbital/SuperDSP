@@ -173,18 +173,14 @@ pub struct FetchF32;
 
 impl CPUOperation for FetchF32 {
     fn run(&mut self, data: &mut Data) {
-        let binding = data.f32_arrays[0].lock().unwrap();
-        let src = binding.as_slice();
+        // Lock the arrays once outside the loop
+        let src = data.f32_arrays[0].lock().unwrap();
+        let indexes = data.f32_arrays[1].lock().unwrap();
+        let mut dest = data.f32_arrays[2].lock().unwrap();
 
-        let mut binding = data.f32_arrays[1].lock().unwrap();
-        let indexes = binding.as_mut_slice();
-
-        let mut binding = data.f32_arrays[2].lock().unwrap();
-        let dest = binding.as_mut_slice();
-
-        // run
-        for (dest_index,src_index) in indexes.iter().enumerate(){
-            dest[dest_index] = src[*src_index as usize];
+        // Use get_unchecked for array access
+        for (dest_index, &src_index) in indexes.iter().enumerate() {
+            unsafe { *dest.get_unchecked_mut(dest_index) = *src.get_unchecked(src_index as usize); }
         }
     }
 }

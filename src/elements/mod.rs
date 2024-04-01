@@ -29,3 +29,5 @@ pub mod code_sink;
 pub mod bit_trigger;
 pub mod data_bucket;
 pub mod conditional_elements;
+pub mod agc;
+mod pll;
