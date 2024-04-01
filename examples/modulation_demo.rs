@@ -25,7 +25,6 @@ fn main() {
     builder.add(element);
     builder.add(FrequencyModulation::new(sps,frequency,sample_rate));
     builder.add(Gain::new(0.1));
-    //builder.add(TimeChart::new(160));
     builder.add(AGC::new(0.1,1.0,1.0,100.0));
     builder.add(TimeChart::new(160));
     builder.add(WaterfallChart::new());

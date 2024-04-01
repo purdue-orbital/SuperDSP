@@ -8,6 +8,7 @@ pub mod dft;
 pub mod fir;
 pub mod resampling;
 mod correlation;
+mod phase_detector;
 
 pub trait Part {
     fn add_to_builder(builder: &mut WorkflowBuilder, samples: &mut ElementParameter);
