@@ -1,9 +1,7 @@
-//! Digital Signal Processing (DSP) a widely studied field in communications and is involves
-//! taking digital samples from a radio or microphone and preforming sets of operations on those
-//! samples with a computer.
+#![no_std]
+#![feature(core_intrinsics)]
 
-pub mod ecc;
-#[cfg(feature = "ui")]
-pub mod ui;
-pub mod elements;
+extern crate alloc;
+extern crate core;
+
 pub mod math;
