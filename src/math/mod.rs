@@ -1,5 +1,3 @@
-pub static RDSP_PI: f32 = 3.1415926535897932384626433832795028841971693993751058209749445923078164062;
-
 pub mod matrix;
-mod fourier;
-mod complex;
+pub mod fourier;
+pub mod complex;
