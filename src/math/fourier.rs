@@ -33,3 +33,25 @@ pub fn generate_inverse_fourier_basis(num_samples: usize) -> Matrix<Complex<f32>
 
     Matrix::from_vec(matrix)
 }
+
+/// Return fft shift matrix (right-hand side only)
+pub fn generate_fft_shift(num_samples: usize) -> Matrix<Complex<f32>>{
+    let mut matrix = Vec::new();
+    
+    // rotate elements by num_samples / 2 (or less if even)
+    let shift = (num_samples - 1) >> 1;
+    
+    for i in 0..num_samples{
+        let mut row = Vec::new();
+        for j in 0..num_samples{
+            if (i + shift) % num_samples == j{
+                row.push(Complex::new(1.0,0.0))
+            }else { 
+                row.push(Complex::new(0.0,0.0))
+            }
+        }
+        matrix.push(row);
+    }
+    
+    Matrix::from_vec(matrix)
+}
