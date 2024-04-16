@@ -4,5 +4,5 @@ extern crate alloc;
 extern crate core;
 
 pub mod math;
-mod filters;
-mod dft;
+pub mod filters;
+pub mod dft;

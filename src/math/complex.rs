@@ -1,7 +1,7 @@
 use core::ops::{Add, Div, Mul, Sub};
 use core::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Complex<T>
 where T: Copy,
 {
@@ -19,6 +19,7 @@ impl<T> Complex<T>
         }
     }
 }
+
 
 impl<T> Add for Complex<T>
     where T: Copy + Add<T, Output = T>{
