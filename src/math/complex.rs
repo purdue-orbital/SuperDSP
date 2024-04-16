@@ -1,6 +1,7 @@
 use core::ops::{Add, Div, Mul, Sub};
 use core::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 
+#[derive(Debug)]
 pub struct Complex<T>
 where T: Copy,
 {

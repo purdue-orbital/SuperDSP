@@ -1,5 +1,4 @@
 use std::f32::consts::{FRAC_PI_2, PI};
-use rustdsp::math::complex::Complex;
 use rustdsp::math::{expj, sincos};
 
 #[test]

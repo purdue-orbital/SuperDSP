@@ -2,9 +2,10 @@ use alloc::vec::Vec;
 use core::ops::{Add, Mul, Sub};
 
 /// This is a basic building block for DSP math and operations
+#[derive(Debug)]
 pub struct Matrix<T>
 {
-    cpu_matrix: Vec<Vec<T>>
+    pub cpu_matrix: Vec<Vec<T>>
 }
 
 impl<T> Matrix<T>
@@ -20,6 +21,13 @@ impl<T> Matrix<T>
 
         Matrix{
             cpu_matrix: arr,
+        }
+    }
+
+    /// This loads a 2d array made as a vector to a matrix
+    pub fn from_vec(vec: Vec<Vec<T>>) -> Matrix<T>{
+        Matrix{
+            cpu_matrix: vec,
         }
     }
 }

@@ -32,7 +32,11 @@ pub fn sqrt_rec(val: f32, n: f32) -> f32{
 
 pub fn sincos<T>(val: T) -> (T, T)
     where T: Copy + Mul<T, Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Into<f32> + From<f32> {
-    let val_f32: f32 = ((val.into() + PI) % (2.0 * PI)) - PI;
+    let mut val_f32: f32 = ((abs(val.into()) + PI) % (2.0 * PI)) - PI;
+    
+    if val.into() < 0.0{
+        val_f32 = -val_f32;
+    }
 
     let mut cos = 0.0;
     let mut sin = 0.0;
