@@ -3,12 +3,12 @@ use crate::math::fourier::{generate_fft_shift, generate_fourier_basis, generate_
 use crate::math::matrix::Matrix;
 
 /// Returns dft matrix
-pub fn dft(num_samples: usize) -> Matrix<Complex<f32>>{
+pub fn dft(num_samples: usize) -> Matrix<Complex<f32>> {
     generate_fourier_basis(num_samples)
 }
 
 /// Returns idft matrix
-pub fn idft(num_samples: usize) -> Matrix<Complex<f32>>{
+pub fn idft(num_samples: usize) -> Matrix<Complex<f32>> {
     generate_inverse_fourier_basis(num_samples)
 }
 

@@ -13,7 +13,6 @@ Navigation, and Control (GNC) applications or sound design.
 
 ## Goals:
 
-
 - [ ] Cross-Hardware Math Acceleration
     - [x] CPUs (Native rust)
     - [x] Vulkan
@@ -22,20 +21,20 @@ Navigation, and Control (GNC) applications or sound design.
 - [ ] Frequency and Phase Locked Loops
 - [x] Rational Resampler
 - [x] Filters
-  - [x] Low-pass filters
-  - [x] High-pass filters
-  - [x] Pass-band filters
+    - [x] Low-pass filters
+    - [x] High-pass filters
+    - [x] Pass-band filters
 - [ ] Gain Control
-  - [x] Manual Gain Control (MGC)
-  - [ ] Automatic Gain Control (AGC)
+    - [x] Manual Gain Control (MGC)
+    - [ ] Automatic Gain Control (AGC)
 - [ ] UI (for debugging)
-  - [x] Waterfall Chart
-  - [x] Time Chart
-  - [x] Constellation Chart
-  - [ ] Eye Diagram
+    - [x] Waterfall Chart
+    - [x] Time Chart
+    - [x] Constellation Chart
+    - [ ] Eye Diagram
 - [ ] Modulation and Demodulation
-  - [x] FSK
-  - [ ] BPSK
-  - [ ] QPSK
-  - [ ] QAM
+    - [x] FSK
+    - [ ] BPSK
+    - [ ] QPSK
+    - [ ] QAM
 - [ ] ???

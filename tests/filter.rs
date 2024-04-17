@@ -1,26 +1,21 @@
-use std::f32::consts::PI;
-use rustdsp::dft::dft_with_shift;
-use rustdsp::filters::{create_filter_matrix_with_window, RectangleWindow};
-use rustdsp::math::expj;
-use rustdsp::math::matrix::Matrix;
+use rustdsp::basic::dft::dft_with_shift;
+use rustdsp::basic::etc::generate_wave;
+use rustdsp::basic::filters::{create_filter_matrix_with_window, RectangleWindow};
 
 #[test]
-pub fn rectangle(){
-    let frequency = 2.0;
+pub fn rectangle() {
+    let frequency = 1.0;
     let sample_rate = 4.0;
     let num_samples = 16;
-    let inverse_sample_rate =  1.0 / sample_rate;
 
-    let mut wave = Vec::new();
-    for x in 0..num_samples{
-        wave.push(expj(x as f32 * 2.0 * PI * frequency * inverse_sample_rate))
-    }
-    let input = Matrix::from_vec(vec![wave]);
-    
-    let rec = RectangleWindow::new(-1.0,1.0,sample_rate,num_samples);
-    let filter = create_filter_matrix_with_window(rec);
-    
-    let main_matrix = dft_with_shift(num_samples) * filter;
-    
-    dbg!(input * main_matrix);
+    let matrix = dft_with_shift(num_samples);
+    let filter1 = create_filter_matrix_with_window(RectangleWindow::new(1.0, 1.0, sample_rate, num_samples));
+    let filter2 = create_filter_matrix_with_window(RectangleWindow::new(-1.0, -1.0, sample_rate, num_samples));
+    let input = generate_wave(frequency, sample_rate, 0.0, num_samples);
+
+    let main_matrix1 = matrix.clone() * filter1;
+    let main_matrix2 = matrix * filter2;
+
+    assert_eq!((input.clone() * main_matrix1).cpu_matrix[0][12].re, 4.0);
+    assert_eq!((input * main_matrix2).cpu_matrix[0][12].re, 0.0);
 }
