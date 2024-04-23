@@ -1,4 +1,3 @@
-use core::f32::consts::{FRAC_PI_2, FRAC_PI_4, PI};
 use core::ops::{Add, Mul, Sub};
 
 use crate::math::complex::Complex;
@@ -7,20 +6,22 @@ pub mod matrix;
 pub mod fourier;
 pub mod complex;
 
-fn cos_appox_2nd_order(val: f32) -> f32 {
-    1.0 - (0.484_803_33 * (val * val))
+pub static PI: i16 = i16::MAX >> 1;
+pub static FRAC_PI_2: i16 = i16::MAX >> 2;
+pub static FRAC_PI_4: i16 = i16::MAX >> 3;
+
+fn cos_appox_2nd_order_i16(val: i16) -> i16 {
+    i16::MAX - (15886 * (val * val))
 }
 
-pub fn abs(x: f32) -> f32 {
-    f32::from_bits(x.to_bits() & (i32::MAX as u32))
-}
+pub fn abs(x: i16) -> i16 { x & 0b0111111111111111 }
 
-/// This preforms the square root of f32s using newton's method
-pub fn sqrt(val: f32) -> f32 {
+/// This preforms the square root of i16s using newton's method
+pub fn sqrt(val: i32) -> i32 {
     let mut sqrt = val;
-    let mut prev = 0.0;
+    let mut prev = 0;
 
-    while abs(sqrt - prev) > 0.0000000001 {
+    while ((sqrt - prev) & i32::MAX) > 1 {
         prev = sqrt;
         sqrt = sqrt_rec(sqrt, val);
     }
@@ -28,82 +29,78 @@ pub fn sqrt(val: f32) -> f32 {
     sqrt
 }
 
-pub fn sqrt_rec(val: f32, n: f32) -> f32 {
-    0.5 * (val + (n / val))
+pub fn sqrt_rec(val: i32, n: i32) -> i32 {
+    (val + (n / val)) >> 1
 }
 
-pub fn sincos<T>(val: T) -> (T, T)
-    where T: Copy + Mul<T, Output=T> + Add<T, Output=T> + Sub<T, Output=T> + Into<f32> + From<f32> {
-    let mut val_f32: f32 = ((abs(val.into()) + PI) % (2.0 * PI)) - PI;
+pub fn sincos(val: i16) -> (i16, i16) {
+    let mut val: i16 = ((abs(val) + PI) % (PI * 2)) - PI;
 
-    if val.into() < 0.0 {
-        val_f32 = -val_f32;
+    if val < 0 {
+        val = -val;
     }
 
-    let mut cos = 0.0;
-    let mut sin = 0.0;
+    let mut cos = 0;
+    let mut sin = 0;
 
-    if val_f32 < -3.0 * FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order(val_f32 + PI);
-        let other = sqrt(1.0 - (calculated * calculated));
+    if val < -3 * FRAC_PI_4 {
+        let calculated = cos_appox_2nd_order_i16(val + PI);
+        let other = sqrt(32767 - (calculated as i32  * calculated as i32)) as i16;
 
         cos = -calculated;
         sin = -other;
-    } else if val_f32 < -FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order(val_f32 + FRAC_PI_2);
-        let mut other = sqrt(1.0 - (calculated * calculated));
+    } else if val < -FRAC_PI_4 {
+        let calculated = cos_appox_2nd_order_i16(val + FRAC_PI_2);
+        let mut other = sqrt(i32::MAX - (calculated as i32  * calculated as i32)) as i16;
 
-        if val_f32 < -FRAC_PI_2 {
+        if val < -FRAC_PI_2 {
             other = -other;
         }
 
         cos = other;
         sin = -calculated;
-    } else if val_f32 < FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order(val_f32);
-        let mut other = sqrt(1.0 - (calculated * calculated));
+    } else if val < FRAC_PI_4 {
+        let calculated = cos_appox_2nd_order_i16(val);
+        let mut other = sqrt(i32::MAX - (calculated as i32  * calculated as i32)) as i16;
 
-        if val_f32 < 0.0 {
+        if val < 0 {
             other = -other;
         }
 
         cos = calculated;
         sin = other;
-    } else if val_f32 < 3.0 * FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order(val_f32 - FRAC_PI_2);
-        let mut other = sqrt(1.0 - (calculated * calculated));
+    } else if val < 3 * FRAC_PI_4 {
+        let calculated = cos_appox_2nd_order_i16(val - FRAC_PI_2);
+        let mut other = sqrt(i32::MAX - (calculated as i32  * calculated as i32)) as i16;
 
-        if val_f32 > FRAC_PI_2 {
+        if val > FRAC_PI_2 {
             other = -other;
         }
 
         cos = other;
         sin = calculated;
     } else {
-        let calculated = cos_appox_2nd_order(val_f32 - PI);
-        let other = sqrt(1.0 - (calculated * calculated));
+        let calculated = cos_appox_2nd_order_i16(val - PI);
+        let other = (sqrt(i32::MAX - (calculated as i32  * calculated as i32))) as i16;
 
         cos = -calculated;
         sin = other;
     }
 
-    (sin.into(), cos.into())
+    (sin, cos)
 }
 
-pub fn sin<T>(val: T) -> T
-    where T: Copy + Mul<T, Output=T> + Add<T, Output=T> + Sub<T, Output=T> + Into<f32> + From<f32> {
+pub fn sin(val: i16) -> i16 {
     sincos(val).0
 }
 
-pub fn cos<T>(val: T) -> T
-    where T: Copy + Mul<T, Output=T> + Add<T, Output=T> + Sub<T, Output=T> + Into<f32> + From<f32> {
+pub fn cos(val: i16) -> i16 {
     sincos(val).1
 }
 
 
 /// Preforms e^(i*self)
-pub fn expj<T>(val: T) -> Complex<T>
-    where T: Copy + Mul<T, Output=T> + Add<T, Output=T> + Sub<T, Output=T> + Into<f32> + From<f32> {
+pub fn expj(val: i16) -> Complex<i16> {
     let out = sincos(val);
 
     Complex {

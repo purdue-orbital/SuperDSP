@@ -19,14 +19,14 @@ pub fn frequency_shift(num_samples: usize, sample_rate: f32, frequency_shift: f3
     matrix1 + matrix2
 }
 
-/// Generate wave given a frequency
-pub fn generate_wave(frequency: f32, sample_rate: f32, offset: f32, num_samples: usize) -> Matrix<Complex<f32>> {
-    let mut wave = Vec::new();
-    let inverse_sample_rate = 1.0 / sample_rate;
-
-    for x in 0..num_samples {
-        wave.push(expj(x as f32 * 2.0 * PI * frequency * inverse_sample_rate + offset))
-    }
-
-    Matrix::from_vec([wave].to_vec())
-}
+// /// Generate wave given a frequency
+// pub fn generate_wave(frequency: f32, sample_rate: f32, offset: f32, num_samples: usize) -> Matrix<Complex<f32>> {
+//     let mut wave = Vec::new();
+//     let inverse_sample_rate = 1.0 / sample_rate;
+// 
+//     for x in 0..num_samples {
+//         wave.push(expj(x as f32 * 2.0 * PI * frequency * inverse_sample_rate + offset))
+//     }
+// 
+//     Matrix::from_vec([wave].to_vec())
+// }
