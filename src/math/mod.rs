@@ -1,106 +1,100 @@
-use core::ops::{Add, Mul, Sub};
-
 use crate::math::complex::Complex;
+use crate::math::fixed_point::{f32_to_i32_fixed, fixed_mul};
 
 pub mod matrix;
 pub mod fourier;
 pub mod complex;
+pub mod fixed_point;
 
-pub static PI: i16 = i16::MAX >> 1;
-pub static FRAC_PI_2: i16 = i16::MAX >> 2;
-pub static FRAC_PI_4: i16 = i16::MAX >> 3;
+pub static PI: i32 = 205887;
+pub static FRAC_PI_2: i32 = PI >> 1;
+pub static FRAC_PI_4: i32 = PI >> 2;
 
-fn cos_appox_2nd_order_i16(val: i16) -> i16 {
-    i16::MAX - (15886 * (val * val))
+fn cos_appox_2nd_order_fixed_i32(val: i32) -> i32 {
+    65536 - fixed_mul(31772, fixed_mul(val, val))
 }
 
-pub fn abs(x: i16) -> i16 { x & 0b0111111111111111 }
+pub fn abs(x: i32) -> i32 {
+    let mask = x >> 31;
+    (mask + x)^mask
+}
 
-/// This preforms the square root of i16s using newton's method
-pub fn sqrt(val: i32) -> i32 {
-    let mut sqrt = val;
-    let mut prev = 0;
 
-    while ((sqrt - prev) & i32::MAX) > 1 {
-        prev = sqrt;
-        sqrt = sqrt_rec(sqrt, val);
+pub fn sqrt(x : i32) -> i32{
+    let mut low = 0;
+    let mut high = (x + (1 << 16)) >> 1;
+
+    while low <= high {
+        let mid = low + ((high - low) >> 1);
+        let mid_squared = fixed_mul(mid,mid);
+
+        if mid_squared < x {
+            low = mid + 1;
+        } else if mid_squared > x {
+            high = mid - 1;
+        } else {
+            return mid;
+        }
     }
 
-    sqrt
+    high
 }
 
-pub fn sqrt_rec(val: i32, n: i32) -> i32 {
-    (val + (n / val)) >> 1
-}
 
-pub fn sincos(val: i16) -> (i16, i16) {
-    let mut val: i16 = ((abs(val) + PI) % (PI * 2)) - PI;
-
-    if val < 0 {
-        val = -val;
-    }
-
-    let mut cos = 0;
-    let mut sin = 0;
-
+pub fn sincos(val: i32) -> (i32, i32) {
+    let val: i32 = ((abs(val + PI)) % (PI * 2)) - PI;
+    
     if val < -3 * FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order_i16(val + PI);
-        let other = sqrt(32767 - (calculated as i32  * calculated as i32)) as i16;
-
-        cos = -calculated;
-        sin = -other;
-    } else if val < -FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order_i16(val + FRAC_PI_2);
-        let mut other = sqrt(i32::MAX - (calculated as i32  * calculated as i32)) as i16;
-
-        if val < -FRAC_PI_2 {
-            other = -other;
+        let cos = -cos_appox_2nd_order_fixed_i32(val + PI);
+        let sin = -sqrt(65536 - fixed_mul(cos,cos));
+        
+        (sin,cos)
+    }else if val < -FRAC_PI_4 {
+        let sin = -cos_appox_2nd_order_fixed_i32(val + FRAC_PI_2);
+        let mut cos = sqrt(65536 - fixed_mul(sin,sin));
+        
+        if val < -FRAC_PI_2{
+            cos = -cos;
         }
 
-        cos = other;
-        sin = -calculated;
-    } else if val < FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order_i16(val);
-        let mut other = sqrt(i32::MAX - (calculated as i32  * calculated as i32)) as i16;
+        (sin,cos)
+    }else if  val < FRAC_PI_4 {
+        let cos = cos_appox_2nd_order_fixed_i32(val);
+        let mut sin = sqrt(65536 - fixed_mul(cos,cos));
 
-        if val < 0 {
-            other = -other;
+        if val < 0{
+            sin = -sin;
         }
 
-        cos = calculated;
-        sin = other;
-    } else if val < 3 * FRAC_PI_4 {
-        let calculated = cos_appox_2nd_order_i16(val - FRAC_PI_2);
-        let mut other = sqrt(i32::MAX - (calculated as i32  * calculated as i32)) as i16;
+        (sin,cos)
+    }else if val < 3*FRAC_PI_4{
+        let sin = cos_appox_2nd_order_fixed_i32(val - FRAC_PI_2);
+        let mut cos = sqrt(65536 - fixed_mul(sin,sin));
 
-        if val > FRAC_PI_2 {
-            other = -other;
+        if val > FRAC_PI_2{
+            cos = -cos;
         }
 
-        cos = other;
-        sin = calculated;
+        (sin,cos)
     } else {
-        let calculated = cos_appox_2nd_order_i16(val - PI);
-        let other = (sqrt(i32::MAX - (calculated as i32  * calculated as i32))) as i16;
+        let cos = -cos_appox_2nd_order_fixed_i32(val - PI);
+        let sin = sqrt(65536 - fixed_mul(cos,cos));
 
-        cos = -calculated;
-        sin = other;
+        (sin,cos)
     }
-
-    (sin, cos)
 }
 
-pub fn sin(val: i16) -> i16 {
+pub fn sin(val: i32) -> i32 {
     sincos(val).0
 }
 
-pub fn cos(val: i16) -> i16 {
+pub fn cos(val: i32) -> i32 {
     sincos(val).1
 }
 
 
 /// Preforms e^(i*self)
-pub fn expj(val: i16) -> Complex<i16> {
+pub fn expj(val: i32) -> Complex<i32> {
     let out = sincos(val);
 
     Complex {

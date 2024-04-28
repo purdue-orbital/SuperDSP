@@ -1,7 +1,4 @@
 use alloc::vec::Vec;
-use core::f32::consts::PI;
-
-use crate::math::{expj, sqrt};
 use crate::math::complex::Complex;
 use crate::math::matrix::Matrix;
 
