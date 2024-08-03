@@ -5,6 +5,10 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
+libm = "0.2.8"
+ndarray = {version = "0.15.6", default-features = false}
+num = {version = "0.4", default-features = false}
+spin = "0.9.8"
 
 [dev-dependencies]
 criterion = "0.5.1"

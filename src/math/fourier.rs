@@ -1,75 +1,60 @@
-use core::f32::consts::PI;
-use core::ops::Mul;
-use std::ops::{Add, Div, Neg, Rem, Sub};
-use crate::math::complex::Complex;
-use crate::math::matrix::Matrix;
-use crate::math::sincos::{expj, sqrt};
+use core::f32;
 
-fn generate_fourier_vector<T>(j: T, coeff: Complex<T>, num_samples: usize) -> Vec<Complex<T>>
-    where T: Copy + Sub<T, Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Div<T, Output=T> + Rem<T, Output=T> + PartialOrd + Neg<Output=T> + From<f32> + Into<f32> {
-    let mut vector = Vec::new();
+pub fn make_basis_vector(i:f32, n:usize) -> ndarray::Array1<num::Complex<f32>> {
+    let mut vector = ndarray::Array1::default(n);
 
-    for k in 0..num_samples {
-        let w_x = expj((T::from(-2.0) * T::from(PI) * j * T::from(k as f32)) / T::from(num_samples as f32)) * coeff;
-        vector.push(w_x);
-    }
-    vector
-}
-
-pub fn generate_fourier_basis<T>(num_samples: usize) -> Matrix<Complex<T>>
-    where T: Copy + Sub<T, Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Div<T, Output=T> + Rem<T, Output=T> + PartialOrd + Neg<Output=T> + From<f32> + Into<f32> {
-
-    let mut matrix = Vec::new();
-    let coeff = Complex::new(T::from(1.0) / sqrt(T::from(num_samples as f32)), T::from(0.0));
-
-    for j in 0..num_samples {
-        matrix.push(generate_fourier_vector(T::from(j as f32), coeff, num_samples));
+    for j in 0..n{
+        let theta = (-2.0 * core::f32::consts::PI * (i * j as f32)) / (n as f32); 
+        vector[j] = num::Complex::new(libm::cosf(theta).trunc(), libm::sinf(theta).trunc()); 
     }
 
-    Matrix::from_vec(matrix)
+    vector.into()
 }
 
-pub fn generate_inverse_fourier_basis<T>(num_samples: usize) -> Matrix<Complex<T>>
-    where T: Copy + Sub<T, Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Div<T, Output=T> + Rem<T, Output=T> + PartialOrd + Neg<Output=T> + From<f32> + Into<f32> {
-    let mut matrix = Vec::new();
-    let coeff = Complex::new(T::from(1.0) / sqrt(T::from(num_samples as f32)), T::from(0.0));
-
-    for j in 0..num_samples {
-        matrix.push(generate_fourier_vector(T::from(-(j as f32)), coeff, num_samples));
-    }
-
-    Matrix::from_vec(matrix)
-}
-
-pub fn identity_shift<T>(num_samples: usize, shift: isize, coeff: i32) -> Vec<Vec<Complex<T>>>
-    where T: Copy + Sub<T, Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Div<T, Output=T> + Rem<T, Output=T> + PartialOrd + Neg<Output=T> + From<f32> + Into<f32> {
-    let mut matrix = Vec::new();
-
-    for i in 0..num_samples {
-        let mut row = Vec::new();
-        for j in 0..num_samples {
-            if (i as isize + shift) == j as isize {
-                row.push(Complex::new(T::from(coeff as f32), T::from(0.0)))
-            } else {
-                row.push(Complex::new(T::from(0.0), T::from(0.0)))
-            }
+pub fn make_basis(n:usize) -> ndarray::Array2<num::Complex<f32>>{
+    let mut basis: ndarray::Array2<num::Complex<f32>> = ndarray::Array2::default((n,n)).into(); 
+    
+    for i in 0..n{
+        let vector = make_basis_vector(i as f32,n);
+        
+        for j in 0..n{
+            basis[[i,j]] = vector[j];
         }
-        matrix.push(row);
     }
 
-    matrix
+    basis * (1.0 / libm::sqrtf(n as f32))
 }
 
-/// Return fft shift matrix (right-hand side only)
-pub fn generate_fft_shift<T>(num_samples: usize) -> Matrix<Complex<T>>
-    where T: Copy + Sub<T, Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Div<T, Output=T> + Rem<T, Output=T> + PartialOrd + Neg<Output=T> + From<f32> + Into<f32> {
-    // rotate elements
-    let shift = num_samples >> 1;
-    Matrix::from_vec(identity_shift(num_samples, shift as isize, 1)) + Matrix::from_vec(identity_shift(num_samples, -(shift as isize), 1))
+pub fn make_inverse_basis(n: usize) -> ndarray::Array2<num::Complex<f32>>{
+    let mut basis: ndarray::Array2<num::Complex<f32>> = ndarray::Array2::default((n,n));
+
+    for i in 0..n{
+        let vector = make_basis_vector(-(i as f32), n);
+
+        for j in 0..n {
+            basis[[i,j]] = vector[j];
+        }
+    }
+
+    basis * (1.0 / libm::sqrtf(n as f32))
 }
 
-/// Return inverse fft shift matrix (right-hand side only)
-pub fn generate_ifft_shift<T>(num_samples: usize) -> Matrix<Complex<T>>
-    where T: Copy + Sub<T, Output=T> + Mul<T, Output=T> + Add<T, Output=T> + Div<T, Output=T> + Rem<T, Output=T> + PartialOrd + Neg<Output=T> + From<f32> + Into<f32> {
-    generate_fft_shift(num_samples)
+pub fn fft_shift(n:usize) -> ndarray::Array2<f32>{
+    let mut shift: ndarray::Array2<f32> = ndarray::Array2::zeros((n,n));
+
+    for i in 0..n{
+        shift[[i,((i+(n/2) + 1) % n)]] = 1.0;
+    }
+
+    shift
+}
+
+pub fn fft_shift_inverse(n:usize) -> ndarray::Array2<f32>{
+    let mut shift: ndarray::Array2<f32> = ndarray::Array2::zeros((n,n));
+
+    for i in 0..n{
+        shift[[i,(i + ((n-1)/2)) % n]] = 1.0;
+    }
+
+    shift
 }
