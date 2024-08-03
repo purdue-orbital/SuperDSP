@@ -2,4 +2,3 @@
 extern crate alloc;
 
 pub mod math;
-pub mod core;

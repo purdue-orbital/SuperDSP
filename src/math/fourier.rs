@@ -8,11 +8,11 @@ pub fn make_basis_vector(i:f32, n:usize) -> ndarray::Array1<num::Complex<f32>> {
         vector[j] = num::Complex::new(libm::cosf(theta).trunc(), libm::sinf(theta).trunc()); 
     }
 
-    vector.into()
+    vector
 }
 
 pub fn make_basis(n:usize) -> ndarray::Array2<num::Complex<f32>>{
-    let mut basis: ndarray::Array2<num::Complex<f32>> = ndarray::Array2::default((n,n)).into(); 
+    let mut basis: ndarray::Array2<num::Complex<f32>> = ndarray::Array2::default((n,n)); 
     
     for i in 0..n{
         let vector = make_basis_vector(i as f32,n);
