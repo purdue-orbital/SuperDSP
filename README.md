@@ -11,29 +11,36 @@ also aims to be used in production code and act as a drop-in replacement of a pr
 GNURadio-Companion. Although not the intended use, this library can be used in other applications like Ground,
 Navigation, and Control (GNC) applications or sound design.
 
+## Feature Flags
+To use this library without the standard library, disable default features. This library **REQUIRES** the ``alloc`` crate.
+Even in no_std mode, the ``alloc`` crate is used to allocate memory for buffers and other objects.
+
+- ``std``: Enabled by default. Disables the ``no_std`` feature and enables the standard library.
+- ``gui``: Enables GUI features and objects. This flag automatically enables the ``std`` feature.
+
 ## Goals:
 
 - [ ] Cross-Hardware Math Acceleration
     - [x] CPUs (Native rust)
-    - [x] Vulkan
+    - [ ] Vulkan
     - [ ] FPGAs (Verilog?)
     - [ ] ???
 - [ ] Frequency and Phase Locked Loops
-- [x] Rational Resampler
-- [x] Filters
-    - [x] Low-pass filters
-    - [x] High-pass filters
-    - [x] Pass-band filters
+- [ ] Rational Resampler
+- [ ] Filters
+    - [ ] Low-pass filters
+    - [ ] High-pass filters
+    - [ ] Pass-band filters
 - [ ] Gain Control
-    - [x] Manual Gain Control (MGC)
+    - [ ] Manual Gain Control (MGC)
     - [ ] Automatic Gain Control (AGC)
 - [ ] UI (for debugging)
-    - [x] Waterfall Chart
-    - [x] Time Chart
-    - [x] Constellation Chart
+    - [ ] Waterfall Chart
+    - [ ] Time Chart
+    - [ ] Constellation Chart
     - [ ] Eye Diagram
 - [ ] Modulation and Demodulation
-    - [x] FSK
+    - [ ] FSK
     - [ ] BPSK
     - [ ] QPSK
     - [ ] QAM
