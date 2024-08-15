@@ -17,7 +17,7 @@ pub struct BladeRF {
     pub bandwidth: u32,
     pub num_samples: usize,
 
-    pub sample_buffer: Vec<Complex<u16>>,
+    pub sample_buffer: Vec<Complex<i16>>,
     pub counter: usize,
 
     pub output_buffer: Arc<Mutex<f64>>,
