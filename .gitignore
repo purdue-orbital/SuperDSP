@@ -4,4 +4,9 @@
 *.png
 *.vcd
 *.svg
+*.d
 /.vscode
+
+/examples/bladerf_waterfall/target/
+/examples/bladerf_waterfall/Cargo.lock
+/examples/wave_generator/target/

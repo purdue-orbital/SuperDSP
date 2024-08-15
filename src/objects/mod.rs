@@ -10,8 +10,8 @@ pub mod wave_gen;
 #[cfg(not(feature = "std"))]
 pub mod wave_gen_time;
 
-use alloc::vec::Vec;
 use alloc::boxed::Box;
+use alloc::vec::Vec;
 
 #[cfg(not(feature = "gui"))]
 pub struct Pipeline {
@@ -25,7 +25,7 @@ impl Pipeline {
             objects: Vec::new(),
         }
     }
-    
+
     pub fn add_object<T: object::DSPObject + 'static>(&mut self, object: &mut T) {
         if !self.objects.is_empty() {
             let last = self.objects.len() - 1;
@@ -42,7 +42,7 @@ impl Pipeline {
                 obj.process();
             };
         }
-        
+
     }
 }
 

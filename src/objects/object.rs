@@ -1,7 +1,7 @@
-use alloc::sync::Arc;
-use spin::mutex::Mutex;
-use alloc::vec::Vec;
 use alloc::boxed::Box;
+use alloc::sync::Arc;
+use alloc::vec::Vec;
+use spin::mutex::Mutex;
 
 pub trait DSPObject: DSPObjectClonable + Send + Sync {
     fn set_input_buffer(&mut self, buffer: Arc<Mutex<f64>>);
