@@ -1,6 +1,7 @@
 use alloc::sync::Arc;
 use spin::mutex::Mutex;
-use std::prelude::rust_2021::{Box, Vec};
+use alloc::vec::Vec;
+use alloc::boxed::Box;
 
 pub trait DSPObject: DSPObjectClonable + Send + Sync {
     fn set_input_buffer(&mut self, buffer: Arc<Mutex<f64>>);

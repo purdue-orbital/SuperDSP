@@ -1,10 +1,17 @@
-use std::prelude::rust_2021::{Box, Vec};
+#[cfg(feature = "gui")]
 use std::sync::{Arc, Mutex};
+
+#[cfg(feature = "gui")]
 use std::thread::spawn;
 
 pub mod object;
 pub mod wave_gen;
+
+#[cfg(not(feature = "std"))]
 pub mod wave_gen_time;
+
+use alloc::vec::Vec;
+use alloc::boxed::Box;
 
 #[cfg(not(feature = "gui"))]
 pub struct Pipeline {
@@ -18,17 +25,24 @@ impl Pipeline {
             objects: Vec::new(),
         }
     }
+    
+    pub fn add_object<T: object::DSPObject + 'static>(&mut self, object: &mut T) {
+        if !self.objects.is_empty() {
+            let last = self.objects.len() - 1;
+            let last_obj = self.objects[last].clone_box();
+            object.set_input_buffer(last_obj.get_output_buffer());
+        }
 
-    pub fn add_object<T: object::DSPObject + 'static>(&mut self, object: T) {
-        self.objects.push(Box::new(object));
+        self.objects.push(object.clone_box());
     }
 
     pub fn process(&mut self) {
         loop {
-            for object in self.objects.iter_mut() {
-                object.process();
-            }
+            for obj in self.objects.iter_mut() {
+                obj.process();
+            };
         }
+        
     }
 }
 

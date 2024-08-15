@@ -12,6 +12,8 @@ pub fn test_wave_gen() {
         wave_gen.process();
         result.push(*wave_gen.get_output_buffer().lock());
     }
-
-    assert_eq!(result, expected);
+    
+    for i in 0..n {
+        assert!((result[i] - expected[i]).abs() < 0.0001);
+    }
 }

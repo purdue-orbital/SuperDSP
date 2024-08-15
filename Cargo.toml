@@ -7,20 +7,19 @@ edition = "2021"
 [dependencies]
 libm = { version = "0.2.8" }
 spin = { version = "0.9.8" }
-ndarray = { version = "0.16.0" }
+ndarray = { version = "0.16.1", default-features = false }
 num = { version = "0.4", default-features = false }
 
 
 iced = { version = "0.12.1", features = ["canvas", "tokio"], optional = true }
-plotters-iced = "0.10.0"
-plotters = "0.3.6"
-tokio = { version = "1.39.2", features = ["rt"] }
-rand = "0.8.5"
+plotters-iced = { version = "0.10.0", optional = true }
+plotters = { version = "0.3.6", optional = true }
+tokio = { version = "1.39.2", features = ["rt"], optional = true }
 
 [features]
-default = ["std"]
+default = ["std", "dep:tokio"]
 std = []
-gui = ["dep:iced", "std"]
+gui = ["dep:iced","dep:plotters-iced","dep:plotters", "std"]
 
 [dev-dependencies]
 criterion = "0.5.1"
