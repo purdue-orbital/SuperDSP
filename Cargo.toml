@@ -5,10 +5,22 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-libm = "0.2.8"
-ndarray = {version = "0.15.6", default-features = false}
-num = {version = "0.4", default-features = false}
-spin = "0.9.8"
+libm = { version = "0.2.8" }
+spin = { version = "0.9.8" }
+ndarray = { version = "0.16.0" }
+num = { version = "0.4", default-features = false }
+
+
+iced = { version = "0.12.1", features = ["canvas", "tokio"], optional = true }
+plotters-iced = "0.10.0"
+plotters = "0.3.6"
+tokio = { version = "1.39.2", features = ["rt"] }
+rand = "0.8.5"
+
+[features]
+default = ["std"]
+std = []
+gui = ["dep:iced", "std"]
 
 [dev-dependencies]
 criterion = "0.5.1"
