@@ -10,3 +10,5 @@
 /examples/bladerf_waterfall/target/
 /examples/bladerf_waterfall/Cargo.lock
 /examples/wave_generator/target/
+/examples/wave_generator/Cargo.lock
+/examples/wave_generator/target/debug/
