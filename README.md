@@ -36,7 +36,7 @@ Even in no_std mode, the ``alloc`` crate is used to allocate memory for buffers 
     - [ ] Automatic Gain Control (AGC)
 - [ ] UI (for debugging)
     - [ ] Waterfall Chart
-    - [ ] Time Chart
+    - [x] Time Chart
     - [ ] Constellation Chart
     - [ ] Eye Diagram
 - [ ] Modulation and Demodulation
