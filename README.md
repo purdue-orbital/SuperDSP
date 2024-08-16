@@ -18,8 +18,8 @@ Even in no_std mode, the ``alloc`` crate is used to allocate memory for buffers 
 - ``std``: Enabled by default. Disables the ``no_std`` feature and enables the standard library.
 - ``gui``: Enables GUI features and objects. This flag automatically enables the ``std`` feature.
 - ``bladerf``: Enables the BladeRF hardware support. This flag automatically enables the ``std`` feature. Please make sure
-you have the BladeRF library installed on your system. Check the [BladeRF](https://github.com/Nuand/bladeRF/wiki/Getting-Started:-Linux) 
-github page for more information on how to install the BladeRF library.
+you have the BladeRF library (libbladeRF) installed on your system. Check the [BladeRF](https://github.com/Nuand/bladeRF/wiki/#getting-started) 
+Github wiki for more information on how to install the BladeRF library.
 
 ## Goals:
 
