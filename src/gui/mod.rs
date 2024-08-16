@@ -8,6 +8,7 @@ use std::vec;
 
 pub mod time_chart;
 pub mod time_chart_complex;
+pub mod waterfall;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Message {
