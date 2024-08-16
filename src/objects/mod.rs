@@ -65,7 +65,13 @@ impl Pipeline {
         if !self.objects.is_empty() {
             let last = self.objects.len() - 1;
             let last_obj = self.objects[last].clone_box();
-            object.set_input_buffer(last_obj.get_output_buffer());
+            match last_obj.return_type() { 
+                object::Type::F64 => object.set_input_buffer(last_obj.get_output_buffer()),
+                object::Type::Complex => object.set_input_buffer_complex(last_obj.get_output_buffer_complex()),
+                object::Type::Vec => object.set_input_buffer_vec(last_obj.get_output_buffer_vec()),
+                object::Type::ComplexVec => object.set_input_buffer_complex_vec(last_obj.get_output_buffer_complex_vec()),
+                _ => panic!("Invalid input type"),
+            }
         }
 
         self.objects.push(object.clone_box());

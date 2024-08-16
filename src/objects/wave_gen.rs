@@ -35,19 +35,37 @@ impl WaveStepGen {
 }
 
 impl DSPObject for WaveStepGen {
+    fn return_type(&self) -> crate::objects::object::Type {
+        crate::objects::object::Type::F64
+    }
+    fn input_type(&self) -> crate::objects::object::Type {
+        crate::objects::object::Type::NONE
+    }
     fn set_input_buffer(&mut self, buffer: Arc<spin::mutex::Mutex<f64>>) {
         // WaveGen does not take any input
         panic!("WaveGen does not have an input buffer");
     }
+
     fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
         self.output_buffer.clone()
     }
-
+    fn set_input_buffer_complex(&mut self, buffer: Arc<spin::mutex::Mutex<num::Complex<f64>>>) {
+        panic!("WaveGen does not have a complex input buffer");
+    }
+    fn get_output_buffer_complex(&self) -> Arc<spin::mutex::Mutex<num::Complex<f64>>> {
+        panic!("WaveGen does not have a complex output buffer");
+    }
     fn set_input_buffer_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<f64>>>) {
         panic!("WaveGen does not have a vector input buffer");
     }
     fn get_output_buffer_vec(&self) -> Arc<spin::mutex::Mutex<Vec<f64>>> {
         panic!("WaveGen does not have a vector output buffer");
+    }
+    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>>) {
+        panic!("WaveGen does not have a complex vector input buffer");
+    }
+    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>> {
+        panic!("WaveGen does not have a complex vector output buffer");
     }
 
     fn process(&mut self) {

@@ -7,26 +7,28 @@ use spin::Mutex;
 use std::prelude::rust_2021::Vec;
 use std::sync::Arc;
 use std::vec;
+use num::Complex;
+use plotters::style::BLUE;
 
 #[derive(Clone)]
-pub struct TimeChart {
-    input_buffer: Arc<Mutex<f64>>,
-    buffer: Arc<Mutex<Vec<f64>>>,
+pub struct TimeChartComplex {
+    input_buffer: Arc<Mutex<Complex<f64>>>,
+    buffer: Arc<Mutex<Vec<Complex<f64>>>>,
 }
 
-impl TimeChart {
-    pub fn new() -> TimeChart {
-        TimeChart { buffer: Arc::new(Mutex::new(vec![0.0; 50])), input_buffer: Arc::new(Default::default()) }
+impl TimeChartComplex {
+    pub fn new() -> TimeChartComplex {
+        TimeChartComplex { buffer: Arc::new(Mutex::new(vec![Complex::new(0.0,0.0); 50])), input_buffer: Arc::new(Default::default()) }
     }
 }
 
-impl Default for TimeChart {
+impl Default for TimeChartComplex {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Chart<Message> for TimeChart {
+impl Chart<Message> for TimeChartComplex {
     type State = ();
 
     fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, mut builder: ChartBuilder<DB>) {
@@ -50,47 +52,59 @@ impl Chart<Message> for TimeChart {
 
         chart
             .draw_series(LineSeries::new(
-                (0..50).map(|x| (x as f32, self.buffer.lock()[x] as f32)),
+                (0..50).map(|x| (x as f32, self.buffer.lock()[x].re as f32)),
                 &RED,
+            ))
+            .unwrap();
+        
+        chart
+            .draw_series(LineSeries::new(
+                (0..50).map(|x| (x as f32, self.buffer.lock()[x].im as f32)),
+                &BLUE,
             ))
             .unwrap();
     }
 }
 
-impl DSPObject for TimeChart {
+impl DSPObject for TimeChartComplex {
     fn return_type(&self) -> Type {
-        Type::F64
+        Type::Complex
     }
 
     fn input_type(&self) -> Type {
-        Type::F64
+        Type::Complex
     }
 
     fn set_input_buffer(&mut self, buffer: Arc<Mutex<f64>>) {
-        self.input_buffer = buffer;
+        panic!("TimeChartComplex does not have a f64 input buffer");
     }
 
     fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
+        panic!("TimeChartComplex does not have a f64 output buffer");
+    }
+
+    fn set_input_buffer_complex(&mut self, buffer: Arc<Mutex<Complex<f64>>>) {
+        self.input_buffer = buffer;
+    }
+
+    fn get_output_buffer_complex(&self) -> Arc<Mutex<Complex<f64>>> {
         self.input_buffer.clone()
     }
 
-    fn set_input_buffer_complex(&mut self, buffer: Arc<spin::mutex::Mutex<num::Complex<f64>>>) {
-        panic!("WaveGen does not have a complex input buffer");
-    }
-    fn get_output_buffer_complex(&self) -> Arc<spin::mutex::Mutex<num::Complex<f64>>> {
-        panic!("WaveGen does not have a complex output buffer");
-    }
     fn set_input_buffer_vec(&mut self, buffer: Arc<Mutex<Vec<f64>>>) {
-        panic!("TimeChart does not have a vector input buffer");
+        panic!("TimeChartComplex does not have a vector input buffer");
     }
+
     fn get_output_buffer_vec(&self) -> Arc<Mutex<Vec<f64>>> {
-        panic!("TimeChart does not have a vector output buffer");
+        panic!("TimeChartComplex does not have a vector output buffer");
     }
-    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>>) {
-        panic!("WaveGen does not have a complex vector input buffer");
+
+    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<Complex<f64>>>>) {
+        panic!("TimeChartComplex does not have a complex vector input buffer");
     }
-    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>> {
-        panic!("WaveGen does not have a complex vector output buffer");
+
+    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<Complex<f64>>>> {
+        panic!("TimeChartComplex does not have a complex vector output buffer");
     }
 
     fn process(&mut self) {
@@ -104,7 +118,7 @@ impl DSPObject for TimeChart {
     }
 }
 
-impl DSPChart for TimeChart {
+impl DSPChart for TimeChartComplex {
     type Message = Message;
     type State = ();
 

@@ -7,6 +7,7 @@ use std::time::Duration;
 use std::vec;
 
 pub mod time_chart;
+pub mod time_chart_complex;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Message {
@@ -16,7 +17,6 @@ pub enum Message {
 pub trait DSPChart: DSPChartClone + DSPObject {
     type Message;
     type State;
-
     fn view(&self) -> Element<Self::Message>;
     fn update(&mut self, message: Self::Message) -> Command<Self::Message>;
 }
