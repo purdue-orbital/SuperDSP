@@ -65,8 +65,8 @@ impl DSPObject for WaveStepGenTime {
     fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>> {
         panic!("WaveGen does not have a complex vector output buffer");
     }
-    fn return_type(&self) -> crate::objects::object::ReturnType {
-        crate::objects::object::ReturnType::F64
+    fn return_type(&self) -> Type {
+        Type::F64
     }
     fn process(&mut self) {
         *self.output_buffer.lock() = self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin();

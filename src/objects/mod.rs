@@ -7,7 +7,7 @@ use std::thread::spawn;
 pub mod object;
 pub mod wave_gen;
 
-#[cfg(not(feature = "std"))]
+#[cfg(feature = "gui")]
 pub mod wave_gen_time;
 
 use alloc::boxed::Box;
