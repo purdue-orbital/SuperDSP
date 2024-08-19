@@ -10,6 +10,11 @@ pkgs.mkShell{
         libxkbcommon
         libGL
         wayland
+
+        git
+        cmake
+
+        libbladeRF
 	];
 	LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [
         pkgs.rustc
@@ -17,5 +22,6 @@ pkgs.mkShell{
         pkgs.libxkbcommon
         pkgs.libGL
         pkgs.wayland
+        pkgs.libbladeRF
     ]}";
 }

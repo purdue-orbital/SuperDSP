@@ -2,6 +2,29 @@
 
 This library is a very work in progress, and the interface currently is subject to changes.
 
+## Table of Contents
+- [Mission](#mission)
+- [Feature Flags](#feature-flags)
+- [Pre-requisites](#pre-requisites)
+    - [No-std](#No-Std)
+    - [Std](#std)
+    - [BladeRF](#bladerf)
+        - [Linux](#linux)
+            - [Ubuntu](#ubuntu)
+            - [Nix-Shell (NixOS)](#nix-shell-nixos)
+            - [Building from source](#building-from-source)
+        - [Windows](#windows)
+        - [MacOS](#macos)
+    - [GUI](#gui)
+        - [Linux](#linux-1)
+            - [Ubuntu](#ubuntu-1)
+            - [Fedora](#fedora)
+            - [Nix-Shell (NixOS) (Wayland)](#nix-shell-nixos-wayland)
+            - [Nix-Shell (NixOS) (X11)](#nix-shell-nixos-x11)
+        - [Windows](#windows-1)
+        - [MacOS](#macos-1)
+- [Goals](#goals)
+
 ## Mission
 
 This library is not trying to replace existing radio-prototyping tools or amateur radio software like
@@ -23,7 +46,7 @@ GitHub wiki for more information on how to install the BladeRF library.
 
 ## Pre-requisites
 
-### No-std 
+### No-Std 
 Other than cargo and alloc support, with default-features disabled, you don't need anything else.
 
 ### Std
@@ -49,6 +72,9 @@ sudo apt install bladerf libbladerf-dev
 pkgs.mkShell{
     buildInputs = with pkgs; [
         libbladeRF
+        
+        git
+        cmake
     ];
     LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [
         pkgs.libbladeRF
@@ -81,6 +107,11 @@ cd build
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_UDEV_RULES=ON ../
 make && sudo make install && sudo ldconfig
 ```
+
+Troubleshooting:
+It is possible that you may encounter an error saying that you have insufficient permissions to access bladeRF. To fix this,
+try running the program as root.
+
 
 #### Windows
 Use this installer to install the BladeRF library: [BladeRF Windows Installer](https://nuand.com/windows_installers/bladeRF-win-installer-latest.exe)
