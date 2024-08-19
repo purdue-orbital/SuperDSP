@@ -33,6 +33,76 @@ Nothing needs to be installed
 Please make sure you have the BladeRF library (libbladeRF) installed on your system. Check the [BladeRF](https://github.com/Nuand/bladeRF/wiki/#getting-started)
 GitHub wiki for more information on how to install the BladeRF library.
 
+Here are some instructions for some operating systems:
+#### Linux
+
+##### Ubuntu
+```bash
+sudo add-apt-repository ppa:nuandllc/bladerf
+sudo apt update
+sudo apt install bladerf libbladerf-dev
+```
+
+##### Nix-Shell (NixOS)
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+pkgs.mkShell{
+    buildInputs = with pkgs; [
+        libbladeRF
+    ];
+    LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [
+        pkgs.libbladeRF
+    ]}";
+}
+```
+
+##### Building from source
+
+Install the dependencies:
+
+Debian/Ubuntu:
+```bash
+sudo apt install libusb-1.0-0-dev libusb-1.0-0 build-essential cmake libncurses5-dev libtecla1 libtecla-dev pkg-config git wget
+```
+
+RedHat/Fedora:
+```bash
+sudo yum groupinstall "Development Tools" "Development Libraries"
+sudo yum install libusbx libusbx-devel cmake wget gcc-c++ libedit libedit-devel
+```
+
+Build the library:
+```bash
+git clone https://github.com/Nuand/bladeRF.git ./bladeRF
+cd ./bladeRF
+cd host/
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_UDEV_RULES=ON ../
+make && sudo make install && sudo ldconfig
+```
+
+#### Windows
+Use this installer to install the BladeRF library: [BladeRF Windows Installer](https://nuand.com/windows_installers/bladeRF-win-installer-latest.exe)
+
+#### MacOS
+MacPorts:
+```bash
+sudo port install bladeRF +tecla
+```
+
+Compile from source (Be sure to have [Homebrew](https://brew.sh/) installed):
+```bash
+brew install libusb pkgconfig cmake libtecla
+git clone https://github.com/Nuand/bladeRF.git
+cd ./bladeRF
+cd host/
+mkdir build; cd build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/local ..
+make
+sudo make install
+```
+
 ### GUI
 
 #### Linux
@@ -112,6 +182,13 @@ pkgs.mkShell{
     ]}";
 }
 ```
+
+#### Windows
+All dependencies should already be included on your system. If you don't have them, you can install them using the [MSYS2](https://www.msys2.org/) package manager.
+
+#### MacOS
+All dependencies should already be included on your system. If you don't have them, you can install them using the [Homebrew](https://brew.sh/) package manager.
+
 
 
 
