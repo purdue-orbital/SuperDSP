@@ -7,8 +7,11 @@ use std::thread::spawn;
 pub mod object;
 pub mod wave_gen;
 
-#[cfg(feature = "gui")]
+#[cfg(feature = "std")]
 pub mod wave_gen_time;
+#[cfg(feature = "std")]
+pub mod wave_gen_time_complex;
+pub mod wave_gen_complex;
 
 use alloc::boxed::Box;
 use alloc::vec::Vec;
@@ -102,7 +105,14 @@ impl Pipeline {
                 }
             }
         );
-
-        self.gui.clone().unwrap().start();
+        
+        if let Some(gui) = &self.gui {
+            gui.start();
+        }
+        else { 
+            loop {
+                // Do nothing
+            }
+        }
     }
 }

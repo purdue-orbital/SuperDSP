@@ -100,7 +100,6 @@ impl DSPObject for BladeRfSink {
 
     fn set_input_buffer(&mut self, buffer: Arc<spin::mutex::Mutex<f64>>) {
         // BladeRF does not take any input
-
         panic!("BladeRF does not have an input buffer");
     }
     fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
@@ -134,13 +133,16 @@ impl DSPObject for BladeRfSink {
         let buffer = self.input_buffer.lock();
         let dev = self.dev.lock();
 
-        let mut samples = vec![Complex::new(0.0, 0.0); self.num_samples];
+        let mut samples = vec![Complex::new(0, 0); self.num_samples];
         for i in 0..self.num_samples {
-            samples[i] = *buffer;
+            // convert f64 to i12
+            let real = (buffer.re * 2048.0) as i16;
+            let imag = (buffer.im * 2048.0) as i16;
+            samples[i] = Complex::new(real, imag);
         }
 
         unsafe {
-            bladerf::bladerf_sync_tx(*dev, samples.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 1000);
+            bladerf::bladerf_sync_tx(*dev, samples.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 100000);
         }
 
     }

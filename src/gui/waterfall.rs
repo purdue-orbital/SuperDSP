@@ -15,6 +15,7 @@ use ndarray::{Array1, Axis};
 use ndarray::linalg::Dot;
 use num::Complex;
 use crate::math;
+use crate::math::fourier::fft_shift;
 
 #[derive(Clone)]
 pub struct Waterfall {
@@ -38,9 +39,11 @@ impl Waterfall {
             pixels[4 * i + 3] = 255;
         }
 
+        let dft_matrix = fft_shift(buff_size).dot(&math::fourier::make_basis(buff_size));
+        
         let mut w = Waterfall {
             buffer: Arc::new(RwLock::new(<Array1<Complex<f64>>>::from(vec![Complex::new(0.0, 0.0); buff_size]))),
-            dft_matrix: math::fourier::make_basis(buff_size).dot(&math::fourier::fft_shift(buff_size)),
+            dft_matrix,
             pixels: Arc::new(RwLock::new(VecDeque::from(pixels))),
             input_buffer: Arc::new(Default::default()),
             width_and_width: buff_size,
@@ -60,7 +63,7 @@ impl Waterfall {
                 }
 
                 // Preform dft on buffer
-                let dfted = w_clone.dft_matrix.dot(&locked_buffer.t());
+                let dfted = w_clone.dft_matrix.dot(&locked_buffer.view());
                 let slice = dfted.as_slice().unwrap();
 
                 // Add new data
