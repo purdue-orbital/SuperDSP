@@ -9,7 +9,11 @@ pkgs.mkShell{
 
         libxkbcommon
         libGL
-        wayland
+
+        xorg.libXcursor
+        xorg.libXrandr
+        xorg.libXi
+        xorg.libX11
 
         git
         cmake
@@ -21,7 +25,12 @@ pkgs.mkShell{
         pkgs.cargo
         pkgs.libxkbcommon
         pkgs.libGL
-        pkgs.wayland
+
+        pkgs.xorg.libXcursor
+        pkgs.xorg.libXrandr
+        pkgs.xorg.libXi
+        pkgs.xorg.libX11
+
         pkgs.libbladeRF
     ]}";
 }

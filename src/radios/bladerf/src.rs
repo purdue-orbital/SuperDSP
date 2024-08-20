@@ -11,7 +11,7 @@ use std::{mem, println, vec};
 use crate::objects::object::Type::Complex as OtherComplex;
 
 #[derive(Debug, Clone)]
-pub struct BladeRF {
+pub struct BladeRfSrc {
     pub frequency: u64,
     pub sample_rate: u32,
     pub gain: i32,
@@ -26,7 +26,7 @@ pub struct BladeRF {
 
 }
 
-impl BladeRF {
+impl BladeRfSrc {
 
     /// Create a new BladeRF object with the given parameters and return it as a BladeRF object
     /// instance.
@@ -35,7 +35,7 @@ impl BladeRF {
     /// - gain: i32 - The gain to set the BladeRF to (in dB) (min: 5, max: 66)
     /// - bandwidth: u32 - The bandwidth to set the BladeRF to (in Hz) (min: 1500000, max: 28000000)
     /// - num_samples: usize - The number of samples to read from the BladeRF (must be a multiple of 1024)
-    pub fn new(frequency: u64, sample_rate: u32, gain: i32, bandwidth: u32, num_samples: usize) -> BladeRF {
+    pub fn new(frequency: u64, sample_rate: u32, gain: i32, bandwidth: u32, num_samples: usize) -> BladeRfSrc {
         assert_eq!(num_samples % 1024, 0);
 
         let dev = unsafe {
@@ -75,7 +75,7 @@ impl BladeRF {
             dev
         };
 
-        BladeRF {
+        BladeRfSrc {
             frequency,
             sample_rate,
             gain,
@@ -91,11 +91,11 @@ impl BladeRF {
     }
 }
 
-unsafe impl Send for BladeRF {}
-unsafe impl Sync for BladeRF {}
+unsafe impl Send for BladeRfSrc {}
+unsafe impl Sync for BladeRfSrc {}
 
 
-impl DSPObject for BladeRF {
+impl DSPObject for BladeRfSrc {
     fn return_type(&self) -> Type {
         Type::Complex
     }
