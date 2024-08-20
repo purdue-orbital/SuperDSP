@@ -1,5 +1,5 @@
 use crate::objects::object::{DSPObject, Type};
-use bladerf::{bladerf_init_devinfo, bladerf_open_with_devinfo};
+use bladerf::{bladerf_channel, bladerf_direction_BLADERF_TX, bladerf_init_devinfo, bladerf_open_with_devinfo};
 use num::Complex;
 use spin::Mutex;
 use std::ffi::c_uint;
@@ -8,6 +8,7 @@ use std::prelude::rust_2021::Vec;
 use std::ptr::null_mut;
 use std::sync::Arc;
 use std::{mem, println, vec};
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct BladeRfSink {
@@ -18,6 +19,8 @@ pub struct BladeRfSink {
     pub num_samples: usize,
 
     pub input_buffer: Arc<Mutex<Complex<f64>>>,
+    pub buffer: Arc<Mutex<VecDeque<Complex<f64>>>>,
+    pub counter: usize,
 
     pub dev: Arc<Mutex<*mut bladerf::bladerf>>,
 }
@@ -33,6 +36,8 @@ impl BladeRfSink {
     /// - num_samples: usize - The number of samples to read from the BladeRF (must be a multiple of 1024)
     pub fn new(frequency: u64, sample_rate: u32, gain: i32, bandwidth: u32, num_samples: usize) -> BladeRfSink {
         assert_eq!(num_samples % 1024, 0);
+        
+        let channel = ((0) << 1 | 0x1) as bladerf_channel;
 
         let dev = unsafe {
             println!("Getting Dev-Info BladeRF");
@@ -47,29 +52,31 @@ impl BladeRfSink {
 
             // Set the frequency
             println!("Setting Frequency BladeRF");
-            bladerf::bladerf_set_frequency(dev, 0, frequency);
+            bladerf::bladerf_set_frequency(dev, channel, frequency);
 
             // Set the sample rate
             println!("Setting Sample Rate BladeRF");
-            bladerf::bladerf_set_sample_rate(dev, 0, sample_rate, std::ptr::null_mut());
+            bladerf::bladerf_set_sample_rate(dev, channel, sample_rate, std::ptr::null_mut());
 
             // Set the gain
             println!("Setting Gain BladeRF");
-            bladerf::bladerf_set_gain(dev, 0, gain);
+            bladerf::bladerf_set_gain(dev, channel, gain);
 
             // Set the bandwidth
             println!("Setting Bandwidth BladeRF");
-            bladerf::bladerf_set_bandwidth(dev, 0, bandwidth, std::ptr::null_mut());
+            bladerf::bladerf_set_bandwidth(dev, channel, bandwidth, std::ptr::null_mut());
 
             // Configure the sync interface
             let min_buf_size = 2 * num_samples * 1 * 16;
             bladerf::bladerf_sync_config(dev, bladerf::bladerf_channel_layout_BLADERF_TX_X1, bladerf::bladerf_format_BLADERF_FORMAT_SC16_Q11, 16, min_buf_size as c_uint, 8, 3500);
 
             // Enable Stream
-            bladerf::bladerf_enable_module(dev, 0, true);
+            bladerf::bladerf_enable_module(dev, channel, true);
 
             dev
         };
+
+        let num_samples =  2 * num_samples * 1 * 16;
 
         BladeRfSink {
             frequency,
@@ -79,6 +86,8 @@ impl BladeRfSink {
             num_samples,
             
             input_buffer: Arc::new(Mutex::new(Complex::new(0.0, 0.0))),
+            buffer: Arc::new(Mutex::new(VecDeque::from(vec![Complex::new(0.0, 0.0); num_samples]))),
+            counter: 0,
             
             dev: Arc::new(Mutex::new(dev)),
         }
@@ -130,20 +139,37 @@ impl DSPObject for BladeRfSink {
     }
 
     fn process(&mut self) {
-        let buffer = self.input_buffer.lock();
-        let dev = self.dev.lock();
+        // let mut buffer = self.buffer.lock();
+        // let dev = self.dev.lock();
+        //
+        // // check if the buffer is full
+        // if self.counter == self.num_samples {
+        //     unsafe {
+        //         // create vec of i16 from buffer
+        //         let mut i16_buffer = Vec::new();
+        //         for i in 0..self.num_samples {
+        //             i16_buffer.push(buffer[i].re as i16);
+        //             i16_buffer.push(buffer[i].im as i16);
+        //         }
+        //
+        //         // Write the buffer to the BladeRF
+        //         let status = bladerf::bladerf_sync_tx(*dev, i16_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 10000);
+        //     }
+        //
+        //     // reset the counter
+        //     self.counter = 0;
+        // }
+        //
+        // // increment the counter
+        // self.counter += 1;
+        //
+        // // Put input buffer into buffer
+        // buffer.push_back(*self.input_buffer.lock());
+        //
+        // // remove the first element
+        // buffer.pop_front();
 
-        let mut samples = vec![Complex::new(0, 0); self.num_samples];
-        for i in 0..self.num_samples {
-            // convert f64 to i12
-            let real = (buffer.re * 2048.0) as i16;
-            let imag = (buffer.im * 2048.0) as i16;
-            samples[i] = Complex::new(real, imag);
-        }
-
-        unsafe {
-            bladerf::bladerf_sync_tx(*dev, samples.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 100000);
-        }
-
+        let mut i16_buffer = vec![(self.input_buffer.lock().re * 2048.0) as i16, (self.input_buffer.lock().im * 2048.0) as i16];
+        unsafe { bladerf::bladerf_sync_tx(*self.dev.lock(), i16_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 10000); }
     }
 }

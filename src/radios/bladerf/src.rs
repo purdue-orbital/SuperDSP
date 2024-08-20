@@ -1,5 +1,5 @@
 use crate::objects::object::{DSPObject, Type};
-use bladerf::{bladerf_init_devinfo, bladerf_open_with_devinfo, bladerf_sync_rx};
+use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo, bladerf_sync_rx};
 use num::Complex;
 use spin::Mutex;
 use std::ffi::c_uint;
@@ -8,6 +8,7 @@ use std::prelude::rust_2021::Vec;
 use std::ptr::null_mut;
 use std::sync::Arc;
 use std::{mem, println, vec};
+use iced::futures::channel;
 use crate::objects::object::Type::Complex as OtherComplex;
 
 #[derive(Debug, Clone)]
@@ -38,6 +39,8 @@ impl BladeRfSrc {
     pub fn new(frequency: u64, sample_rate: u32, gain: i32, bandwidth: u32, num_samples: usize) -> BladeRfSrc {
         assert_eq!(num_samples % 1024, 0);
 
+        let channel = ((0) << 1 | 0x0) as bladerf_channel;
+
         let dev = unsafe {
             println!("Getting Dev-Info BladeRF");
             let devinfo: *mut bladerf::bladerf_devinfo = std::mem::MaybeUninit::new(mem::zeroed()).assume_init_mut();
@@ -51,26 +54,26 @@ impl BladeRfSrc {
 
             // Set the frequency
             println!("Setting Frequency BladeRF");
-            bladerf::bladerf_set_frequency(dev, 0, frequency);
+            bladerf::bladerf_set_frequency(dev, channel, frequency);
 
             // Set the sample rate
             println!("Setting Sample Rate BladeRF");
-            bladerf::bladerf_set_sample_rate(dev, 0, sample_rate, std::ptr::null_mut());
+            bladerf::bladerf_set_sample_rate(dev, channel, sample_rate, std::ptr::null_mut());
 
             // Set the gain
             println!("Setting Gain BladeRF");
-            bladerf::bladerf_set_gain(dev, 0, gain);
+            bladerf::bladerf_set_gain(dev, channel, gain);
 
             // Set the bandwidth
             println!("Setting Bandwidth BladeRF");
-            bladerf::bladerf_set_bandwidth(dev, 0, bandwidth, std::ptr::null_mut());
+            bladerf::bladerf_set_bandwidth(dev, channel, bandwidth, std::ptr::null_mut());
 
             // Configure the sync interface
             let min_buf_size = 2 * num_samples * 1 * 16;
             bladerf::bladerf_sync_config(dev, bladerf::bladerf_channel_layout_BLADERF_RX_X1, bladerf::bladerf_format_BLADERF_FORMAT_SC16_Q11, 16, min_buf_size as c_uint, 8, 3500);
 
             // Enable Stream
-            bladerf::bladerf_enable_module(dev, 0, true);
+            bladerf::bladerf_enable_module(dev, channel, true);
 
             dev
         };
