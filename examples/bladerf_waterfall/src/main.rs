@@ -1,18 +1,15 @@
 use rustdsp::gui::time_chart_complex::TimeChartComplex;
 use rustdsp::gui::waterfall::Waterfall;
-use rustdsp::objects::Pipeline;
+use rustdsp::objects::object::DSPObject;
 use rustdsp::radios;
 
 fn main() {
-    let mut pipeline = Pipeline::new();
-    
-    let mut radio = radios::bladerf::src::BladeRfSrc::new(915000000, 100000, 50, 200000, 1024);
-    let mut chart = TimeChartComplex::new();
+    let mut src = radios::bladerf::src::BladeRfSrc::new(915000000, 1_000_000, 1_000_000, 1_000_000, 1024);
     let mut waterfall = Waterfall::new(1024);
+    
+    let s = src.get_bus();
 
-    pipeline.add_object(&mut radio);
-    pipeline.add_gui_element(&mut chart);
-    pipeline.add_gui_element(&mut waterfall);
-
-    pipeline.process();
+    waterfall.set_bus(s);
+    
+    rustdsp::objects::GUIExecutor::run(vec![Box::new(waterfall)], Box::new(src));
 }

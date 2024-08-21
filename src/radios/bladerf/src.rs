@@ -1,4 +1,4 @@
-use crate::objects::object::{DSPObject, Type};
+use crate::objects::object::{Bus, DSPObject, Type};
 use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo, bladerf_sync_rx};
 use num::Complex;
 use spin::Mutex;
@@ -11,7 +11,7 @@ use std::{mem, println, vec};
 use iced::futures::channel;
 use crate::objects::object::Type::Complex as OtherComplex;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct BladeRfSrc {
     pub frequency: u64,
     pub sample_rate: u32,
@@ -21,8 +21,9 @@ pub struct BladeRfSrc {
 
     pub sample_buffer: Vec<Complex<i16>>,
     pub counter: usize,
+    
+    pub bus: Bus<'static>,
 
-    pub output_buffer: Arc<Mutex<Complex<f64>>>,
     pub dev: Arc<Mutex<*mut bladerf::bladerf>>,
 
 }
@@ -87,8 +88,8 @@ impl BladeRfSrc {
 
             sample_buffer: vec![Complex::new(0, 0); num_samples],
             counter: 0,
-
-            output_buffer: Arc::new(Default::default()),
+            
+            bus: Bus::new_complex(),
             dev: Arc::new(Mutex::new(dev)),
         }
     }
@@ -107,35 +108,12 @@ impl DSPObject for BladeRfSrc {
         Type::NONE
     }
 
-    fn set_input_buffer(&mut self, buffer: Arc<spin::mutex::Mutex<f64>>) {
-        // BladeRF does not take any input
-        panic!("BladeRF does not have an input buffer");
-    }
-    fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
-        panic!("BladeRF does not have an output buffer");
+    fn get_bus(&mut self) -> &mut Bus<'static> {
+        &mut self.bus
     }
 
-    fn set_input_buffer_complex(&mut self, buffer: Arc<spin::mutex::Mutex<Complex<f64>>>) {
-        panic!("BladeRF does not have a complex input buffer");
-    }
-
-    fn get_output_buffer_complex(&self) -> Arc<spin::mutex::Mutex<Complex<f64>>> {
-        self.output_buffer.clone()
-    }
-
-    fn set_input_buffer_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<f64>>>) {
-        panic!("BladeRF does not have a vector input buffer");
-    }
-    fn get_output_buffer_vec(&self) -> Arc<spin::mutex::Mutex<Vec<f64>>> {
-        panic!("BladeRF does not have a vector output buffer");
-    }
-
-    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<Complex<f64>>>>) {
-        panic!("BladeRF does not have a complex vector input buffer");
-    }
-
-    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<Complex<f64>>>> {
-        panic!("BladeRF does not have a complex vector output buffer");
+    fn set_bus(&mut self, bus: &mut Bus<'static>) {
+        panic!("BladeRfSrc does not listen on a bus");
     }
 
     fn process(&mut self) {
@@ -143,7 +121,13 @@ impl DSPObject for BladeRfSrc {
             unsafe { bladerf_sync_rx(*self.dev.lock(), self.sample_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 1000); }
         }
 
-        *self.output_buffer.lock() = Complex::new(self.sample_buffer[self.counter].re as f64 / 2048.0, self.sample_buffer[self.counter].re as f64 / 2048.0);
+        self.bus.trigger_complex(Complex::new(self.sample_buffer[self.counter].re as f64 / 2048.0, self.sample_buffer[self.counter].re as f64 / 2048.0));
         self.counter = (self.counter + 1) % self.num_samples;
+    }
+
+    fn start(&mut self) {
+        loop {
+            self.process();
+        }
     }
 }

@@ -115,6 +115,7 @@ impl DSPObject for Waterfall {
     
     fn set_bus(&mut self, bus: &mut Bus<'static>) {
         self.bus = *bus;
+        bus.subscribe(self);
     }
 
     fn start(&mut self) {

@@ -18,7 +18,6 @@ pub struct BladeRfSink {
     pub bandwidth: u32,
     pub num_samples: usize,
 
-    pub input_buffer: Arc<Mutex<Complex<f64>>>,
     pub buffer: Arc<Mutex<VecDeque<Complex<f64>>>>,
     pub counter: usize,
 
@@ -87,7 +86,6 @@ impl BladeRfSink {
             bandwidth,
             num_samples,
             
-            input_buffer: Arc::new(Mutex::new(Complex::new(0.0, 0.0))),
             buffer: Arc::new(Mutex::new(VecDeque::from(vec![Complex::new(0.0, 0.0); num_samples]))),
             counter: 0,
 
@@ -111,46 +109,19 @@ impl DSPObject for BladeRfSink {
         Type::Complex
     }
 
-    fn get_bus(&self) -> &Bus {
-        &self.bus
-    }
-
-    fn set_bus(&mut self, bus: &Bus) {
+    fn get_bus(&mut self) -> &mut Bus<'static> {
         panic!("BladeRfSink does not listen on a bus");
     }
 
-    fn process(&mut self) {
-        // let mut buffer = self.buffer.lock();
-        // let dev = self.dev.lock();
-        //
-        // // check if the buffer is full
-        // if self.counter == self.num_samples {
-        //     unsafe {
-        //         // create vec of i16 from buffer
-        //         let mut i16_buffer = Vec::new();
-        //         for i in 0..self.num_samples {
-        //             i16_buffer.push(buffer[i].re as i16);
-        //             i16_buffer.push(buffer[i].im as i16);
-        //         }
-        //
-        //         // Write the buffer to the BladeRF
-        //         let status = bladerf::bladerf_sync_tx(*dev, i16_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 10000);
-        //     }
-        //
-        //     // reset the counter
-        //     self.counter = 0;
-        // }
-        //
-        // // increment the counter
-        // self.counter += 1;
-        //
-        // // Put input buffer into buffer
-        // buffer.push_back(*self.input_buffer.lock());
-        //
-        // // remove the first element
-        // buffer.pop_front();
+    fn set_bus(&mut self, bus: &mut Bus<'static>) {
+        self.bus = *bus;
+        bus.subscribe(self);
+    }
 
-        let mut i16_buffer = vec![(self.input_buffer.lock().re * 2048.0) as i16, (self.input_buffer.lock().im * 2048.0) as i16];
+    fn process(&mut self) {
+        let mut i16_buffer = vec![(self.bus.buffer_complex.unwrap().read().re * 2048.0) as i16, (self.bus.buffer_complex.unwrap().read().im * 2048.0) as i16];
         unsafe { bladerf::bladerf_sync_tx(*self.dev.lock(), i16_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 10000); }
     }
+
+    fn start(&mut self) {}
 }
