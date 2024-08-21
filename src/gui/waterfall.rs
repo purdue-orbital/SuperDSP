@@ -1,7 +1,7 @@
 use std::collections::VecDeque;
 use std::ops::Deref;
 use crate::gui::{DSPChart, Message};
-use crate::objects::object::{DSPObject, Type};
+use crate::objects::object::{Bus, DSPObject, Type};
 use iced::{Command, Length};
 use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
 use spin::{Mutex, RwLock};
@@ -19,10 +19,11 @@ use crate::math::fourier::fft_shift;
 
 #[derive(Clone)]
 pub struct Waterfall {
-    input_buffer: Arc<Mutex<Complex<f64>>>,
     buffer: Arc<RwLock<Array1<Complex<f64>>>>,
 
     dft_matrix: ndarray::Array2<Complex<f64>>,
+    
+    bus: Bus<'static>,
 
     pixels: Arc<RwLock<VecDeque<u8>>>,
     width_and_width: usize,
@@ -45,8 +46,9 @@ impl Waterfall {
             buffer: Arc::new(RwLock::new(<Array1<Complex<f64>>>::from(vec![Complex::new(0.0, 0.0); buff_size]))),
             dft_matrix,
             pixels: Arc::new(RwLock::new(VecDeque::from(pixels))),
-            input_buffer: Arc::new(Default::default()),
             width_and_width: buff_size,
+            
+            bus: Bus::new_complex(),
         };
         
         let w_clone = w.clone();
@@ -106,43 +108,23 @@ impl DSPObject for Waterfall {
     fn input_type(&self) -> Type {
         Type::Complex
     }
-
-    fn set_input_buffer(&mut self, buffer: Arc<Mutex<f64>>) {
-        panic!("Waterfall does not have a f64 input buffer");
+    
+    fn get_bus(&mut self) -> &mut Bus<'static> {
+        &mut self.bus
+    }
+    
+    fn set_bus(&mut self, bus: &mut Bus<'static>) {
+        self.bus = *bus;
     }
 
-    fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
-        panic!("Waterfall does not have a f64 output buffer");
-    }
-
-    fn set_input_buffer_complex(&mut self, buffer: Arc<Mutex<Complex<f64>>>) {
-        self.input_buffer = buffer;
-    }
-
-    fn get_output_buffer_complex(&self) -> Arc<Mutex<Complex<f64>>> {
-        self.input_buffer.clone()
-    }
-
-    fn set_input_buffer_vec(&mut self, buffer: Arc<Mutex<Vec<f64>>>) {
-        panic!("Waterfall does not have a vector input buffer");
-    }
-
-    fn get_output_buffer_vec(&self) -> Arc<Mutex<Vec<f64>>> {
-        panic!("Waterfall does not have a vector output buffer");
-    }
-
-    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<Complex<f64>>>>) {
-        panic!("Waterfall does not have a complex vector input buffer");
-    }
-
-    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<Complex<f64>>>> {
-        panic!("Waterfall does not have a complex vector output buffer");
+    fn start(&mut self) {
+        panic!("Charts can not be root object");
     }
 
     fn process(&mut self) {
         // Put input buffer into buffer
         self.buffer.write().remove_index(Axis(0),0);
-        self.buffer.write().push(Axis(0), ndarray::arr0(*self.input_buffer.lock()).view()).unwrap();
+        self.buffer.write().push(Axis(0), ndarray::arr0(*self.bus.buffer_complex.unwrap().read()).view()).unwrap();
     }
 }
 

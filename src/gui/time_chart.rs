@@ -1,22 +1,22 @@
 use crate::gui::{DSPChart, Message};
-use crate::objects::object::{DSPObject, Type};
+use crate::objects::object::{Bus, DSPObject, DSPObjectClonable, Type};
 use iced::Command;
 use plotters::prelude::{LineSeries, RED};
 use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
-use spin::Mutex;
+use spin::{Mutex, RwLock};
 use std::prelude::rust_2021::Vec;
 use std::sync::Arc;
-use std::vec;
+use std::{dbg, println, vec};
 
 #[derive(Clone)]
 pub struct TimeChart {
-    input_buffer: Arc<Mutex<f64>>,
-    buffer: Arc<Mutex<Vec<f64>>>,
+    buffer: Arc<RwLock<Vec<f64>>>,
+    bus: Bus<'static>,
 }
 
 impl TimeChart {
     pub fn new() -> TimeChart {
-        TimeChart { buffer: Arc::new(Mutex::new(vec![0.0; 50])), input_buffer: Arc::new(Default::default()) }
+        TimeChart { buffer: Arc::new(RwLock::new(vec![0.0; 50])), bus: Bus::new_f64() }
     }
 }
 
@@ -30,9 +30,10 @@ impl Chart<Message> for TimeChart {
     type State = ();
 
     fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, mut builder: ChartBuilder<DB>) {
-        if self.buffer.lock().len() < 50 {
+        if self.buffer.read().len() < 50 {
             return;
         }
+        
         let mut chart = builder
             .margin(30)
             .caption("Time Chart", ("sans-serif", 22))
@@ -50,7 +51,7 @@ impl Chart<Message> for TimeChart {
 
         chart
             .draw_series(LineSeries::new(
-                (0..50).map(|x| (x as f32, self.buffer.lock()[x] as f32)),
+                (0..50).map(|x| (x as f32, self.buffer.read()[x] as f32)),
                 &RED,
             ))
             .unwrap();
@@ -66,41 +67,27 @@ impl DSPObject for TimeChart {
         Type::F64
     }
 
-    fn set_input_buffer(&mut self, buffer: Arc<Mutex<f64>>) {
-        self.input_buffer = buffer;
+    fn get_bus(&mut self) -> &mut Bus<'static> {
+        &mut self.bus
     }
 
-    fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
-        self.input_buffer.clone()
-    }
-
-    fn set_input_buffer_complex(&mut self, buffer: Arc<spin::mutex::Mutex<num::Complex<f64>>>) {
-        panic!("WaveGen does not have a complex input buffer");
-    }
-    fn get_output_buffer_complex(&self) -> Arc<spin::mutex::Mutex<num::Complex<f64>>> {
-        panic!("WaveGen does not have a complex output buffer");
-    }
-    fn set_input_buffer_vec(&mut self, buffer: Arc<Mutex<Vec<f64>>>) {
-        panic!("TimeChart does not have a vector input buffer");
-    }
-    fn get_output_buffer_vec(&self) -> Arc<Mutex<Vec<f64>>> {
-        panic!("TimeChart does not have a vector output buffer");
-    }
-    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>>) {
-        panic!("WaveGen does not have a complex vector input buffer");
-    }
-    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<num::Complex<f64>>>> {
-        panic!("WaveGen does not have a complex vector output buffer");
+    fn set_bus(&mut self, bus: &mut Bus<'static>) {
+        bus.subscribe(self);
+        self.bus = *bus;
     }
 
     fn process(&mut self) {
         // Put input buffer into buffer
-        self.buffer.lock().push(*self.input_buffer.lock());
+        self.buffer.write().push(*self.bus.buffer_f64.unwrap().read());
 
         // Remove the first element if buffer is too long
-        if self.buffer.lock().len() > 50 {
-            self.buffer.lock().remove(0);
+        if self.buffer.read().len() > 50 {
+            self.buffer.write().remove(0);
         }
+    }
+
+    fn start(&mut self) {
+        panic!("Charts can not be root object");
     }
 }
 

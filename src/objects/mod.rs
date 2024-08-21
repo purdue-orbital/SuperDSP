@@ -4,115 +4,69 @@ use std::sync::{Arc, Mutex};
 #[cfg(feature = "gui")]
 use std::thread::spawn;
 
+#[cfg(feature = "std")]
+use std::vec::Vec;
+
+#[cfg(feature = "std")]
+use std::boxed::Box;
+
+use spin::RwLock;
+use crate::gui::{DSPChart, GUI, Message};
+use crate::objects::object::{DSPObject, DSPObjectClonable};
+
 pub mod object;
 pub mod wave_gen;
 
 #[cfg(feature = "std")]
 pub mod wave_gen_time;
+
 #[cfg(feature = "std")]
 pub mod wave_gen_time_complex;
 pub mod wave_gen_complex;
 
-use alloc::boxed::Box;
-use alloc::vec::Vec;
+pub(crate) static F64_OUTPUT_BUFFERS: [RwLock<f64>; 64] = [
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+    RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
+];
+pub(crate) static COMPLEX_OUTPUT_BUFFERS: [RwLock<num::Complex<f64>>; 64] = [
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+    RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
+];
 
-#[cfg(not(feature = "gui"))]
-pub struct Pipeline {
-    pub objects: Vec<Box<dyn object::DSPObject>>,
-}
+pub(crate) static F64_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
+pub(crate) static COMPLEX_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
 
-#[cfg(not(feature = "gui"))]
-impl Pipeline {
-    pub fn new() -> Pipeline {
-        Pipeline {
-            objects: Vec::new(),
-        }
-    }
 
-    pub fn add_object<T: object::DSPObject + 'static>(&mut self, object: &mut T) {
-        if !self.objects.is_empty() {
-            let last = self.objects.len() - 1;
-            let last_obj = self.objects[last].clone_box();
-            object.set_input_buffer(last_obj.get_output_buffer());
-        }
-
-        self.objects.push(object.clone_box());
-    }
-
-    pub fn process(&mut self) {
-        loop {
-            for obj in self.objects.iter_mut() {
-                obj.process();
-            };
-        }
-
-    }
+#[cfg(feature = "gui")]
+pub struct GUIExecutor{
+    arr: Vec<Box<dyn DSPChart<Message=Message, State=()>>>,
+    first: Box<dyn DSPObject>
 }
 
 #[cfg(feature = "gui")]
-pub struct Pipeline {
-    pub objects: Vec<Box<dyn object::DSPObject>>,
-    pub gui: Option<crate::gui::GUI>,
-}
-
-#[cfg(feature = "gui")]
-impl Pipeline {
-    pub fn new() -> Pipeline {
-        Pipeline {
-            objects: Vec::new(),
-            gui: None,
-        }
-    }
-
-    pub fn add_object<T: object::DSPObject + 'static>(&mut self, object: &mut T) {
-        if !self.objects.is_empty() {
-            let last = self.objects.len() - 1;
-            let last_obj = self.objects[last].clone_box();
-            match last_obj.return_type() { 
-                object::Type::F64 => object.set_input_buffer(last_obj.get_output_buffer()),
-                object::Type::Complex => object.set_input_buffer_complex(last_obj.get_output_buffer_complex()),
-                object::Type::Vec => object.set_input_buffer_vec(last_obj.get_output_buffer_vec()),
-                object::Type::ComplexVec => object.set_input_buffer_complex_vec(last_obj.get_output_buffer_complex_vec()),
-                _ => panic!("Invalid input type"),
-            }
-        }
-
-        self.objects.push(object.clone_box());
-    }
-
-    pub fn add_gui_element<T: crate::gui::DSPChart<State=(), Message=crate::gui::Message> + 'static>(&mut self, element: &mut T) {
-        if let Some(gui) = &mut self.gui {
-            gui.add_element(element);
-        } else {
-            let mut gui = crate::gui::GUI::new(800, 600);
-            gui.add_element(element);
-            self.gui = Some(gui);
-        }
-
-        self.add_object(element)
-    }
-
-    pub fn process(&mut self) {
-        let objs_clone = Arc::new(Mutex::new(self.objects.iter().map(|obj| obj.clone_box()).collect::<Vec<_>>()));
-
-        spawn(
-            move || {
-                loop {
-                    let mut objs = objs_clone.lock().unwrap();
-                    for obj in objs.iter_mut() {
-                        obj.process();
-                    };
-                }
-            }
-        );
+impl GUIExecutor{
+    pub fn run(arr: Vec<Box<dyn DSPChart<Message=Message, State=()>>>, mut first_element: Box<dyn DSPObject>) {
+        spawn(move || {
+            first_element.start()
+        });
         
-        if let Some(gui) = &self.gui {
-            gui.start();
-        }
-        else { 
-            loop {
-                // Do nothing
-            }
-        }
+        let gui = GUI{
+            width: 800,
+            height: 600,
+            elements: arr
+        };
+        gui.start();
     }
 }

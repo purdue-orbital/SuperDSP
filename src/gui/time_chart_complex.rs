@@ -1,5 +1,5 @@
 use crate::gui::{DSPChart, Message};
-use crate::objects::object::{DSPObject, Type};
+use crate::objects::object::{Bus, DSPObject, Type};
 use iced::Command;
 use plotters::prelude::{LineSeries, RED};
 use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
@@ -12,13 +12,16 @@ use plotters::style::BLUE;
 
 #[derive(Clone)]
 pub struct TimeChartComplex {
-    input_buffer: Arc<Mutex<Complex<f64>>>,
     buffer: Arc<Mutex<Vec<Complex<f64>>>>,
+    bus: Bus<'static>,
 }
 
 impl TimeChartComplex {
     pub fn new() -> TimeChartComplex {
-        TimeChartComplex { buffer: Arc::new(Mutex::new(vec![Complex::new(0.0,0.0); 50])), input_buffer: Arc::new(Default::default()) }
+        TimeChartComplex { 
+            buffer: Arc::new(Mutex::new(vec![Complex::new(0.0,0.0); 50])),
+            bus: Bus::new_complex()
+        }
     }
 }
 
@@ -75,41 +78,21 @@ impl DSPObject for TimeChartComplex {
         Type::Complex
     }
 
-    fn set_input_buffer(&mut self, buffer: Arc<Mutex<f64>>) {
-        panic!("TimeChartComplex does not have a f64 input buffer");
+    fn get_bus(&mut self) -> &mut Bus<'static> {
+        &mut self.bus
     }
 
-    fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
-        panic!("TimeChartComplex does not have a f64 output buffer");
+    fn set_bus(&mut self, bus: &mut Bus<'static>) {
+        self.bus = *bus;
     }
 
-    fn set_input_buffer_complex(&mut self, buffer: Arc<Mutex<Complex<f64>>>) {
-        self.input_buffer = buffer;
-    }
-
-    fn get_output_buffer_complex(&self) -> Arc<Mutex<Complex<f64>>> {
-        self.input_buffer.clone()
-    }
-
-    fn set_input_buffer_vec(&mut self, buffer: Arc<Mutex<Vec<f64>>>) {
-        panic!("TimeChartComplex does not have a vector input buffer");
-    }
-
-    fn get_output_buffer_vec(&self) -> Arc<Mutex<Vec<f64>>> {
-        panic!("TimeChartComplex does not have a vector output buffer");
-    }
-
-    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<Complex<f64>>>>) {
-        panic!("TimeChartComplex does not have a complex vector input buffer");
-    }
-
-    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<Complex<f64>>>> {
-        panic!("TimeChartComplex does not have a complex vector output buffer");
+    fn start(&mut self) {
+        panic!("Charts can not be root object");
     }
 
     fn process(&mut self) {
         // Put input buffer into buffer
-        self.buffer.lock().push(*self.input_buffer.lock());
+        self.buffer.lock().push(*self.bus.buffer_complex.unwrap().read());
 
         // Remove the first element if buffer is too long
         if self.buffer.lock().len() > 50 {

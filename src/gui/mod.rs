@@ -47,7 +47,7 @@ pub struct GUI {
     pub width: usize,
     pub height: usize,
 
-    elements: Vec<Box<dyn DSPChart<State=(), Message=Message>>>,
+    pub(crate) elements: Vec<Box<dyn DSPChart<State=(), Message=Message>>>,
 }
 
 pub fn tick() {
@@ -59,7 +59,7 @@ impl GUI {
         GUI { width, height, elements: vec![] }
     }
 
-    pub fn add_element<T: DSPChart<State=(), Message=Message> + 'static>(&mut self, element: &mut T) {
+    pub fn add_element<T: DSPChart<State=(), Message=Message> + 'static + ?Sized>(&mut self, element: &mut T) {
         self.elements.push(element.clone_chart());
     }
 

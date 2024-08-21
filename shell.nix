@@ -10,6 +10,8 @@ pkgs.mkShell{
         libxkbcommon
         libGL
 
+        wayland
+
         xorg.libXcursor
         xorg.libXrandr
         xorg.libXi
@@ -25,6 +27,7 @@ pkgs.mkShell{
         pkgs.cargo
         pkgs.libxkbcommon
         pkgs.libGL
+        pkgs.wayland
 
         pkgs.xorg.libXcursor
         pkgs.xorg.libXrandr

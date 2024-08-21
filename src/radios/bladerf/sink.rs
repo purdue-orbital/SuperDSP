@@ -1,4 +1,4 @@
-use crate::objects::object::{DSPObject, Type};
+use crate::objects::object::{Bus, DSPObject, Type};
 use bladerf::{bladerf_channel, bladerf_direction_BLADERF_TX, bladerf_init_devinfo, bladerf_open_with_devinfo};
 use num::Complex;
 use spin::Mutex;
@@ -10,7 +10,7 @@ use std::sync::Arc;
 use std::{mem, println, vec};
 use std::collections::VecDeque;
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct BladeRfSink {
     pub frequency: u64,
     pub sample_rate: u32,
@@ -21,6 +21,8 @@ pub struct BladeRfSink {
     pub input_buffer: Arc<Mutex<Complex<f64>>>,
     pub buffer: Arc<Mutex<VecDeque<Complex<f64>>>>,
     pub counter: usize,
+
+    pub bus: Bus<'static>,
 
     pub dev: Arc<Mutex<*mut bladerf::bladerf>>,
 }
@@ -88,6 +90,8 @@ impl BladeRfSink {
             input_buffer: Arc::new(Mutex::new(Complex::new(0.0, 0.0))),
             buffer: Arc::new(Mutex::new(VecDeque::from(vec![Complex::new(0.0, 0.0); num_samples]))),
             counter: 0,
+
+            bus: Bus::new_complex(),
             
             dev: Arc::new(Mutex::new(dev)),
         }
@@ -107,35 +111,12 @@ impl DSPObject for BladeRfSink {
         Type::Complex
     }
 
-    fn set_input_buffer(&mut self, buffer: Arc<spin::mutex::Mutex<f64>>) {
-        // BladeRF does not take any input
-        panic!("BladeRF does not have an input buffer");
-    }
-    fn get_output_buffer(&self) -> Arc<Mutex<f64>> {
-        panic!("BladeRF does not have an output buffer");
+    fn get_bus(&self) -> &Bus {
+        &self.bus
     }
 
-    fn set_input_buffer_complex(&mut self, buffer: Arc<spin::mutex::Mutex<Complex<f64>>>) {
-        self.input_buffer = buffer;
-    }
-
-    fn get_output_buffer_complex(&self) -> Arc<spin::mutex::Mutex<Complex<f64>>> {
-        panic!("BladeRF does not have a complex output buffer");
-    }
-
-    fn set_input_buffer_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<f64>>>) {
-        panic!("BladeRF does not have a vector input buffer");
-    }
-    fn get_output_buffer_vec(&self) -> Arc<spin::mutex::Mutex<Vec<f64>>> {
-        panic!("BladeRF does not have a vector output buffer");
-    }
-
-    fn set_input_buffer_complex_vec(&mut self, buffer: Arc<spin::mutex::Mutex<Vec<Complex<f64>>>>) {
-        panic!("BladeRF does not have a complex vector input buffer");
-    }
-
-    fn get_output_buffer_complex_vec(&self) -> Arc<spin::mutex::Mutex<Vec<Complex<f64>>>> {
-        panic!("BladeRF does not have a complex vector output buffer");
+    fn set_bus(&mut self, bus: &Bus) {
+        panic!("BladeRfSink does not listen on a bus");
     }
 
     fn process(&mut self) {
