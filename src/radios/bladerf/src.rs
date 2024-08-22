@@ -40,46 +40,7 @@ impl BladeRfSrc {
     pub fn new(frequency: u64, sample_rate: u32, gain: i32, bandwidth: u32, num_samples: usize) -> BladeRfSrc {
         assert_eq!(num_samples % 1024, 0);
 
-        let channel = ((0) << 1 | 0x0) as bladerf_channel;
-
-        let dev = unsafe {
-            println!("Getting Dev-Info BladeRF");
-            let devinfo: *mut bladerf::bladerf_devinfo = std::mem::MaybeUninit::new(mem::zeroed()).assume_init_mut();
-            bladerf_init_devinfo(devinfo);
-
-            // Initialize the BladeRF device
-            println!("Opening BladeRF");
-            let mut dev: *mut bladerf::bladerf = std::ptr::null_mut();
-            bladerf_open_with_devinfo(&mut dev, devinfo);
-
-
-            // Set the frequency
-            println!("Setting Frequency BladeRF");
-            bladerf::bladerf_set_frequency(dev, channel, frequency);
-
-            // Set the sample rate
-            println!("Setting Sample Rate BladeRF");
-            bladerf::bladerf_set_sample_rate(dev, channel, sample_rate, std::ptr::null_mut());
-
-            // Set the gain
-            println!("Setting Gain BladeRF");
-            bladerf::bladerf_set_gain(dev, channel, gain);
-
-            // Set the bandwidth
-            println!("Setting Bandwidth BladeRF");
-            bladerf::bladerf_set_bandwidth(dev, channel, bandwidth, std::ptr::null_mut());
-
-            // Configure the sync interface
-            let min_buf_size = 2 * num_samples * 1 * 16;
-            bladerf::bladerf_sync_config(dev, bladerf::bladerf_channel_layout_BLADERF_RX_X1, bladerf::bladerf_format_BLADERF_FORMAT_SC16_Q11, 16, min_buf_size as c_uint, 8, 3500);
-
-            // Enable Stream
-            bladerf::bladerf_enable_module(dev, channel, true);
-
-            dev
-        };
-
-        BladeRfSrc {
+        let mut src = BladeRfSrc {
             frequency,
             sample_rate,
             gain,
@@ -90,8 +51,58 @@ impl BladeRfSrc {
             counter: 0,
             
             bus: Bus::new_complex(),
-            dev: Arc::new(Mutex::new(dev)),
-        }
+            dev: Arc::new(Mutex::new(null_mut())),
+        };
+        
+        src.reconnect();
+        
+        src
+    }
+    
+    fn reconnect(&mut self) {
+        let channel = ((0) << 1 | 0x0) as bladerf_channel;
+        let dev = unsafe {
+            println!("Getting Dev-Info BladeRF");
+            let devinfo: *mut bladerf::bladerf_devinfo = std::mem::MaybeUninit::new(mem::zeroed()).assume_init_mut();
+            bladerf_init_devinfo(devinfo);
+
+            // Initialize the BladeRF device
+            println!("Opening BladeRF");
+            let mut dev: *mut bladerf::bladerf = std::ptr::null_mut();
+            let status = bladerf_open_with_devinfo(&mut dev, devinfo);
+            
+            if status != 0 {
+                println!("Error opening BladeRF");
+                return;
+            }
+
+            // Set the frequency
+            println!("Setting Frequency BladeRF");
+            bladerf::bladerf_set_frequency(dev, channel, self.frequency);
+
+            // Set the sample rate
+            println!("Setting Sample Rate BladeRF");
+            bladerf::bladerf_set_sample_rate(dev, channel, self.sample_rate, std::ptr::null_mut());
+
+            // Set the gain
+            println!("Setting Gain BladeRF");
+            bladerf::bladerf_set_gain(dev, channel, self.gain);
+
+            // Set the bandwidth
+            println!("Setting Bandwidth BladeRF");
+            bladerf::bladerf_set_bandwidth(dev, channel, self.bandwidth, std::ptr::null_mut());
+
+            // Configure the sync interface
+            let min_buf_size = 2 * self.num_samples * 1 * 16;
+            bladerf::bladerf_sync_config(dev, bladerf::bladerf_channel_layout_BLADERF_RX_X1, bladerf::bladerf_format_BLADERF_FORMAT_SC16_Q11, 16, min_buf_size as c_uint, 8, 3500);
+
+            // Enable Stream
+            bladerf::bladerf_enable_module(dev, channel, true);
+
+            dev
+        };
+        
+        *self.dev.lock() = dev;
     }
 }
 
@@ -118,7 +129,12 @@ impl DSPObject for BladeRfSrc {
 
     fn process(&mut self) {
         if self.counter == 0{
-            unsafe { bladerf_sync_rx(*self.dev.lock(), self.sample_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 1000); }
+            let status = unsafe { bladerf_sync_rx(*self.dev.lock(), self.sample_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 1000) };
+            
+            if status != 0 {
+                println!("Error reading samples from BladeRF");
+                self.reconnect();
+            }
         }
 
         self.bus.trigger_complex(Complex::new(self.sample_buffer[self.counter].re as f64 / 2048.0, self.sample_buffer[self.counter].re as f64 / 2048.0));

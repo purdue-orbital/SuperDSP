@@ -1,4 +1,4 @@
-# RustDSP (WIP)
+# SuperDSP (WIP)
 
 This library is a very work in progress, and the interface currently is subject to changes.
 
@@ -225,13 +225,9 @@ All dependencies should already be included on your system. If you don't have th
 
 ## Goals:
 
-- [ ] Cross-Hardware Math Acceleration
+- [x] Cross-Hardware Math Acceleration
     - [x] CPUs (Native rust)
-    - [ ] Vulkan
-    - [ ] FPGAs (Verilog?)
-    - [ ] ???
 - [ ] Frequency and Phase Locked Loops
-- [ ] Rational Resampler
 - [ ] Filters
     - [ ] Low-pass filters
     - [ ] High-pass filters
