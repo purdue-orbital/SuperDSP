@@ -1,4 +1,4 @@
-use core::f64::consts::PI;
+use core::f32::consts::PI;
 use std::thread::sleep;
 
 use num::Complex;
@@ -7,18 +7,18 @@ use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGenTimeComplex {
-    pub frequency: f64,
-    pub amplitude: f64,
-    pub phase: f64,
-    pub sample_rate: f64,
+    pub frequency: f32,
+    pub amplitude: f32,
+    pub phase: f32,
+    pub sample_rate: f32,
 
     bus: Bus<'static>,
 
-    pub time: f64,
+    pub time: f32,
 }
 
 impl WaveStepGenTimeComplex {
-    pub fn new(frequency: f64, amplitude: f64, phase: f64, sample_rate: f64) -> WaveStepGenTimeComplex {
+    pub fn new(frequency: f32, amplitude: f32, phase: f32, sample_rate: f32) -> WaveStepGenTimeComplex {
         WaveStepGenTimeComplex {
             frequency,
             amplitude,
@@ -52,7 +52,7 @@ impl DSPObject for WaveStepGenTimeComplex {
         self.bus.trigger_complex(value);
 
         self.time += 1.0 / self.sample_rate;
-        sleep(std::time::Duration::from_secs_f64(1.0 / self.sample_rate));
+        sleep(std::time::Duration::from_secs_f32(1.0 / self.sample_rate));
     }
     fn start(&mut self) {
         loop {

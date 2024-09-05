@@ -1,22 +1,22 @@
-use core::f64::consts::PI;
+use core::f32::consts::PI;
 
 use crate::objects::object::{Bus, DSPObject};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGen {
-    pub frequency: f64,
-    pub amplitude: f64,
-    pub phase: f64,
-    pub sample_rate: f64,
+    pub frequency: f32,
+    pub amplitude: f32,
+    pub phase: f32,
+    pub sample_rate: f32,
 
     pub bus: Bus<'static>,
 
-    pub time: f64,
+    pub time: f32,
 }
 
 impl WaveStepGen {
-    pub fn new(frequency: f64, amplitude: f64, phase: f64, sample_rate: f64) -> WaveStepGen {
-        let bus = Bus::new_f64();
+    pub fn new(frequency: f32, amplitude: f32, phase: f32, sample_rate: f32) -> WaveStepGen {
+        let bus = Bus::new_f32();
 
         WaveStepGen {
             frequency,
@@ -32,7 +32,7 @@ impl WaveStepGen {
 
 impl DSPObject for WaveStepGen {
     fn return_type(&self) -> crate::objects::object::Type {
-        crate::objects::object::Type::F64
+        crate::objects::object::Type::F32
     }
     fn input_type(&self) -> crate::objects::object::Type {
         crate::objects::object::Type::NONE
@@ -47,7 +47,7 @@ impl DSPObject for WaveStepGen {
     }
 
     fn process(&mut self) {
-        self.bus.trigger_f64(self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin());
+        self.bus.trigger_f32(self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin());
         self.time += 1.0 / self.sample_rate;
     }
 

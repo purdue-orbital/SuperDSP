@@ -12,13 +12,13 @@ use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct TimeChart {
-    buffer: Arc<RwLock<Vec<f64>>>,
+    buffer: Arc<RwLock<Vec<f32>>>,
     bus: Bus<'static>,
 }
 
 impl TimeChart {
     pub fn new() -> TimeChart {
-        TimeChart { buffer: Arc::new(RwLock::new(vec![0.0; 50])), bus: Bus::new_f64() }
+        TimeChart { buffer: Arc::new(RwLock::new(vec![0.0; 50])), bus: Bus::new_f32() }
     }
 }
 
@@ -62,11 +62,11 @@ impl Chart<Message> for TimeChart {
 
 impl DSPObject for TimeChart {
     fn return_type(&self) -> Type {
-        Type::F64
+        Type::F32
     }
 
     fn input_type(&self) -> Type {
-        Type::F64
+        Type::F32
     }
 
     fn get_bus(&mut self) -> &mut Bus<'static> {
@@ -80,7 +80,7 @@ impl DSPObject for TimeChart {
 
     fn process(&mut self) {
         // Put input buffer into buffer
-        self.buffer.write().push(*self.bus.buffer_f64.unwrap().read());
+        self.buffer.write().push(*self.bus.buffer_f32.unwrap().read());
 
         // Remove the first element if buffer is too long
         if self.buffer.read().len() > 50 {

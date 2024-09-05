@@ -21,7 +21,7 @@ pub mod wave_gen_time;
 pub mod wave_gen_time_complex;
 pub mod wave_gen_complex;
 
-pub(crate) static F64_OUTPUT_BUFFERS: [RwLock<f64>; 64] = [
+pub(crate) static F32_OUTPUT_BUFFERS: [RwLock<f32>; 64] = [
     RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
     RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
     RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
@@ -31,7 +31,7 @@ pub(crate) static F64_OUTPUT_BUFFERS: [RwLock<f64>; 64] = [
     RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
     RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
 ];
-pub(crate) static COMPLEX_OUTPUT_BUFFERS: [RwLock<num::Complex<f64>>; 64] = [
+pub(crate) static COMPLEX_OUTPUT_BUFFERS: [RwLock<num::Complex<f32>>; 64] = [
     RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),
     RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),
     RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),
@@ -53,7 +53,7 @@ pub(crate) static BARRIERS: [Barrier; 64] = [
     Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
     Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
 ];
-pub(crate) static F64_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
+pub(crate) static F32_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
 pub(crate) static COMPLEX_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
 pub(crate) static BARRIERS_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
 

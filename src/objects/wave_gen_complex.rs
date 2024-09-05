@@ -1,4 +1,4 @@
-use core::f64::consts::PI;
+use core::f32::consts::PI;
 
 use num::Complex;
 
@@ -6,18 +6,18 @@ use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGenComplex {
-    pub frequency: f64,
-    pub amplitude: f64,
-    pub phase: f64,
-    pub sample_rate: f64,
+    pub frequency: f32,
+    pub amplitude: f32,
+    pub phase: f32,
+    pub sample_rate: f32,
 
     pub bus: Bus<'static>,
 
-    pub time: f64,
+    pub time: f32,
 }
 
 impl WaveStepGenComplex {
-    pub fn new(frequency: f64, amplitude: f64, phase: f64, sample_rate: f64) -> WaveStepGenComplex {
+    pub fn new(frequency: f32, amplitude: f32, phase: f32, sample_rate: f32) -> WaveStepGenComplex {
         WaveStepGenComplex {
             frequency,
             amplitude,

@@ -14,7 +14,7 @@ use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct TimeChartComplex {
-    buffer: Arc<Mutex<Vec<Complex<f64>>>>,
+    buffer: Arc<Mutex<Vec<Complex<f32>>>>,
     bus: Bus<'static>,
 }
 

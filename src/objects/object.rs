@@ -6,12 +6,12 @@ use spin::RwLock;
 
 #[cfg(feature = "multithreading-std")]
 use crate::objects::{BARRIERS, BARRIERS_INDEX};
-use crate::objects::{COMPLEX_OUTPUT_BUFFER_INDEX, COMPLEX_OUTPUT_BUFFERS, F64_OUTPUT_BUFFER_INDEX, F64_OUTPUT_BUFFERS};
+use crate::objects::{COMPLEX_OUTPUT_BUFFER_INDEX, COMPLEX_OUTPUT_BUFFERS, F32_OUTPUT_BUFFER_INDEX, F32_OUTPUT_BUFFERS};
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Type {
     NONE,
-    F64,
+    F32,
     Complex,
 }
 
@@ -19,8 +19,8 @@ pub enum Type {
 pub struct Bus<'a> {
     pub bust_type: Type,
 
-    pub buffer_f64: Option<&'a RwLock<f64>>,
-    pub buffer_complex: Option<&'a RwLock<Complex<f64>>>,
+    pub buffer_f32: Option<&'a RwLock<f32>>,
+    pub buffer_complex: Option<&'a RwLock<Complex<f32>>>,
 
     subscribers: [Option<*mut dyn DSPObject>; 64],
     subscriber_index: usize,
@@ -41,7 +41,7 @@ impl Bus<'_> {
     pub fn new() -> Bus<'static> {
         Bus {
             bust_type: Type::NONE,
-            buffer_f64: None,
+            buffer_f32: None,
             buffer_complex: None,
             subscribers: [None; 64],
             subscriber_index: 0,
@@ -51,12 +51,12 @@ impl Bus<'_> {
         }
     }
 
-    pub fn new_f64() -> Bus<'static> {
-        let mut locked = F64_OUTPUT_BUFFER_INDEX.lock();
+    pub fn new_f32() -> Bus<'static> {
+        let mut locked = F32_OUTPUT_BUFFER_INDEX.lock();
 
         let bus = Bus {
-            bust_type: Type::F64,
-            buffer_f64: Some(&F64_OUTPUT_BUFFERS[*locked]),
+            bust_type: Type::F32,
+            buffer_f32: Some(&F32_OUTPUT_BUFFERS[*locked]),
             buffer_complex: None,
             subscribers: [None; 64],
             subscriber_index: 0,
@@ -77,7 +77,7 @@ impl Bus<'_> {
 
         let bus = Bus {
             bust_type: Type::Complex,
-            buffer_f64: None,
+            buffer_f32: None,
             buffer_complex: Some(&COMPLEX_OUTPUT_BUFFERS[*locked]),
             subscribers: [None; 64],
             subscriber_index: 0,
@@ -100,17 +100,17 @@ unsafe impl Sync for Bus<'_> {}
 
 
 impl Bus<'_> {
-    pub fn trigger_f64(&self, value: f64) {
-        debug_assert!(self.bust_type == Type::F64);
+    pub fn trigger_f32(&self, value: f32) {
+        debug_assert!(self.bust_type == Type::F32);
 
-        if let Some(buffer) = self.buffer_f64 {
+        if let Some(buffer) = self.buffer_f32 {
             *buffer.write() = value;
         }
 
         self.run_subscribers();
     }
 
-    pub fn trigger_complex(&self, value: Complex<f64>) {
+    pub fn trigger_complex(&self, value: Complex<f32>) {
         debug_assert!(self.bust_type == Type::Complex);
 
         if let Some(buffer) = self.buffer_complex {

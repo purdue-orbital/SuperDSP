@@ -55,7 +55,7 @@ pub fn make_inverse_basis<const N: usize>() -> SMatrix<Complex<f32>, N, N> {
     basis
 }
 
-fn make_forward_shift<const N: usize>(mv_amount: usize) -> SMatrix<Complex<f32>, N, N> {
+pub fn make_forward_shift<const N: usize>(mv_amount: usize) -> SMatrix<Complex<f32>, N, N> {
     let mut shift = SMatrix::<Complex<f32>, N, N>::zeros();
     
     for i in 0..N{
