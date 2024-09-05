@@ -1,5 +1,7 @@
 use core::f64::consts::PI;
+
 use num::Complex;
+
 use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone, Copy)]
@@ -46,17 +48,17 @@ impl DSPObject for WaveStepGenComplex {
     fn set_bus(&mut self, bus: &mut Bus<'static>) {
         panic!("WaveStepGenComplex does not listen on a bus");
     }
-    fn start(&mut self) {
-        loop {
-            self.process();
-        }
-    }
     fn process(&mut self) {
         let phi = 2.0 * PI * self.frequency * self.time + self.phase;
         let value = Complex::new(self.amplitude * phi.sin(), self.amplitude * phi.cos());
         self.bus.trigger_complex(value);
         
         self.time += 1.0 / self.sample_rate;
+    }
+    fn start(&mut self) {
+        loop {
+            self.process();
+        }
     }
 }
 

@@ -3,7 +3,6 @@ use std::thread::sleep;
 
 use crate::objects::object::{Bus, DSPObject, Type};
 
-
 #[derive(Clone, Copy)]
 pub struct WaveStepGenTime {
     pub frequency: f64,

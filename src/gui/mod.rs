@@ -1,10 +1,12 @@
-use crate::objects::object::DSPObject;
-use iced::widget::{Column, Row};
-use iced::{executor, Application, Command, Element, Settings, Subscription, Theme};
 use std::prelude::rust_2021::{Box, String, Vec};
 use std::thread::sleep;
 use std::time::Duration;
 use std::vec;
+
+use iced::{Application, Command, Element, executor, Settings, Subscription, Theme};
+use iced::widget::{Column, Row};
+
+use crate::objects::object::DSPObject;
 
 pub mod time_chart;
 pub mod time_chart_complex;

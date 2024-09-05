@@ -1,21 +1,22 @@
 use std::collections::VecDeque;
-use std::ops::Deref;
-use crate::gui::{DSPChart, Message};
-use crate::objects::object::{Bus, DSPObject, Type};
-use iced::{Command, Length};
-use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
-use spin::{Mutex, RwLock};
 use std::prelude::rust_2021::Vec;
 use std::sync::Arc;
-use std::{print, println, vec};
 use std::thread::spawn;
-use iced::widget::{Container, Image};
+use std::vec;
+
+use iced::{Command, Length};
+use iced::widget::Image;
 use iced::widget::image::Handle;
 use ndarray::{Array1, Axis};
 use ndarray::linalg::Dot;
 use num::Complex;
+use plotters_iced::{Chart, ChartBuilder, DrawingBackend};
+use spin::RwLock;
+
+use crate::gui::{DSPChart, Message};
 use crate::math;
 use crate::math::fourier::fft_shift;
+use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct Waterfall {
@@ -115,17 +116,17 @@ impl DSPObject for Waterfall {
     
     fn set_bus(&mut self, bus: &mut Bus<'static>) {
         self.bus = *bus;
-        bus.subscribe(self);
-    }
-
-    fn start(&mut self) {
-        panic!("Charts can not be root object");
+        bus.subscribe(self as *mut dyn DSPObject);
     }
 
     fn process(&mut self) {
         // Put input buffer into buffer
         self.buffer.write().remove_index(Axis(0),0);
         self.buffer.write().push(Axis(0), ndarray::arr0(*self.bus.buffer_complex.unwrap().read()).view()).unwrap();
+    }
+
+    fn start(&mut self) {
+        panic!("Charts can not be root object");
     }
 }
 

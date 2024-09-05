@@ -1,14 +1,16 @@
-use crate::gui::{DSPChart, Message};
-use crate::objects::object::{Bus, DSPObject, Type};
-use iced::Command;
-use plotters::prelude::{LineSeries, RED};
-use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
-use spin::Mutex;
 use std::prelude::rust_2021::Vec;
 use std::sync::Arc;
 use std::vec;
+
+use iced::Command;
 use num::Complex;
+use plotters::prelude::{LineSeries, RED};
 use plotters::style::BLUE;
+use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
+use spin::Mutex;
+
+use crate::gui::{DSPChart, Message};
+use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct TimeChartComplex {

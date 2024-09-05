@@ -1,18 +1,16 @@
-#[cfg(feature = "gui")]
-use std::sync::{Arc, Mutex};
-
-#[cfg(feature = "gui")]
-use std::thread::spawn;
-
-#[cfg(feature = "std")]
-use std::vec::Vec;
-
 #[cfg(feature = "std")]
 use std::boxed::Box;
 
-use spin::RwLock;
+#[cfg(feature = "gui")]
+use std::thread::spawn;
+#[cfg(feature = "std")]
+use std::vec::Vec;
+
+use spin::{Barrier, RwLock};
+
+#[cfg(feature = "gui")]
 use crate::gui::{DSPChart, GUI, Message};
-use crate::objects::object::{DSPObject, DSPObjectClonable};
+use crate::objects::object::{DSPObject};
 
 pub mod object;
 pub mod wave_gen;
@@ -45,13 +43,24 @@ pub(crate) static COMPLEX_OUTPUT_BUFFERS: [RwLock<num::Complex<f64>>; 64] = [
     RwLock::new(num::Complex::new(0.0, 0.0)), RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),RwLock::new(num::Complex::new(0.0, 0.0)),
 ];
 
+#[cfg(feature = "multithreading-std")]
+pub(crate) static BARRIERS: [Barrier; 64] = [
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+    Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5), Barrier::new(5),
+];
 pub(crate) static F64_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
 pub(crate) static COMPLEX_OUTPUT_BUFFER_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
-
+pub(crate) static BARRIERS_INDEX: spin::Mutex<usize> = spin::Mutex::new(0);
 
 #[cfg(feature = "gui")]
 pub struct GUIExecutor{
-    arr: Vec<Box<dyn DSPChart<Message=Message, State=()>>>,
+    arr: Vec<*mut dyn DSPObject>,
     first: Box<dyn DSPObject>
 }
 

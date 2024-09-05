@@ -1,6 +1,4 @@
 use core::f64::consts::PI;
-use core::ptr::addr_of;
-use spin::{RwLock};
 
 use crate::objects::object::{Bus, DSPObject};
 
@@ -49,15 +47,15 @@ impl DSPObject for WaveStepGen {
         panic!("WaveStepGen does not listen on a bus");
     }
 
+    fn process(&mut self) {
+        self.bus.trigger_f64(self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin());
+        self.time += 1.0 / self.sample_rate;
+    }
+
     fn start(&mut self) {
         loop {
             self.process();
         }
-    }
-
-    fn process(&mut self) {
-        self.bus.trigger_f64(self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin());
-        self.time += 1.0 / self.sample_rate;
     }
 }
 

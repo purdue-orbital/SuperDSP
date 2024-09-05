@@ -1,9 +1,9 @@
 use core::f64::consts::PI;
-use spin::Mutex;
 use std::thread::sleep;
-use num::Complex;
-use crate::objects::object::{Bus, DSPObject, Type};
 
+use num::Complex;
+
+use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGenTimeComplex {
@@ -33,6 +33,9 @@ impl WaveStepGenTimeComplex {
 }
 
 impl DSPObject for WaveStepGenTimeComplex {
+    fn return_type(&self) -> Type {
+        Type::Complex
+    }
     fn input_type(&self) -> Type {
         Type::NONE
     }
@@ -42,15 +45,7 @@ impl DSPObject for WaveStepGenTimeComplex {
     fn set_bus(&mut self, bus: &mut Bus<'static>) {
         panic!("WaveStepGenTimeComplex does not listen on a bus");
     }
-    fn return_type(&self) -> Type {
-        Type::Complex
-    }
 
-    fn start(&mut self) {
-        loop {
-            self.process();
-        }
-    }
     fn process(&mut self) {
         let phi = 2.0 * PI * self.frequency * self.time + self.phase;
         let value = Complex::new(self.amplitude * phi.sin(), self.amplitude * phi.cos());
@@ -58,6 +53,11 @@ impl DSPObject for WaveStepGenTimeComplex {
         
         self.time += 1.0 / self.sample_rate;
         sleep(std::time::Duration::from_secs_f64(1.0 / self.sample_rate));
+    }
+    fn start(&mut self) {
+        loop {
+            self.process();
+        }
     }
 }
 

@@ -1,7 +1,11 @@
 use core::cmp::PartialEq;
-use std::println;
 use num::Complex;
+use spin::barrier::Barrier;
 use spin::RwLock;
+
+#[cfg(feature = "multithreading-std")]
+use crate::objects::{BARRIERS, BARRIERS_INDEX};
+
 use crate::objects::{COMPLEX_OUTPUT_BUFFER_INDEX, COMPLEX_OUTPUT_BUFFERS, F64_OUTPUT_BUFFER_INDEX, F64_OUTPUT_BUFFERS};
 
 #[derive(Clone,Copy,PartialEq)]
@@ -20,6 +24,17 @@ pub struct Bus<'a>{
 
     subscribers: [Option<*mut dyn DSPObject>; 64],
     subscriber_index: usize,
+
+    #[cfg(feature = "multithreading-std")]
+    pub barrier: Option<&'a Barrier>
+}
+
+#[cfg(not(feature = "multithreading-std"))]
+fn increment_barrier() {}
+
+#[cfg(feature = "multithreading-std")]
+fn increment_barrier() {
+    *BARRIERS_INDEX.lock() += 1;
 }
 
 impl Bus<'_> {
@@ -30,11 +45,13 @@ impl Bus<'_> {
             buffer_complex: None,
             subscribers: [None; 64],
             subscriber_index: 0,
+
+            #[cfg(feature = "multithreading-std")]
+            barrier: None,
         }
     }
 
     pub fn new_f64() -> Bus<'static> {
-
         let mut locked = F64_OUTPUT_BUFFER_INDEX.lock();
 
         let bus = Bus {
@@ -43,9 +60,14 @@ impl Bus<'_> {
             buffer_complex: None,
             subscribers: [None; 64],
             subscriber_index: 0,
+
+            #[cfg(feature = "multithreading-std")]
+            barrier: Some(&BARRIERS[*BARRIERS_INDEX.lock()]),
         };
 
-        *locked = *locked + 1;
+        *locked += 1;
+
+        increment_barrier();
 
         bus
     }
@@ -60,9 +82,14 @@ impl Bus<'_> {
             buffer_complex: Some(&COMPLEX_OUTPUT_BUFFERS[*locked]),
             subscribers: [None; 64],
             subscriber_index: 0,
+
+            #[cfg(feature = "multithreading-std")]
+            barrier: Some(&BARRIERS[*BARRIERS_INDEX.lock()]),
         };
 
-        *locked = *locked + 1;
+        *locked += 1;
+        
+        increment_barrier();
 
         bus
     }
@@ -71,7 +98,7 @@ impl Bus<'_> {
 unsafe impl Send for Bus<'_> {}
 unsafe impl Sync for Bus<'_> {}
 
-// Single threaded implementation of the bus
+
 impl Bus<'_> {
     pub fn trigger_f64(&self, value: f64) {
         debug_assert!(self.bust_type == Type::F64);
@@ -93,20 +120,24 @@ impl Bus<'_> {
         self.run_subscribers();
     }
 
-    fn run_subscribers(&self) {
-        for i in 0..self.subscriber_index {
-            unsafe { self.subscribers[i].unwrap().as_mut().unwrap().process() };
-        }
-    }
 
     pub fn subscribe(&mut self, subscriber: *mut dyn DSPObject) {
         self.subscribers[self.subscriber_index] = Some(subscriber);
+
         self.subscriber_index += 1;
     }
 
 }
 
-pub trait DSPObject: DSPObjectClonable + Send + Sync {
+impl Bus<'_> {
+    fn run_subscribers(&self) {
+        for i in 0..self.subscriber_index {
+            unsafe { self.subscribers[i].unwrap_unchecked().as_mut().unwrap_unchecked().process() };
+        }
+    }
+}
+
+pub trait DSPObject: Send + Sync + DSPObjectClonable {
     fn return_type(&self) -> Type;
     fn input_type(&self) -> Type;
     fn get_bus(&mut self) -> &mut Bus<'static>;

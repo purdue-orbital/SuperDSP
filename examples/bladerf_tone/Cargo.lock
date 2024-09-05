@@ -203,7 +203,7 @@ dependencies = [
 name = "bladerf_tone"
 version = "0.3.5"
 dependencies = [
- "rustdsp",
+ "superdsp",
 ]
 
 [[package]]
@@ -2618,21 +2618,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustdsp"
-version = "0.3.5"
-dependencies = [
- "bladerf-bindings",
- "iced",
- "libm",
- "ndarray",
- "num",
- "plotters",
- "plotters-iced",
- "spin",
- "tokio",
-]
-
-[[package]]
 name = "rustix"
 version = "0.38.34"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2912,6 +2897,21 @@ name = "strict-num"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6637bab7722d379c8b41ba849228d680cc12d0a45ba1fa2b48f2a30577a06731"
+
+[[package]]
+name = "superdsp"
+version = "0.3.5"
+dependencies = [
+ "bladerf-bindings",
+ "futures",
+ "iced",
+ "libm",
+ "ndarray",
+ "num",
+ "plotters",
+ "plotters-iced",
+ "spin",
+]
 
 [[package]]
 name = "svg_fmt"

@@ -1,12 +1,14 @@
-use crate::gui::{DSPChart, Message};
-use crate::objects::object::{Bus, DSPObject, DSPObjectClonable, Type};
+use std::prelude::rust_2021::Vec;
+use std::sync::Arc;
+use std::vec;
+
 use iced::Command;
 use plotters::prelude::{LineSeries, RED};
 use plotters_iced::{Chart, ChartBuilder, ChartWidget, DrawingBackend};
-use spin::{Mutex, RwLock};
-use std::prelude::rust_2021::Vec;
-use std::sync::Arc;
-use std::{dbg, println, vec};
+use spin::RwLock;
+
+use crate::gui::{DSPChart, Message};
+use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct TimeChart {

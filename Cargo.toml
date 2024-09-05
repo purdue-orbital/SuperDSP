@@ -1,5 +1,5 @@
 [package]
-name = "rustdsp"
+name = "superdsp"
 version = "0.3.5"
 edition = "2021"
 
@@ -10,9 +10,7 @@ libm = { version = "0.2.8" }
 spin = { version = "0.9.8" }
 ndarray = { version = "0.16.1", default-features = false }
 num = { version = "0.4", default-features = false }
-
-# Std
-tokio = { version = "1.39.2", features = ["rt"], optional = true }
+futures = { version = "0.3.30", default-features = false }
 
 #GUI
 iced = { version = "0.12.1", features = ["canvas", "tokio", "image"], optional = true }
@@ -22,12 +20,12 @@ plotters = { version = "0.3.6", optional = true }
 # Bladerf
 bladerf-bindings = { version = "0.0.13", optional = true }
 
-
 [features]
 default = ["std"]
-std = ["dep:tokio"]
+std = []
 gui = ["dep:iced","dep:plotters-iced","dep:plotters", "std"]
 bladerf = ["dep:bladerf-bindings", "std"]
+multithreading-std = ["std"]
 
 [dev-dependencies]
 criterion = "0.5.1"

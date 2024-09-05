@@ -1,14 +1,15 @@
-use crate::objects::object::{Bus, DSPObject, Type};
-use bladerf::{bladerf_channel, bladerf_direction_BLADERF_TX, bladerf_init_devinfo, bladerf_open_with_devinfo};
-use num::Complex;
-use spin::Mutex;
-use std::ffi::c_uint;
-use std::os::raw::c_void;
-use std::prelude::rust_2021::Vec;
-use std::ptr::null_mut;
-use std::sync::Arc;
 use std::{mem, println, vec};
 use std::collections::VecDeque;
+use std::ffi::c_uint;
+use std::os::raw::c_void;
+use std::ptr::null_mut;
+use std::sync::Arc;
+
+use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo};
+use num::Complex;
+use spin::Mutex;
+
+use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct BladeRfSink {

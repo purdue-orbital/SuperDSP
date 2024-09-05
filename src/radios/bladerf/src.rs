@@ -1,15 +1,15 @@
-use crate::objects::object::{Bus, DSPObject, Type};
-use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo, bladerf_sync_rx};
-use num::Complex;
-use spin::Mutex;
+use std::{mem, println, vec};
 use std::ffi::c_uint;
 use std::os::raw::c_void;
 use std::prelude::rust_2021::Vec;
 use std::ptr::null_mut;
 use std::sync::Arc;
-use std::{mem, println, vec};
-use iced::futures::channel;
-use crate::objects::object::Type::Complex as OtherComplex;
+
+use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo, bladerf_sync_rx};
+use num::Complex;
+use spin::Mutex;
+
+use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
 pub struct BladeRfSrc {

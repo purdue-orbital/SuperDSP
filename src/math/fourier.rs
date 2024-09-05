@@ -1,4 +1,5 @@
 use core::f64;
+
 use num::Complex;
 
 #[cfg(not(feature = "std"))]
