@@ -2877,7 +2877,7 @@ checksum = "6637bab7722d379c8b41ba849228d680cc12d0a45ba1fa2b48f2a30577a06731"
 
 [[package]]
 name = "superdsp"
-version = "0.3.5"
+version = "0.4.0"
 dependencies = [
  "futures",
  "iced",
