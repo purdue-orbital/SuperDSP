@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["calculate_root_of_unity","fft_shift","fft_shift_inverse","make_basis","make_basis_vector","make_inverse_basis"]};
