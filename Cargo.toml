@@ -1,32 +1,32 @@
 [package]
-name = "rustdsp"
-version = "0.3.5"
+name = "superdsp"
+version = "0.4.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-num-complex = { version = "0.4.4"}
-lazy_static = { version = "1.4.0", optional = true }
-egui_plot = { version = "0.26.2", optional = true }
-eframe = { version = "0.26.2", optional = true }
-egui_extras = { version = "0.26.2", optional = true }
-vulkano = { version = "0.34.1", optional = true }
-bytemuck = { version = "1.14.3", optional = true }
-vulkano-shaders = { version = "0.34.0", optional = true }
-rust-hdl = { version = "0.46.0", optional = true }
+# Standard
+libm = { version = "0.2.8" }
+spin = { version = "0.9.8" }
+ndarray = { version = "0.16.1", default-features = false }
+num = { version = "0.4", default-features = false }
+futures = { version = "0.3.30", default-features = false }
+
+#GUI
+iced = { version = "0.12.1", features = ["canvas", "tokio", "image"], optional = true }
+plotters-iced = { version = "0.10.0", optional = true }
+plotters = { version = "0.3.6", optional = true }
+
+# Bladerf
+bladerf-bindings = { version = "0.0.13", optional = true }
 
 [features]
-# Vulkan GPU compute
-vulkan = ["dep:vulkano", "dep:bytemuck", "dep:vulkano-shaders", "dep:lazy_static"]
-
-# User interface feature
-ui = ["dep:eframe", "dep:egui_extras", "dep:egui_plot"]
-
-fpga = ["dep:rust-hdl"]
+default = ["std"]
+std = []
+gui = ["dep:iced","dep:plotters-iced","dep:plotters", "std"]
+bladerf = ["dep:bladerf-bindings", "std"]
+multithreading-std = ["std"]
 
 [dev-dependencies]
 criterion = "0.5.1"
 
-[[bench]]
-name = "dft"
-harness = false
