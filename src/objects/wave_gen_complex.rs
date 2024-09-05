@@ -32,7 +32,6 @@ impl WaveStepGenComplex {
 }
 
 impl DSPObject for WaveStepGenComplex {
-
     fn return_type(&self) -> Type {
         Type::Complex
     }
@@ -52,7 +51,7 @@ impl DSPObject for WaveStepGenComplex {
         let phi = 2.0 * PI * self.frequency * self.time + self.phase;
         let value = Complex::new(self.amplitude * phi.sin(), self.amplitude * phi.cos());
         self.bus.trigger_complex(value);
-        
+
         self.time += 1.0 / self.sample_rate;
     }
     fn start(&mut self) {

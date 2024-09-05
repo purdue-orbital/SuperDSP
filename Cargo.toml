@@ -23,7 +23,7 @@ bladerf-bindings = { version = "0.0.13", optional = true }
 [features]
 default = ["std"]
 std = []
-gui = ["dep:iced","dep:plotters-iced","dep:plotters", "std"]
+gui = ["dep:iced", "dep:plotters-iced", "dep:plotters", "std"]
 bladerf = ["dep:bladerf-bindings", "std"]
 multithreading-std = ["std"]
 

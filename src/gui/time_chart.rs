@@ -35,7 +35,7 @@ impl Chart<Message> for TimeChart {
         if self.buffer.read().len() < 50 {
             return;
         }
-        
+
         let mut chart = builder
             .margin(30)
             .caption("Time Chart", ("sans-serif", 22))

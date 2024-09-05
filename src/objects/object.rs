@@ -1,22 +1,22 @@
 use core::cmp::PartialEq;
+
 use num::Complex;
 use spin::barrier::Barrier;
 use spin::RwLock;
 
 #[cfg(feature = "multithreading-std")]
 use crate::objects::{BARRIERS, BARRIERS_INDEX};
-
 use crate::objects::{COMPLEX_OUTPUT_BUFFER_INDEX, COMPLEX_OUTPUT_BUFFERS, F64_OUTPUT_BUFFER_INDEX, F64_OUTPUT_BUFFERS};
 
-#[derive(Clone,Copy,PartialEq)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Type {
     NONE,
     F64,
     Complex,
 }
 
-#[derive(Clone,Copy)]
-pub struct Bus<'a>{
+#[derive(Clone, Copy)]
+pub struct Bus<'a> {
     pub bust_type: Type,
 
     pub buffer_f64: Option<&'a RwLock<f64>>,
@@ -26,7 +26,7 @@ pub struct Bus<'a>{
     subscriber_index: usize,
 
     #[cfg(feature = "multithreading-std")]
-    pub barrier: Option<&'a Barrier>
+    pub barrier: Option<&'a Barrier>,
 }
 
 #[cfg(not(feature = "multithreading-std"))]
@@ -73,7 +73,6 @@ impl Bus<'_> {
     }
 
     pub fn new_complex() -> Bus<'static> {
-
         let mut locked = COMPLEX_OUTPUT_BUFFER_INDEX.lock();
 
         let bus = Bus {
@@ -88,7 +87,7 @@ impl Bus<'_> {
         };
 
         *locked += 1;
-        
+
         increment_barrier();
 
         bus
@@ -96,6 +95,7 @@ impl Bus<'_> {
 }
 
 unsafe impl Send for Bus<'_> {}
+
 unsafe impl Sync for Bus<'_> {}
 
 
@@ -126,7 +126,6 @@ impl Bus<'_> {
 
         self.subscriber_index += 1;
     }
-
 }
 
 impl Bus<'_> {
@@ -151,8 +150,8 @@ pub trait DSPObjectClonable {
 }
 
 impl<T> DSPObjectClonable for T
-where
-    T: 'static + DSPObject + Clone,
+    where
+        T: 'static + DSPObject + Clone,
 {
     fn clone_box(&self) -> &dyn DSPObject {
         self

@@ -51,9 +51,9 @@ pub fn test_function_fft_shift() {
     let n = 4;
     let expected = ndarray::arr2(
         &[[num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0)],
-        [num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)],
-        [num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)],
-        [num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0)]]
+            [num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)],
+            [num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)],
+            [num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0)]]
     );
     let result = math::fourier::fft_shift(n);
     assert_eq!(result, expected);
@@ -64,9 +64,9 @@ pub fn test_function_fft_shift_inverse() {
     let n = 4;
     let expected = ndarray::arr2(
         &[[num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)],
-        [num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0)],
-        [num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0)],
-        [num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)]]
+            [num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0)],
+            [num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(1.0, 0.0)],
+            [num::Complex::new(1.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0), num::Complex::new(0.0, 0.0)]]
     );
     let result = math::fourier::fft_shift_inverse(n);
     assert_eq!(result, expected);

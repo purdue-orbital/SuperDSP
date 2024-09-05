@@ -11,7 +11,7 @@ pub struct WaveStepGenTimeComplex {
     pub amplitude: f64,
     pub phase: f64,
     pub sample_rate: f64,
-    
+
     bus: Bus<'static>,
 
     pub time: f64,
@@ -24,7 +24,7 @@ impl WaveStepGenTimeComplex {
             amplitude,
             phase,
             sample_rate,
-            
+
             bus: Bus::new_complex(),
 
             time: 0.0,
@@ -50,7 +50,7 @@ impl DSPObject for WaveStepGenTimeComplex {
         let phi = 2.0 * PI * self.frequency * self.time + self.phase;
         let value = Complex::new(self.amplitude * phi.sin(), self.amplitude * phi.cos());
         self.bus.trigger_complex(value);
-        
+
         self.time += 1.0 / self.sample_rate;
         sleep(std::time::Duration::from_secs_f64(1.0 / self.sample_rate));
     }

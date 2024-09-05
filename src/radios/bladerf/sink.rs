@@ -28,7 +28,6 @@ pub struct BladeRfSink {
 }
 
 impl BladeRfSink {
-
     /// Create a new BladeRF Sink object with the given parameters and return it as a BladeRF object
     /// instance.
     /// - frequency: u64 - The frequency to set the BladeRF to (in Hz) (min: 237500000, max: 3800000000)
@@ -38,7 +37,7 @@ impl BladeRfSink {
     /// - num_samples: usize - The number of samples to read from the BladeRF (must be a multiple of 1024)
     pub fn new(frequency: u64, sample_rate: u32, gain: i32, bandwidth: u32, num_samples: usize) -> BladeRfSink {
         assert_eq!(num_samples % 1024, 0);
-        let num_samples =  2 * num_samples * 1 * 16;
+        let num_samples = 2 * num_samples * 1 * 16;
 
         let mut sink = BladeRfSink {
             frequency,
@@ -46,20 +45,20 @@ impl BladeRfSink {
             gain,
             bandwidth,
             num_samples,
-            
+
             buffer: Arc::new(Mutex::new(VecDeque::from(vec![Complex::new(0.0, 0.0); num_samples]))),
             counter: 0,
 
             bus: Bus::new_complex(),
-            
+
             dev: Arc::new(Mutex::new(null_mut())),
         };
-        
+
         sink.reconnect();
-        
+
         sink
     }
-    
+
     // try to reconnect to the bladeRF
     pub fn reconnect(&mut self) {
         let channel = ((0) << 1 | 0x1) as bladerf_channel;
@@ -96,15 +95,16 @@ impl BladeRfSink {
 
             // Enable Stream
             bladerf::bladerf_enable_module(dev, channel, true);
-            
+
             dev
         };
-        
+
         *self.dev.lock() = dev;
     }
 }
 
 unsafe impl Send for BladeRfSink {}
+
 unsafe impl Sync for BladeRfSink {}
 
 
@@ -129,7 +129,7 @@ impl DSPObject for BladeRfSink {
     fn process(&mut self) {
         let mut i16_buffer = vec![(self.bus.buffer_complex.unwrap().read().re * 2048.0) as i16, (self.bus.buffer_complex.unwrap().read().im * 2048.0) as i16];
         let status = unsafe { bladerf::bladerf_sync_tx(*self.dev.lock(), i16_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 10000) };
-        
+
         if status != 0 {
             println!("Error sending samples to BladeRF");
             self.reconnect();

@@ -23,7 +23,7 @@ pub struct Waterfall {
     buffer: Arc<RwLock<Array1<Complex<f64>>>>,
 
     dft_matrix: ndarray::Array2<Complex<f64>>,
-    
+
     bus: Bus<'static>,
 
     pixels: Arc<RwLock<VecDeque<u8>>>,
@@ -33,7 +33,7 @@ pub struct Waterfall {
 impl Waterfall {
     pub fn new(buff_size: usize) -> Waterfall {
         let mut pixels = vec![0; buff_size * buff_size * 4];
-        
+
         for i in 0..buff_size * buff_size {
             pixels[4 * i] = 0;
             pixels[4 * i + 1] = 0;
@@ -42,18 +42,18 @@ impl Waterfall {
         }
 
         let dft_matrix = fft_shift(buff_size).dot(&math::fourier::make_basis(buff_size));
-        
+
         let mut w = Waterfall {
             buffer: Arc::new(RwLock::new(<Array1<Complex<f64>>>::from(vec![Complex::new(0.0, 0.0); buff_size]))),
             dft_matrix,
             pixels: Arc::new(RwLock::new(VecDeque::from(pixels))),
             width_and_width: buff_size,
-            
+
             bus: Bus::new_complex(),
         };
-        
+
         let w_clone = w.clone();
-        
+
         spawn(move || {
             loop {
                 // lock
@@ -83,7 +83,7 @@ impl Waterfall {
                 locked_pixels.rotate_left(w_clone.width_and_width * 4);
             }
         });
-        
+
         w
     }
 }
@@ -97,8 +97,7 @@ impl Default for Waterfall {
 impl Chart<Message> for Waterfall {
     type State = ();
 
-    fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, mut builder: ChartBuilder<DB>) {
-    }
+    fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, mut builder: ChartBuilder<DB>) {}
 }
 
 impl DSPObject for Waterfall {
@@ -109,11 +108,11 @@ impl DSPObject for Waterfall {
     fn input_type(&self) -> Type {
         Type::Complex
     }
-    
+
     fn get_bus(&mut self) -> &mut Bus<'static> {
         &mut self.bus
     }
-    
+
     fn set_bus(&mut self, bus: &mut Bus<'static>) {
         self.bus = *bus;
         bus.subscribe(self as *mut dyn DSPObject);
@@ -121,7 +120,7 @@ impl DSPObject for Waterfall {
 
     fn process(&mut self) {
         // Put input buffer into buffer
-        self.buffer.write().remove_index(Axis(0),0);
+        self.buffer.write().remove_index(Axis(0), 0);
         self.buffer.write().push(Axis(0), ndarray::arr0(*self.bus.buffer_complex.unwrap().read()).view()).unwrap();
     }
 

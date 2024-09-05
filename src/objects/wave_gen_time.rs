@@ -25,7 +25,6 @@ impl WaveStepGenTime {
 
             bus: Bus::new_f64(),
 
-
             time: 0.0,
         }
     }

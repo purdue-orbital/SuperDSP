@@ -7,7 +7,7 @@ fn main() {
     let mut src = radios::bladerf::src::BladeRfSrc::new(915000000, 1_000_000, 1_000_000, 1_000_000, 1024);
     let mut chart = TimeChartComplex::new();
     let mut waterfall = Waterfall::new(1024);
-    
+
     let s = src.get_bus();
 
     waterfall.set_bus(s);

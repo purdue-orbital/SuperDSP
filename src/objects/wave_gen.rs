@@ -3,12 +3,12 @@ use core::f64::consts::PI;
 use crate::objects::object::{Bus, DSPObject};
 
 #[derive(Clone, Copy)]
-pub struct WaveStepGen{
+pub struct WaveStepGen {
     pub frequency: f64,
     pub amplitude: f64,
     pub phase: f64,
     pub sample_rate: f64,
-    
+
     pub bus: Bus<'static>,
 
     pub time: f64,
@@ -16,7 +16,6 @@ pub struct WaveStepGen{
 
 impl WaveStepGen {
     pub fn new(frequency: f64, amplitude: f64, phase: f64, sample_rate: f64) -> WaveStepGen {
-
         let bus = Bus::new_f64();
 
         WaveStepGen {

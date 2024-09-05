@@ -56,7 +56,7 @@ pub fn fft_shift(n: usize) -> ndarray::Array2<Complex<f64>> {
     let mut shift: ndarray::Array2<Complex<f64>> = ndarray::Array2::zeros((n, n));
 
     for i in 0..n {
-        shift[[i, ((i + (n / 2) + 1) % n)]] = Complex::new(1.0,0.0);
+        shift[[i, ((i + (n / 2) + 1) % n)]] = Complex::new(1.0, 0.0);
     }
 
     shift
@@ -66,7 +66,7 @@ pub fn fft_shift_inverse(n: usize) -> ndarray::Array2<Complex<f64>> {
     let mut shift: ndarray::Array2<Complex<f64>> = ndarray::Array2::zeros((n, n));
 
     for i in 0..n {
-        shift[[i, (i + ((n - 1) / 2)) % n]] = Complex::new(1.0,0.0);
+        shift[[i, (i + ((n - 1) / 2)) % n]] = Complex::new(1.0, 0.0);
     }
 
     shift

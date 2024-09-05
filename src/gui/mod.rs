@@ -30,8 +30,8 @@ pub trait DSPChartClone {
 
 
 impl<T> DSPChartClone for T
-where
-    T: 'static + DSPChart<State=(), Message=Message> + Clone,
+    where
+        T: 'static + DSPChart<State=(), Message=Message> + Clone,
 {
     fn clone_chart(&self) -> Box<dyn DSPChart<Message=Message, State=()>> {
         Box::new(self.clone())

@@ -4,4 +4,4 @@ version = "0.3.5"
 edition = "2021"
 
 [dependencies]
-superdsp = { path = "../../", features = ["gui","bladerf"] }
+superdsp = { path = "../../", features = ["gui", "bladerf"] }

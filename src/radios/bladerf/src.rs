@@ -21,7 +21,7 @@ pub struct BladeRfSrc {
 
     pub sample_buffer: Vec<Complex<i16>>,
     pub counter: usize,
-    
+
     pub bus: Bus<'static>,
 
     pub dev: Arc<Mutex<*mut bladerf::bladerf>>,
@@ -29,7 +29,6 @@ pub struct BladeRfSrc {
 }
 
 impl BladeRfSrc {
-
     /// Create a new BladeRF object with the given parameters and return it as a BladeRF object
     /// instance.
     /// - frequency: u64 - The frequency to set the BladeRF to (in Hz) (min: 237500000, max: 3800000000)
@@ -49,16 +48,16 @@ impl BladeRfSrc {
 
             sample_buffer: vec![Complex::new(0, 0); num_samples],
             counter: 0,
-            
+
             bus: Bus::new_complex(),
             dev: Arc::new(Mutex::new(null_mut())),
         };
-        
+
         src.reconnect();
-        
+
         src
     }
-    
+
     fn reconnect(&mut self) {
         let channel = ((0) << 1 | 0x0) as bladerf_channel;
         let dev = unsafe {
@@ -70,7 +69,7 @@ impl BladeRfSrc {
             println!("Opening BladeRF");
             let mut dev: *mut bladerf::bladerf = std::ptr::null_mut();
             let status = bladerf_open_with_devinfo(&mut dev, devinfo);
-            
+
             if status != 0 {
                 println!("Error opening BladeRF");
                 return;
@@ -101,12 +100,13 @@ impl BladeRfSrc {
 
             dev
         };
-        
+
         *self.dev.lock() = dev;
     }
 }
 
 unsafe impl Send for BladeRfSrc {}
+
 unsafe impl Sync for BladeRfSrc {}
 
 
@@ -128,9 +128,9 @@ impl DSPObject for BladeRfSrc {
     }
 
     fn process(&mut self) {
-        if self.counter == 0{
+        if self.counter == 0 {
             let status = unsafe { bladerf_sync_rx(*self.dev.lock(), self.sample_buffer.as_mut_ptr() as *mut c_void, self.num_samples as c_uint, null_mut(), 1000) };
-            
+
             if status != 0 {
                 println!("Error reading samples from BladeRF");
                 self.reconnect();

@@ -20,9 +20,9 @@ pub struct TimeChartComplex {
 
 impl TimeChartComplex {
     pub fn new() -> TimeChartComplex {
-        TimeChartComplex { 
-            buffer: Arc::new(Mutex::new(vec![Complex::new(0.0,0.0); 50])),
-            bus: Bus::new_complex()
+        TimeChartComplex {
+            buffer: Arc::new(Mutex::new(vec![Complex::new(0.0, 0.0); 50])),
+            bus: Bus::new_complex(),
         }
     }
 }
@@ -61,7 +61,7 @@ impl Chart<Message> for TimeChartComplex {
                 &RED,
             ))
             .unwrap();
-        
+
         chart
             .draw_series(LineSeries::new(
                 (0..50).map(|x| (x as f32, self.buffer.lock()[x].im as f32)),
