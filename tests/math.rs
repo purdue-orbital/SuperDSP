@@ -1,4 +1,4 @@
-use rustdsp::math;
+use superdsp::math;
 
 #[test]
 pub fn test_function_make_basis_vector() {
