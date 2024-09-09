@@ -81,7 +81,7 @@ impl Application for GUI {
     }
 
     fn title(&self) -> String {
-        String::from("RustDSP")
+        String::from("SuperDSP")
     }
 
     fn update(&mut self, _message: Self::Message) -> Command<Self::Message> {
@@ -116,6 +116,6 @@ impl Application for GUI {
     }
 
     fn subscription(&self) -> Subscription<Self::Message> {
-        iced::time::every(Duration::from_secs_f32(1.0 / 50.0)).map(|_| Message::Tick)
+        iced::time::every(Duration::from_secs_f32(1.0 / 60.0)).map(|_| Message::Tick)
     }
 }

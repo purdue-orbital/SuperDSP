@@ -1,4 +1,6 @@
-use std::dbg;
+use std::{dbg, println};
+use std::boxed::Box;
+use std::convert::TryInto;
 use std::prelude::rust_2021::Vec;
 use std::sync::Arc;
 use std::thread::spawn;
@@ -17,43 +19,35 @@ use crate::math::fourier::fft_shift;
 use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
-pub struct Waterfall<const N: usize> {
+pub struct Waterfall<const N: usize> 
+where [u8; N * N * 4]: Clone + 'static
+{
     buffer: Arc<RwLock<SVector<Complex<f32>, N>>>,
 
     dft_matrix: nalgebra::SMatrix<Complex<f32>,N,N>,
 
     bus: Bus<'static>,
 
-    pixels: Arc<RwLock<[[u8;3]; N]>>,
-    width_and_width: usize,
+    pixels: Arc<RwLock<[u8; N * N * 4]>>,
 }
 
-impl<const N: usize> Waterfall<N> {
+impl<const N: usize> Waterfall<N>
+    where [u8; N * N * 4]: Clone + 'static
+{
     pub fn new() -> Waterfall<N> {
-        dbg!(1);
-        let pixels = [[0;3]; N];
-        dbg!(2);
+        let pixels = [255; N * N * 4];
         let dft_matrix = fft_shift() * math::fourier::make_basis();
-        dbg!(3);
-        
 
         let w = Waterfall {
             buffer: Arc::new(RwLock::new(<SVector<Complex<f32>, N>>::zeros())),
             dft_matrix,
             pixels: Arc::new(RwLock::new(pixels)),
-            width_and_width: N,
 
             bus: Bus::new_complex(),
         };
 
-        dbg!(4);
-        
-
         let w_clone = w.clone();
-
-        dbg!(5);
         
-
         spawn(move || {
             loop {
                 // lock
@@ -65,16 +59,16 @@ impl<const N: usize> Waterfall<N> {
                 let slice = dfted.as_slice();
 
                 // Add new data
-                for i in 0..w_clone.width_and_width {
+                for i in 0..N{
                     let val = (slice[i].norm_sqr() * 255.0) as u8;
 
-                    locked_pixels[i][0] = val;
-                    locked_pixels[i][1] = val;
-                    locked_pixels[i][2] = val;
+                    locked_pixels[i] = val;
+                    locked_pixels[i + 1] = val;
+                    locked_pixels[i + 2] = val;
+                    locked_pixels[i + 3] = 255;
                 }
-
                 // Shift pixels
-                locked_pixels.rotate_left(w_clone.width_and_width * 4);
+                locked_pixels.rotate_left(N * 4);
             }
         });
 
@@ -82,19 +76,25 @@ impl<const N: usize> Waterfall<N> {
     }
 }
 
-impl<const N: usize> Default for Waterfall<N> {
+impl<const N: usize> Default for Waterfall<N>
+    where [u8; N * N * 4]: Clone + 'static
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<const N: usize> Chart<Message> for Waterfall<N> {
+impl<const N: usize> Chart<Message> for Waterfall<N>
+    where [u8; N * N * 4]: Clone + 'static
+{
     type State = ();
 
     fn build_chart<DB: DrawingBackend>(&self, state: &Self::State, mut builder: ChartBuilder<DB>) {}
 }
 
-impl<const N: usize> DSPObject for Waterfall<N> {
+impl<const N: usize> DSPObject for Waterfall<N>
+    where [u8; N * N * 4]: Clone + 'static
+{
     fn return_type(&self) -> Type {
         Type::Complex
     }
@@ -113,13 +113,17 @@ impl<const N: usize> DSPObject for Waterfall<N> {
     }
 
     fn process(&mut self) {
-        // rotate buffer popping last element
-        for i in 0..self.buffer.read().len() - 2 {
-            self.buffer.write()[i + 1] = self.buffer.read()[i];
-        }
+        let mut locked_buffer = self.buffer.write();
         
+        dbg!(&locked_buffer);
+
+        // rotate buffer popping last element
+        for i in 0..locked_buffer.len() - 2 {
+            locked_buffer[i + 1] = locked_buffer[i];
+        }
+
         // set first element
-        self.buffer.write()[0] = *self.bus.buffer_complex.unwrap().read();
+        locked_buffer[0] = *self.bus.buffer_complex.unwrap().read();
     }
 
     fn start(&mut self) {
@@ -128,12 +132,14 @@ impl<const N: usize> DSPObject for Waterfall<N> {
 }
 
 
-impl<const N: usize> DSPChart for Waterfall<N> {
+impl<const N: usize> DSPChart for Waterfall<N>
+    where [u8; N * N * 4]: Clone + 'static
+{
     type Message = Message;
     type State = ();
 
     fn view(&self) -> iced::Element<Self::Message> {
-        let image = image::Handle::from_pixels(N as u32,N as u32, self.pixels.read().iter().flatten().copied().collect::<Vec<_>>());
+        let image = image::Handle::from_pixels(N as u32, N as u32, *self.pixels.read());
 
         Image::new(image)
             .width(Length::Fill)
