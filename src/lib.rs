@@ -1,5 +1,4 @@
 #![no_std]
-#![feature(generic_const_exprs)]
 
 #[cfg(feature = "std")]
 extern crate std;
@@ -10,4 +9,4 @@ pub mod objects;
 #[cfg(feature = "gui")]
 pub mod gui;
 pub mod radios;
-mod filters;
+pub mod filters_and_windows;

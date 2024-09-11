@@ -41,6 +41,21 @@ pub fn make_basis<const N: usize>() -> SMatrix<Complex<f32>, N, N> {
     basis
 }
 
+#[cfg(feature = "std")]
+pub fn dynamic_make_basis<const N: usize>() -> nalgebra::DMatrix<Complex<f32>> {
+    let mut basis = nalgebra::DMatrix::<Complex<f32>>::zeros(N,N);
+
+    for i in 0..N {
+        let vector: SMatrix<Complex<f32>, N,1> = make_basis_vector(i as f32);
+
+        for j in 0..N {
+            basis[i + (j * N)] = vector[j];
+        }
+    }
+
+    basis
+}
+
 pub fn make_inverse_basis<const N: usize>() -> SMatrix<Complex<f32>, N, N> {
     let mut basis = SMatrix::<Complex<f32>, N, N>::zeros();
 

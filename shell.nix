@@ -18,6 +18,7 @@ pkgs.mkShell{
         xorg.libX11
         xorg.libxcb
 
+        freetype
 
         git
         cmake
@@ -36,6 +37,7 @@ pkgs.mkShell{
         pkgs.xorg.libXi
         pkgs.xorg.libX11
         pkgs.xorg.libxcb
+        pkgs.freetype
 
         pkgs.libbladeRF
     ]}";
