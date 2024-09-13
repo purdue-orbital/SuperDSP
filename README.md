@@ -1,3 +1,5 @@
+[![MIT](https://img.shields.io/github/license/purdue-orbital/SuperDSP)](../master/LICENSE)
+
 # SuperDSP (WIP)
 
 This library is a very work in progress, and the interface currently is subject to changes.

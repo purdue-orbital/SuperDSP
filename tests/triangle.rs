@@ -4,8 +4,9 @@ use superdsp::filters_and_windows::triangle;
 
 const N_SHORT: usize = 16;
 const N_LONG: usize = 64;
+
 #[test]
-pub fn triangle_window_short(){
+pub fn triangle_window_short() {
     let expected = [
         0.0,
         0.125,
@@ -24,10 +25,10 @@ pub fn triangle_window_short(){
         0.25,
         0.125
     ];
-    
+
     let window = triangle::triangle_window::<N_SHORT>(N_SHORT, 0);
     assert_eq!(window.len(), N_SHORT);
-    
+
     // make sure the window is correct to 4 decimal places (floating point error)
     for i in 0..N_SHORT {
         assert!((window[i] - expected[i]).abs() < 0.0001);
@@ -35,7 +36,7 @@ pub fn triangle_window_short(){
 }
 
 #[test]
-fn triangle_window_long(){
+fn triangle_window_long() {
     let expected = [
         0.0,
         0.03125,
@@ -102,10 +103,10 @@ fn triangle_window_long(){
         0.0625,
         0.03125
     ];
-    
+
     let window = triangle::triangle_window::<N_LONG>(N_LONG, 0);
     assert_eq!(window.len(), N_LONG);
-    
+
     // make sure the window is correct to 4 decimal places (floating point error)
     for i in 0..N_LONG {
         println!("{}: {}", i, window[i]);
