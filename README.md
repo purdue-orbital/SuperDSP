@@ -1,6 +1,5 @@
 [![MIT](https://img.shields.io/github/license/purdue-orbital/SuperDSP)](../master/LICENSE)
-[![Rust](https://img.shields.io/github/workflow/status/purdue-orbital/SuperDSP/Rust)]
-[![Tests](https://img.shields.io/github/actions/workflow/status/purdue-orbital/SuperDSP/test.yml?label=Tests)]
+[Tests](https://img.shields.io/github/actions/workflow/status/purdue-orbital/SuperDSP/test.yml?label=Tests)
 
 # SuperDSP (WIP)
 
