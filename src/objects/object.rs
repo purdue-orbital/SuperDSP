@@ -71,6 +71,28 @@ impl Bus<'_> {
 
         bus
     }
+    
+    pub fn from_f32(num: f32) -> Bus<'static>{
+        let mut locked = F32_OUTPUT_BUFFER_INDEX.lock();
+
+        let mut bus = Bus {
+            bust_type: Type::F32,
+            buffer_f32: Some(&F32_OUTPUT_BUFFERS[*locked]),
+            buffer_complex: None,
+            subscribers: [None; 64],
+            subscriber_index: 0,
+
+            #[cfg(feature = "multithreading-std")]
+            barrier: Some(&BARRIERS[*BARRIERS_INDEX.lock()]),
+        };
+        
+        *bus.buffer_f32.unwrap().write() = num;
+
+        *locked += 1;
+        increment_barrier();
+
+        bus
+    }
 
     pub fn new_complex() -> Bus<'static> {
         let mut locked = COMPLEX_OUTPUT_BUFFER_INDEX.lock();
