@@ -8,7 +8,6 @@
 ///
 /// # Arguments
 /// N: usize - Size of the filter
-/// l: usize - Filter setting (N, N+1, or N+2)
 /// offset: usize - Bin offset
 ///
 /// # Returns
