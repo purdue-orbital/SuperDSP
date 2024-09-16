@@ -1,6 +1,6 @@
 use core::f32::consts::PI;
-use nalgebra::SMatrix;
 
+use nalgebra::SMatrix;
 use num::Complex;
 
 use superdsp::math::fourier::{fft_shift, fft_shift_inverse, make_basis, make_inverse_basis};
@@ -35,7 +35,7 @@ fn test_dft() {
     let mut wave = nalgebra::SVector::<Complex<f32>, TEST_DFT_LEN>::zeros();
 
     for i in 0..8 {
-        wave[i] = num::Complex::new(libm::cosf(2.0 * PI * 4.0 * i as f32 / 8.0), libm::sinf(2.0 * PI * 4.0 * i as f32 / 8.0));
+        wave[i] = Complex::new(libm::cosf(2.0 * PI * 4.0 * i as f32 / 8.0), libm::sinf(2.0 * PI * 4.0 * i as f32 / 8.0));
     }
 
     let m = basis * wave;
@@ -69,7 +69,7 @@ fn test_fft_shift() {
     let shift = fft_shift();
     let mut m: nalgebra::SVector::<Complex<f32>, TEST_FFT_LEN_2> = nalgebra::SVector::zeros();
 
-    m[0] = Complex::new(1.0, 0.0); 
+    m[0] = Complex::new(1.0, 0.0);
     m[1] = Complex::new(2.0, 0.0);
     m[2] = Complex::new(3.0, 0.0);
     m[3] = Complex::new(4.0, 0.0);

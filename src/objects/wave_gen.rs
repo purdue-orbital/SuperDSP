@@ -4,10 +4,10 @@ use crate::objects::object::{Bus, DSPObject};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGen {
-    pub frequency: f32,
-    pub amplitude: f32,
-    pub phase: f32,
-    pub sample_rate: f32,
+    pub frequency: Bus<'static>,
+    pub amplitude: Bus<'static>,
+    pub phase: Bus<'static>,
+    pub sample_rate: Bus<'static>,
 
     pub bus: Bus<'static>,
 
@@ -15,7 +15,7 @@ pub struct WaveStepGen {
 }
 
 impl WaveStepGen {
-    pub fn new(frequency: f32, amplitude: f32, phase: f32, sample_rate: f32) -> WaveStepGen {
+    pub fn new(frequency: Bus<'static>, amplitude: Bus<'static>, phase: Bus<'static>, sample_rate: Bus<'static>) -> WaveStepGen {
         let bus = Bus::new_f32();
 
         WaveStepGen {
@@ -47,8 +47,8 @@ impl DSPObject for WaveStepGen {
     }
 
     fn process(&mut self) {
-        self.bus.trigger_f32(self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin());
-        self.time += 1.0 / self.sample_rate;
+        self.bus.trigger_f32(*self.amplitude.buffer_f32.unwrap().read() * (2.0 * PI * *self.frequency.buffer_f32.unwrap().read() * self.time + *self.phase.buffer_f32.unwrap().read()).sin());
+        self.time += 1.0 / *self.sample_rate.buffer_f32.unwrap().read();
     }
 
     fn start(&mut self) {

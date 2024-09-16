@@ -7,10 +7,10 @@ use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGenTimeComplex {
-    pub frequency: f32,
-    pub amplitude: f32,
-    pub phase: f32,
-    pub sample_rate: f32,
+    pub frequency: Bus<'static>,
+    pub amplitude: Bus<'static>,
+    pub phase: Bus<'static>,
+    pub sample_rate: Bus<'static>,
 
     bus: Bus<'static>,
 
@@ -18,7 +18,7 @@ pub struct WaveStepGenTimeComplex {
 }
 
 impl WaveStepGenTimeComplex {
-    pub fn new(frequency: f32, amplitude: f32, phase: f32, sample_rate: f32) -> WaveStepGenTimeComplex {
+    pub fn new(frequency: Bus<'static>, amplitude: Bus<'static>, phase: Bus<'static>, sample_rate: Bus<'static>) -> WaveStepGenTimeComplex {
         WaveStepGenTimeComplex {
             frequency,
             amplitude,
@@ -47,12 +47,12 @@ impl DSPObject for WaveStepGenTimeComplex {
     }
 
     fn process(&mut self) {
-        let phi = 2.0 * PI * self.frequency * self.time + self.phase;
-        let value = Complex::new(self.amplitude * phi.sin(), self.amplitude * phi.cos());
+        let phi = 2.0 * PI * *self.frequency.buffer_f32.unwrap().read() * self.time + *self.phase.buffer_f32.unwrap().read();
+        let value = Complex::new(*self.amplitude.buffer_f32.unwrap().read() * libm::sinf(phi), *self.amplitude.buffer_f32.unwrap().read() * libm::cosf(phi));
         self.bus.trigger_complex(value);
 
-        self.time += 1.0 / self.sample_rate;
-        sleep(std::time::Duration::from_secs_f32(1.0 / self.sample_rate));
+        self.time += 1.0 / *self.sample_rate.buffer_f32.unwrap().read();
+        sleep(std::time::Duration::from_secs_f32(1.0 / *self.sample_rate.buffer_f32.unwrap().read()));
     }
     fn start(&mut self) {
         loop {
