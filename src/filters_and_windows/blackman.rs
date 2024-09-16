@@ -20,8 +20,8 @@ pub fn blackman_window<const N: usize>(offset: usize) -> [f32; N] {
     let a2 = 0.08;
 
     for n in 0..N {
-        filter[n] = a0 - a1 * f32::cos((2.0 * std::f32::consts::PI * ((n - offset) as f32) ) / (N as f32))
-            + a2 * f32::cos((4.0 * std::f32::consts::PI * ((n - offset) as f32)) / (N as f32));
+        filter[n] = a0 - a1 * f32::cos((2.0 * core::f32::consts::PI * ((n - offset) as f32) ) / (N as f32))
+            + a2 * f32::cos((4.0 * core::f32::consts::PI * ((n - offset) as f32)) / (N as f32));
     }
 
     filter

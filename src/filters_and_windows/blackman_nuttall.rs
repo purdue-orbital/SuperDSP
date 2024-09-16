@@ -10,7 +10,7 @@
 /// # Returns
 /// [f32; N] - Blackman-Nuttal window
 ///
-use std::f32;
+use core::f32;
 
 pub fn blackman_nuttall<const N: usize>(offset: usize) -> [f32; N] {
     let mut filter = [0.0; N];
