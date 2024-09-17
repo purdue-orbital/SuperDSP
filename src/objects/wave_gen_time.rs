@@ -5,10 +5,10 @@ use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone, Copy)]
 pub struct WaveStepGenTime {
-    pub frequency: f32,
-    pub amplitude: f32,
-    pub phase: f32,
-    pub sample_rate: f32,
+    pub frequency: Bus<'static>,
+    pub amplitude: Bus<'static>,
+    pub phase: Bus<'static>,
+    pub sample_rate: Bus<'static>,
 
     bus: Bus<'static>,
 
@@ -16,7 +16,7 @@ pub struct WaveStepGenTime {
 }
 
 impl WaveStepGenTime {
-    pub fn new(frequency: f32, amplitude: f32, phase: f32, sample_rate: f32) -> WaveStepGenTime {
+    pub fn new(frequency: Bus<'static>, amplitude: Bus<'static>, phase: Bus<'static>, sample_rate: Bus<'static>) -> WaveStepGenTime {
         WaveStepGenTime {
             frequency,
             amplitude,
@@ -47,10 +47,10 @@ impl DSPObject for WaveStepGenTime {
     }
 
     fn process(&mut self) {
-        self.bus.trigger_f32(self.amplitude * (2.0 * PI * self.frequency * self.time + self.phase).sin());
-        self.time += 1.0 / self.sample_rate;
+        self.bus.trigger_f32(*self.amplitude.buffer_f32.unwrap().read() * libm::sinf(2.0 * PI * *self.frequency.buffer_f32.unwrap().read() * self.time + *self.phase.buffer_f32.unwrap().read()));
+        self.time += 1.0 / *self.sample_rate.buffer_f32.unwrap().read();
 
-        sleep(std::time::Duration::from_secs_f32(1.0 / self.sample_rate));
+        sleep(std::time::Duration::from_secs_f32(1.0 / *self.sample_rate.buffer_f32.unwrap().read()));
     }
 
     fn start(&mut self) {

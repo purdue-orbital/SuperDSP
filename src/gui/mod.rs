@@ -11,10 +11,12 @@ use crate::objects::object::DSPObject;
 pub mod time_chart;
 pub mod time_chart_complex;
 pub mod waterfall;
+pub mod slider;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Message {
     Tick,
+    SliderChanged,
 }
 
 pub trait DSPChart: DSPChartClone + DSPObject {
@@ -91,6 +93,7 @@ impl Application for GUI {
                     let _ = element.update(_message);
                 });
             }
+            _ => {}
         }
         Command::none()
     }
