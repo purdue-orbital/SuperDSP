@@ -6,7 +6,9 @@ extern crate std;
 pub mod math;
 pub mod objects;
 
+pub mod filters_and_windows;
 #[cfg(feature = "gui")]
 pub mod gui;
 pub mod radios;
-pub mod filters_and_windows;
+
+pub mod modulation;
