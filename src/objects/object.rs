@@ -75,7 +75,7 @@ impl Bus<'_> {
     pub fn from_f32(num: f32) -> Bus<'static>{
         let mut locked = F32_OUTPUT_BUFFER_INDEX.lock();
 
-        let mut bus = Bus {
+        let bus = Bus {
             bust_type: Type::F32,
             buffer_f32: Some(&F32_OUTPUT_BUFFERS[*locked]),
             buffer_complex: None,

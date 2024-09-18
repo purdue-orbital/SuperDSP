@@ -20,6 +20,7 @@ pub mod wave_gen_time;
 #[cfg(feature = "std")]
 pub mod wave_gen_time_complex;
 pub mod wave_gen_complex;
+pub mod autocorrelation;
 
 pub(crate) static F32_OUTPUT_BUFFERS: [RwLock<f32>; 64] = [
     RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0), RwLock::new(0.0),
