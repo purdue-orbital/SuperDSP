@@ -12,7 +12,7 @@
 /// # Returns
 /// [f32; N] - Sin window
 /// 
-use std::f32::consts::PI;
+use core::f32::consts::PI;
 
 pub fn sin_window<const N: usize>(offset: usize) -> [f32; N] {
     let mut filter = [0.0; N];

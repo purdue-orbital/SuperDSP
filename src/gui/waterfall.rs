@@ -1,17 +1,18 @@
+use std::dbg;
 use std::prelude::rust_2021::Vec;
 use std::sync::Arc;
 use std::thread::spawn;
 
 use iced::{Command, Length};
 use iced::widget::{Image, image};
-use nalgebra::{DMatrix, SMatrix, SVector};
+use nalgebra::{SMatrix, SVector};
 use num::Complex;
 use plotters_iced::{Chart, ChartBuilder, DrawingBackend};
 use spin::RwLock;
 
 use crate::gui::{DSPChart, Message};
 use crate::math;
-use crate::math::fourier::{fft_shift, fft_shift_dynamic};
+use crate::math::fourier::{fft_shift};
 use crate::objects::object::{Bus, DSPObject, Type};
 
 #[derive(Clone)]
@@ -41,6 +42,9 @@ impl<const N: usize> Waterfall<N>
 
         let t = math::fourier::make_basis::<N>();
         let fft_shift = fft_shift::<N>();
+        
+        let t_clone = t.clone();
+        let fft_shift_clone = fft_shift.clone();
 
         let dft_matrix = Arc::new(t * fft_shift);
 
@@ -53,7 +57,6 @@ impl<const N: usize> Waterfall<N>
         };
 
         let w_clone = w.clone();
-        let dft_clone = w.dft_matrix.clone();
 
         spawn(move || {
             loop {
@@ -62,12 +65,14 @@ impl<const N: usize> Waterfall<N>
                 let locked_buffer = w_clone.buffer.read();
 
                 // Preform dft on buffer
-                let dfted = dft_clone.as_ref() * *locked_buffer ;
+                let dfted: SMatrix<Complex<f32>,N,1> = t_clone * fft_shift_clone * *locked_buffer;
                 let slice = dfted.as_slice();
+                
+                dbg!(dfted);
 
                 // Add new data
                 for i in 0..N {
-                    locked_pixels[i * 4] = (slice[i].norm_sqr() * 255.0) as u8;
+                    locked_pixels[i * 4] = (slice[i].norm_sqr().sqrt() * 255.0) as u8;
                     locked_pixels[i * 4 + 1] = 0;
                     locked_pixels[i * 4 + 2] = 0;
                     locked_pixels[i * 4 + 3] = 255;

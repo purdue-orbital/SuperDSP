@@ -12,3 +12,4 @@ pub mod gui;
 pub mod radios;
 
 pub mod modulation;
+mod vhdl;

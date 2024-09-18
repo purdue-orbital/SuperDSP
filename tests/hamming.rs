@@ -30,9 +30,6 @@ pub fn hamming_window_short(){
     
     // make sure the window is correct to 3 decimal places (floating point error)
     for i in 0..N_SHORT {
-        let expected_value = expected[i];
-        let got_value = window[i];
-        println!("Testing {i}, expecting {expected_value} and got {got_value}."); 
         assert!((window[i] - expected[i]).abs() < 0.001);
     }
 }
@@ -111,7 +108,6 @@ fn hamming_window_long(){
     
     // make sure the window is correct to 4 decimal places (floating point error)
     for i in 0..N_LONG {
-        println!("{}: {}", i, window[i]);
         assert!((window[i] - expected[i]).abs() < 0.0001);
     }
 }

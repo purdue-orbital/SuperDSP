@@ -1,8 +1,19 @@
+#[cfg(feature = "fixed-point")]
+use cordic::CordicNumber;
+#[cfg(feature = "fixed-point")]
+use fixed::types::I16F16;
+
 use nalgebra::SMatrix;
 use num::Complex;
 
 use superdsp::math;
 
+//--------------------------------------------------------------------------------------------------
+// Floating Point Tests
+//--------------------------------------------------------------------------------------------------
+
+
+#[cfg(not(feature = "fixed-point"))]
 #[test]
 pub fn test_function_make_basis_vector() {
     let i = 1;
@@ -16,7 +27,7 @@ pub fn test_function_make_basis_vector() {
         assert!((comp.re > -1e-6) && (comp.im > -1e-6));
     }
 }
-
+#[cfg(not(feature = "fixed-point"))]
 #[test]
 pub fn test_function_make_basis() {
     let expected = nalgebra::Matrix4::new(
@@ -35,7 +46,7 @@ pub fn test_function_make_basis() {
         assert!((comp.re > -1e-6) && (comp.im > -1e-6));
     }
 }
-
+#[cfg(not(feature = "fixed-point"))]
 #[test]
 pub fn test_function_make_inverse_basis() {
     let expected = nalgebra::Matrix4::new(
@@ -53,7 +64,7 @@ pub fn test_function_make_inverse_basis() {
         assert!((comp.re > -1e-6) && (comp.im > -1e-6));
     }
 }
-
+#[cfg(not(feature = "fixed-point"))]
 #[test]
 pub fn test_function_fft_shift() {
     let expected = nalgebra::Matrix4::new(
@@ -65,7 +76,7 @@ pub fn test_function_fft_shift() {
     let result: SMatrix<Complex<f32>, 4, 4> = math::fourier::fft_shift();
     assert_eq!(result, expected);
 }
-
+#[cfg(not(feature = "fixed-point"))]
 #[test]
 pub fn test_function_fft_shift_inverse() {
     let expected = nalgebra::Matrix4::new(
@@ -76,4 +87,45 @@ pub fn test_function_fft_shift_inverse() {
     );
     let result: SMatrix<Complex<f32>, 4, 4> = math::fourier::fft_shift_inverse();
     assert_eq!(result, expected);
+}
+
+//--------------------------------------------------------------------------------------------------
+// Fixed Point Tests
+//--------------------------------------------------------------------------------------------------
+
+#[cfg(feature = "fixed-point")]
+#[test]
+fn test_fixed_point_make_basis_vector() {
+    let i =  I16F16::from(1u8);
+    let expected = [Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(0u8), -I16F16::from(1u8) / 2), Complex::new(-I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(0u8), I16F16::from(1u8) / 2)];
+    let result: SMatrix<Complex<I16F16>, 4, 1> = math::fourier::make_basis_vector(i);
+
+    for (r, e) in result.iter().zip(expected.iter()) {
+        let comp_imag = r.im - e.im;
+        let comp_real = r.re - e.re;
+        assert!((comp_imag < 0.0001) && (comp_imag > -0.0001));
+        assert!((comp_real < 0.0001) && (comp_real > -0.0001));
+    }
+}
+
+#[cfg(feature = "fixed-point")]
+#[test]
+fn test_fixed_point_make_basis() {
+    let expected = nalgebra::Matrix4::new(
+        Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)),
+        Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(0u8), -I16F16::from(1u8) / 2), Complex::new(-I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(0u8), I16F16::from(1u8) / 2),
+        Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(-I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(-I16F16::from(1u8) / 2, I16F16::from(0u8)),
+        Complex::new(I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(0u8), I16F16::from(1u8) / 2), Complex::new(-I16F16::from(1u8) / 2, I16F16::from(0u8)), Complex::new(I16F16::from(0u8), -I16F16::from(1u8) / 2),
+    );
+
+    let result = math::fourier::make_basis();
+
+    for (r, e) in result.iter().zip(expected.iter()) {
+        let comp_imag = r.im - e.im;
+        let comp_real = r.re - e.re;
+
+
+        assert!((comp_imag < 0.0001) && (comp_imag > -0.0001));
+        assert!((comp_real < 0.0001) && (comp_real > -0.0001));
+    }
 }

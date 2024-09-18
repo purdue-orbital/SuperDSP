@@ -24,6 +24,8 @@ pkgs.mkShell{
         cmake
 
         libbladeRF
+
+        ghdl
 	];
 	LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath [
         pkgs.libxkbcommon
@@ -40,5 +42,7 @@ pkgs.mkShell{
         pkgs.freetype
 
         pkgs.libbladeRF
+
+        pkgs.ghdl
     ]}";
 }

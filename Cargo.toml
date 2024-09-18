@@ -12,7 +12,11 @@ nalgebra = { version = "0.33.0", default-features = false }
 num = { version = "0.4", default-features = false }
 futures = { version = "0.3.30", default-features = false }
 
-#GUI
+# Fixed-point
+fixed = { version = "1.28.0", optional = true }
+cordic = { version = "0.1.5", optional = true }
+
+# GUI
 iced = { version = "0.12.1", features = ["canvas", "tokio", "image"], optional = true }
 plotters-iced = { version = "0.10.0", optional = true }
 plotters = { version = "0.3.6", optional = true }
@@ -26,6 +30,7 @@ std = ["nalgebra/default"]
 gui = ["dep:iced", "dep:plotters-iced", "dep:plotters", "std"]
 bladerf = ["dep:bladerf-bindings", "std"]
 multithreading-std = ["std"]
+fixed-point = ["fixed", "cordic"]
 
 [dev-dependencies]
 criterion = "0.5.1"

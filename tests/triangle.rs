@@ -109,7 +109,6 @@ fn triangle_window_long() {
 
     // make sure the window is correct to 4 decimal places (floating point error)
     for i in 0..N_LONG {
-        println!("{}: {}", i, window[i]);
         assert!((window[i] - expected[i]).abs() < 0.0001);
     }
 }
