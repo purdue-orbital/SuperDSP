@@ -26,7 +26,7 @@ pub fn gaussian_window_short(){
         0.09136,
     ];
     
-    let window = gaussian_window::gaussian_window::<N_SHORT>(SIGMA);
+    let window = gaussian_window::gaussian_window::<N_SHORT>(0, SIGMA);
     assert_eq!(window.len(), N_SHORT);
     
     // make sure the window is correct to 4 decimal places (floating point error)

@@ -7,12 +7,12 @@
 /// 
 /// # Returns
 /// [f32; N] - Gaussian window
-pub fn gaussian_window<const N: usize>(offset: f32, sigma: f32) -> [f32; N] {
+pub fn gaussian_window<const N: usize>(offset: usize, sigma: f32) -> [f32; N] {
     let mut filter = [0.0; N];
     let mid = N as f32 / 2.0;
     
     for x in 0..N {
-        let norm_x = (x as f32 - mid - offset) / (sigma * mid);
+        let norm_x = (x as f32 - mid - offset as f32) / (sigma * mid);
         filter[x] = (-0.5 * norm_x * norm_x).exp();
     }
     
