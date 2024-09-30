@@ -1,7 +1,5 @@
 // This function is based on the triangle filter function from wikipedia found here: https://en.wikipedia.org/wiki/Window_function
 
-use core::f32::consts::PI;
-
 /// Creates a triangle filter of size N
 /// Formula: f(x) = 1 - |((n - o) - (N / 2)) / (L / 2)| for n in 0..N
 ///

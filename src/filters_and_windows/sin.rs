@@ -1,5 +1,5 @@
 // This function is based on the sin filter function from wikipedia found here: https://en.wikipedia.org/wiki/Window_function
-/// Creates a triangle filter of size N
+/// Creates a hamming filter of size N
 /// Formula: f(x) = sinf(pi*(n-o)/N) for n in 0..N
 /// 
 /// Where:
