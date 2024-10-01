@@ -7,4 +7,5 @@ edition = "2021"
 [dependencies]
 # Standard
 bladerf-bindings = "0.0.13"
-
+num-complex = "0.4.6"
+rustfft = "6.2.0"

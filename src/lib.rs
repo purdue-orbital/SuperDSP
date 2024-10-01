@@ -1,3 +1,6 @@
+pub mod fsk;
+
+use std::ffi::{c_uint, c_void};
 use std::sync::Mutex;
 use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo};
 
@@ -104,5 +107,22 @@ impl BladeRF{
 
         // Enable Stream
         bladerf::bladerf_enable_module(radio, channel, true);
+    }
+    
+    pub unsafe fn receive(&mut self) -> Vec<i16> {
+        let mut samples = vec![0; self.num_samples];
+        let radio =self.dev.lock().unwrap().offset(0);
+        let samples_ptr = samples.as_mut_ptr();
+
+        bladerf::bladerf_sync_rx(radio, samples_ptr as *mut c_void, self.num_samples as u32, std::ptr::null_mut(), 3500);
+
+        samples
+    }
+    
+    pub unsafe fn transmit(&mut self, samples: Vec<i16>) {
+        let radio =self.dev.lock().unwrap().offset(0);
+        let samples_ptr = samples.as_ptr();
+
+        bladerf::bladerf_sync_tx(radio, samples_ptr as *mut c_void, self.num_samples as u32, std::ptr::null_mut(), 3500);
     }
 }
