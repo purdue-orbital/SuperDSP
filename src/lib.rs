@@ -1,8 +1,10 @@
 pub mod fsk;
+pub mod etc;
 
 use std::ffi::{c_uint, c_void};
 use std::sync::Mutex;
 use bladerf::{bladerf_channel, bladerf_init_devinfo, bladerf_open_with_devinfo};
+use num_complex::Complex;
 
 pub struct BladeRF {
     pub frequency: u64,
@@ -109,19 +111,28 @@ impl BladeRF{
         bladerf::bladerf_enable_module(radio, channel, true);
     }
     
-    pub unsafe fn receive(&mut self) -> Vec<i16> {
+    pub unsafe fn receive(&mut self) -> Vec<Complex<f32>> {
         let mut samples = vec![0; self.num_samples];
-        let radio =self.dev.lock().unwrap().offset(0);
+        let radio = self.dev.lock().unwrap().offset(0);
         let samples_ptr = samples.as_mut_ptr();
 
         bladerf::bladerf_sync_rx(radio, samples_ptr as *mut c_void, self.num_samples as u32, std::ptr::null_mut(), 3500);
-
-        samples
+        
+        samples.iter().step_by(2).enumerate().map(|(index,&x)| Complex::new(x as f32 / 2048.0 ,samples[index+1] as f32 / 2048.0)).collect()
     }
     
-    pub unsafe fn transmit(&mut self, samples: Vec<i16>) {
-        let radio =self.dev.lock().unwrap().offset(0);
-        let samples_ptr = samples.as_ptr();
+    pub unsafe fn transmit(&mut self, samples: Vec<Complex<f32>>) {
+        let radio = self.dev.lock().unwrap().offset(0);
+        
+        let mut c_samples: Vec<i16> = Vec::with_capacity(samples.len() * 2);
+        
+        // complex f32 to i12
+        for sample in samples {
+            c_samples.push((sample.re * 2048.0) as i16);
+            c_samples.push((sample.im * 2048.0) as i16);
+        }
+        
+        let samples_ptr = c_samples.as_ptr();
 
         bladerf::bladerf_sync_tx(radio, samples_ptr as *mut c_void, self.num_samples as u32, std::ptr::null_mut(), 3500);
     }
