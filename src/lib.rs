@@ -1,15 +1,12 @@
 // #![no_std]
 // extern crate alloc;
 
-use std::cmp::PartialEq;
-use std::sync::Arc;
-use std::sync::Mutex;
-use crate::pipeline::{PipelineBuilder, PipelineSettings, PipelineType};
 use crate::prelude::FirstStage;
+use std::cmp::PartialEq;
 
-pub mod prelude{
-    pub use crate::pipeline::Pipeline;
+pub mod prelude {
     pub use crate::pipeline::stages::*;
+    pub use crate::pipeline::Pipeline;
 }
 
 pub mod math;

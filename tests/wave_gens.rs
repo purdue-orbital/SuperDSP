@@ -1,5 +1,5 @@
-use rustdsp::stages::Stage;
 use rustdsp::stages::wave_gen::WaveGen;
+use rustdsp::stages::Stage;
 
 #[tokio::test]
 pub async fn wave_gen() {
