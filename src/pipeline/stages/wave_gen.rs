@@ -36,7 +36,7 @@ impl<I: Clone> WaveGen<I> {
     }
 }
 
-impl<I: Clone + Debug + std::marker::Send, O> Stage<I, O> for WaveGen<I> {
+impl<I: Clone + Debug + Send, O> Stage<I, O> for WaveGen<I> {
     fn configure(&mut self, data: &mut PipelineSettings) {
         // make sure the required fields are present
         assert_eq!(data.prev_stage_output, DataKind::Empty);
@@ -48,17 +48,21 @@ impl<I: Clone + Debug + std::marker::Send, O> Stage<I, O> for WaveGen<I> {
 
         self.phi = 2.0 * PI * freq;
         self.sample_rate = sample_rate;
+        
+        data.prev_stage_output = DataKind::F64;
     }
 
     fn process(&mut self, data: &Data, output: &mut Data) {
-        let data = unsafe { output.f64_data.as_mut().unwrap_unchecked() };
+        let mut data = vec![0.0; self.num_taps];
 
-        for x in data {
+        for x in data.iter_mut() {
             *x = (self.phi * self.time).sin();
 
             self.time += 1.0 / self.sample_rate;
             self.time %= 1.0;
         }
+        
+        output.set_f64_data(data);
     }
 
     fn get_output_data_type(&self) -> DataKind {
@@ -71,4 +75,4 @@ impl<I: Clone + Debug + std::marker::Send, O> Stage<I, O> for WaveGen<I> {
 }
 
 
-impl<I: Clone + Debug + std::marker::Send, O> FirstStage<I, O> for WaveGen<I> {}
+impl<I: Clone + Debug + Send, O> FirstStage<I, O> for WaveGen<I> {}

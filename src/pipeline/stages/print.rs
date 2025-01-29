@@ -12,11 +12,12 @@ impl<I, O> Stage<I, O> for Print {
     }
 
     fn process(&mut self, data: &Data, output: &mut Data) {
-        dbg!(data.get_f64_data());
+        let d = data.get_f64_data();
+        output.set_f64_data(d.clone());
     }
 
     fn get_output_data_type(&self) -> DataKind {
-        DataKind::Empty
+        DataKind::F64
     }
 
     fn get_input_data_type(&self) -> DataKind {

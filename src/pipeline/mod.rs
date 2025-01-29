@@ -3,11 +3,8 @@ pub mod stages;
 use crate::prelude::*;
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use tokio::io::AsyncReadExt;
-use tokio::spawn;
-
-use crate::pipeline;
-use tokio::sync::broadcast::{Receiver, Sender};
+use tokio::task::spawn;
+use tokio::sync::mpsc::{Receiver, Sender};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum PipelineType {
@@ -76,7 +73,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
         self
     }
 
-    pub fn build(&mut self, pipeline_type: PipelineType, settings: &mut PipelineSettings) -> Pipeline<I, O> {
+    pub async fn build(&mut self, pipeline_type: PipelineType, settings: &mut PipelineSettings) -> Pipeline<I, O> {
         // make sure the required fields are present
         assert!(self.first_stage.is_some());
         assert!(self.last_stage.is_some());
@@ -85,24 +82,24 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
         let mut first_stage = self.first_stage.take().unwrap();
         first_stage.configure(settings);
 
-        let (mut in_tx, mut in_rx) = tokio::sync::broadcast::channel::<Data>(1);
-        let (mut out_tx, mut out_rx) = tokio::sync::broadcast::channel::<Data>(1);
+        let (first_in_tx, mut first_in_rx) = tokio::sync::mpsc::channel(16);
+        let (out_tx, out_rx) = tokio::sync::mpsc::channel(16);
 
         spawn(async move {
             loop {
-                let data = in_rx.recv().await.unwrap();
-
+                let data = first_in_rx.recv().await.unwrap();
                 let mut out = Data::new(DataKind::Empty);
 
                 first_stage.process(&data, &mut out);
-
-                out_tx.send(out).unwrap();
+                out_tx.send(out).await.unwrap();
             }
         });
+        
+        let mut prev_out = out_rx;
 
         for x in self.stages.iter_mut() {
-            let mut in_rx = out_rx;
-            (out_tx, out_rx) = tokio::sync::broadcast::channel::<Data>(1);
+            let mut in_rx = prev_out;
+            let (out_tx, out_rx) = tokio::sync::mpsc::channel(16);
 
             let mut stage = x.take().unwrap();
             stage.configure(settings);
@@ -116,14 +113,16 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
 
                     stage.process(&data, &mut out);
 
-                    out_tx.send(out).unwrap();
+                    out_tx.send(out).await.unwrap();
                 }
             });
+            
+            prev_out = out_rx;
         }
 
 
-        let mut in_rx = out_rx;
-        let (out_tx, mut out_rx) = tokio::sync::broadcast::channel::<Data>(1);
+        let mut in_rx = prev_out;
+        let (out_tx, mut out_rx) = tokio::sync::mpsc::channel(16);
 
         let mut last_stage = self.last_stage.take().unwrap();
         last_stage.configure(settings);
@@ -136,18 +135,16 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
 
                 last_stage.process(&data, &mut out);
 
-                out_tx.send(out).unwrap();
+                out_tx.send(out).await.unwrap();
             }
         });
 
         match pipeline_type {
             PipelineType::Loop => {
                 // We take both as the last stage isn't used in a loop
-
                 spawn(async move {
                     loop {
-                        let vec: Vec<()> = Vec::new();
-                        in_tx.send(vec.into()).unwrap();
+                        first_in_tx.send(Data::new(DataKind::Empty)).await.unwrap();
                     }
                 });
 
@@ -173,9 +170,10 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                         out_rx.recv().await.unwrap();
                     }
                 });
+                
                 // Only send is usable
                 Pipeline {
-                    first_stage_in: Some(in_tx),
+                    first_stage_in: Some(first_in_tx),
                     last_stage_out: None,
 
                     phantom: Default::default(),
@@ -184,11 +182,9 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
             }
             PipelineType::OnRecv => {
                 // Only recv is usable
-
                 spawn(async move {
                     loop {
-                        let vec: Vec<()> = Vec::new();
-                        in_tx.send(vec.into()).unwrap();
+                        first_in_tx.send(Data::new(DataKind::Empty)).await.unwrap();
                     }
                 });
 
@@ -212,14 +208,14 @@ pub struct Pipeline<I, O> {
 
     pipeline_type: PipelineType,
 }
-impl<I: Into<Data> + Clone + Send + Sync + Debug + 'static, O: Into<O> + Clone + Send + Sync + 'static + Into<Data> + std::convert::From<pipeline::stages::Data>> Pipeline<I, O> {
-    pub fn send(&mut self, data: I) -> anyhow::Result<()> {
-        self.first_stage_in.as_ref().unwrap().send(data.into())?;
+impl<I: Into<Data> + Clone + Send + Sync + Debug + 'static, O: Into<O> + Clone + Send + Sync + 'static + Into<Data> + From<Data>> Pipeline<I, O> {
+    pub async fn send(&mut self, data: I) -> anyhow::Result<()> {
+        self.first_stage_in.as_ref().unwrap().send(data.into()).await?;
 
         Ok(())
     }
 
     pub async fn recv(&mut self) -> anyhow::Result<O> {
-        Ok(self.last_stage_out.as_mut().unwrap().recv().await?.into())
+        Ok(self.last_stage_out.as_mut().unwrap().recv().await.unwrap().into())
     }
 }
