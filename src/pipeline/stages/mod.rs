@@ -1,6 +1,6 @@
 use std::sync::mpsc::Receiver;
-use fixed::FixedI32;
-use fixed::types::U16F16;
+use fixed::{FixedI16, FixedI32, FixedI8};
+use fixed::types::{U16F16, U8F8};
 use crate::pipeline::PipelineSettings;
 use num::Num;
 
@@ -26,7 +26,7 @@ pub struct Data {
     pub f64_data: Option<Vec<f64>>,
     pub complex_f64: Option<Vec<num::Complex<f64>>>,
     
-    pub fixed_point: Option<Vec<FixedI32<U16F16>>>,
+    pub fixed_point: Option<Vec<FixedI16<U8F8>>>,
     pub complex_fixed_point: Option<Vec<num::Complex<FixedI32<U16F16>>>>,
     
     pub u8_data: Option<Vec<u8>>,
@@ -86,6 +86,14 @@ impl Data {
     pub fn set_complex_data(&mut self, data: Vec<num::Complex<f64>>) {
         self.complex_f64 = Some(data);
     }
+    
+    pub fn set_fixed_point_data(&mut self, data: Vec<FixedI16<U8F8>>) {
+        self.fixed_point = Some(data);
+    }
+    
+    pub fn set_complex_fixed_point_data(&mut self, data: Vec<num::Complex<FixedI32<U16F16>>>) {
+        self.complex_fixed_point = Some(data);
+    }
 
     pub fn get_f64_data(&self) -> &Vec<f64> {
         self.f64_data.as_ref().expect("Data is not f64")
@@ -95,13 +103,13 @@ impl Data {
         self.complex_f64.as_ref().expect("Data is not complex")
     }
     
-    pub fn get_fixed_point_data(&self) -> &Vec<FixedI32<U16F16>> {
+    pub fn get_fixed_point_data(&self) -> &Vec<FixedI16<U8F8>> {
         self.fixed_point.as_ref().expect("Data is not fixed point")
     }
     
-    // pub fn get_complex_fixed_point_data(&self) -> &Vec<num::Complex<FixedI32<U16F16>> {
-    //     self.complex_fixed_point.as_ref().expect("Data is not complex fixed point")
-    // }
+    pub fn get_complex_fixed_point_data(&self) -> &Vec<num::Complex<FixedI32<U16F16>>> {
+        self.complex_fixed_point.as_ref().expect("Data is not complex fixed point")
+    }
 
     pub fn is_f64(&self) -> bool {
         self.kind == DataKind::F64
