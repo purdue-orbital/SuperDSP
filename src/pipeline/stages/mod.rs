@@ -7,6 +7,9 @@ use num::Num;
 pub mod wave_gen;
 pub mod wave_gen_complex;
 pub mod print;
+pub mod modulation;
+pub mod demodulation;
+pub mod etc;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum DataKind {
