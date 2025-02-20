@@ -11,6 +11,8 @@ pub mod prelude {
 
 pub mod math;
 pub mod pipeline;
+pub mod gain_control;
+pub mod modulation;
 
 // pub trait AnyPipelineBuilder {
 //     fn get_run_mode(&self) -> Option<PipelineType>;

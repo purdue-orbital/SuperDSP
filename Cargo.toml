@@ -15,6 +15,9 @@ anyhow = "1.0.95"
 tokio = { version = "1.43.0", features = ["sync"] }
 async-trait = "0.1.85"
 
+libm = { version = "0.2.8" }  # used for agc, pll; Still need to replace f32 with fixed point. -Tim
+rand = "*"  # used for agc and pll testing. -Tim
+
 [dev-dependencies]
 criterion = { version = "0.5" }
 tokio = { version = "1.43.0", features = ["full"] }
