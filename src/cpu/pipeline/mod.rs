@@ -5,6 +5,7 @@ use std::fmt::Debug;
 use std::marker::PhantomData;
 use tokio::task::spawn;
 use tokio::sync::mpsc::{Receiver, Sender};
+use crate::cpu::pipeline::stages::{Data, DataKind, FirstStage, LastStage, Stage};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum PipelineType {

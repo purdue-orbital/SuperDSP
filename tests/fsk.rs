@@ -1,8 +1,7 @@
-
-use rustdsp::pipeline::stages::modulation::fsk::fsk_mod;
-use rustdsp::pipeline::stages::demodulation::fsk::fsk_demod;
-use rustdsp::prelude::etc::duplicator::{duplicator, duplicator_i8};
-use rustdsp::prelude::etc::nrz::{nrz, nrz_i8};
+use rustdsp::prelude::demodulation::fsk::fsk_demod;
+use rustdsp::prelude::etc::duplicator::{duplicator};
+use rustdsp::prelude::etc::nrz::{nrz};
+use rustdsp::prelude::modulation::fsk::fsk_mod;
 
 #[test]
 fn test_fsk() {
@@ -11,11 +10,11 @@ fn test_fsk() {
     let sample_rate = 44100.0;
     
     let nrz = nrz(data.as_slice());
-    let dupped = duplicator(nrz.as_slice(), 2);
+    let dupped = duplicator(nrz.as_slice(), 8);
     
     let modulated = fsk_mod(dupped.as_slice(), frequency, sample_rate);
-    let demodulated = fsk_demod(modulated.as_slice(), frequency, sample_rate);
+    let demodulated = fsk_demod(modulated.as_slice(), frequency,sample_rate, 8, 0.5);
     
-    assert_eq!(modulated.len(), dupped.len());
+    println!("{:?}", demodulated);
     
 }

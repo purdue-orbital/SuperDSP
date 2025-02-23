@@ -1,8 +1,7 @@
-use std::sync::mpsc::Receiver;
-use fixed::{FixedI16, FixedI32, FixedI8};
+use fixed::{FixedI16, FixedI32};
 use fixed::types::{U16F16, U8F8};
-use crate::pipeline::PipelineSettings;
 use num::Num;
+use crate::cpu::pipeline::PipelineSettings;
 
 pub mod wave_gen;
 pub mod wave_gen_complex;

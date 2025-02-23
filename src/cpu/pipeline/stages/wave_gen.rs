@@ -1,7 +1,7 @@
-use crate::pipeline::PipelineSettings;
-use crate::prelude::{Data, DataKind, FirstStage, Stage};
 use std::f64::consts::PI;
 use std::fmt::Debug;
+use crate::cpu::pipeline::PipelineSettings;
+use crate::cpu::pipeline::stages::{Data, DataKind, FirstStage, Stage};
 
 pub struct WaveGen<I> {
     phi: f64,

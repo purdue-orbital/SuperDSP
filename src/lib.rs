@@ -1,40 +1,17 @@
 // #![no_std]
 // extern crate alloc;
 
-use crate::prelude::FirstStage;
-use std::cmp::PartialEq;
+pub mod cpu;
+pub mod gpu;
 
+#[cfg(not(feature = "gpu"))]
 pub mod prelude {
-    pub use crate::pipeline::stages::*;
-    pub use crate::pipeline::Pipeline;
+    pub use crate::cpu::pipeline::stages::*;
+    pub use crate::cpu::pipeline::Pipeline;
 }
 
-pub mod math;
-pub mod pipeline;
-
-// pub trait AnyPipelineBuilder {
-//     fn get_run_mode(&self) -> Option<PipelineType>;
-//     fn first_stage<I, O>(&self, input: Box<dyn FirstStage<I, O>>){
-//         
-//     };
-// }
-// 
-// impl<I, O> AnyPipelineBuilder for PipelineBuilder<I, O> {
-//     fn get_run_mode(&self) -> Option<PipelineType>{
-//         self.running_pipeline_settings.pipeline_type
-//     }
-// }
-// 
-// #[derive(Default)]
-// pub struct App{
-//     pipeline: Vec<Arc<Mutex<Box<dyn AnyPipelineBuilder>>>>,
-// }
-// 
-// impl App {
-//     pub fn new_pipeline<I: std::default::Default + 'static, O: std::default::Default + 'static, const ILen: usize, const OLen: usize>(&mut self) -> Arc<Mutex<Box<dyn AnyPipelineBuilder>>> {
-//         let builder: pipeline::PipelineBuilder<O, O> = PipelineBuilder::default();
-//         self.pipeline.push(Arc::new(Mutex::new(Box::new(builder))));
-//         
-//         self.pipeline.last().unwrap().clone()
-//     }
-// }
+#[cfg(feature = "gpu")]
+pub mod prelude {
+    pub use crate::gpu::pipeline::stages::*;
+    pub use crate::gpu::pipeline::Pipeline;
+}

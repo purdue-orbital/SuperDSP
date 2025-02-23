@@ -1,5 +1,5 @@
-use crate::pipeline::PipelineSettings;
-use crate::prelude::{Data, DataKind, LastStage, Stage};
+use crate::cpu::pipeline::PipelineSettings;
+use crate::cpu::pipeline::stages::{Data, DataKind, LastStage, Stage};
 
 #[derive(Default)]
 pub struct Print {
