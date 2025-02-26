@@ -16,12 +16,12 @@ pub enum PipelineType {
 
 #[derive(Default)]
 pub struct PipelineSettings {
-    frequency: Option<f64>,
-    sample_rate: Option<f64>,
+    pub(crate) frequency: Option<f64>,
+    pub(crate) sample_rate: Option<f64>,
 
-    sps: Option<usize>,
+    pub(crate) sps: Option<usize>,
 
-    num_taps: Option<usize>,
+    pub(crate) num_taps: Option<usize>,
 
     pub prev_stage_output: DataKind,
 }
@@ -50,11 +50,11 @@ impl PipelineSettings {
 
 #[derive(Default)]
 pub struct PipelineBuilder<I: Into<Data>, O: From<Data>> {
-    first_stage: Option<Box<dyn FirstStage<I, O>>>,
+    pub(crate) first_stage: Option<Box<dyn FirstStage<I, O>>>,
 
-    last_stage: Option<Box<dyn LastStage<I, O>>>,
+    pub(crate) last_stage: Option<Box<dyn LastStage<I, O>>>,
 
-    stages: Vec<Option<Box<dyn Stage<I, O>>>>,
+    pub(crate) stages: Vec<Option<Box<dyn Stage<I, O>>>>,
 }
 
 impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I, O> {
@@ -202,12 +202,12 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
 }
 
 pub struct Pipeline<I, O> {
-    first_stage_in: Option<Sender<Data>>,
-    last_stage_out: Option<Receiver<Data>>,
+    pub(crate) first_stage_in: Option<Sender<Data>>,
+    pub(crate) last_stage_out: Option<Receiver<Data>>,
 
-    phantom: PhantomData<(I, O)>,
+    pub(crate) phantom: PhantomData<(I, O)>,
 
-    pipeline_type: PipelineType,
+    pub(crate) pipeline_type: PipelineType,
 }
 impl<I: Into<Data> + Clone + Send + Sync + Debug + 'static, O: Into<O> + Clone + Send + Sync + 'static + Into<Data> + From<Data>> Pipeline<I, O> {
     pub async fn send(&mut self, data: I) -> anyhow::Result<()> {

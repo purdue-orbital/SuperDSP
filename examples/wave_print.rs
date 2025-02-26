@@ -1,8 +1,3 @@
-use rustdsp::pipeline::PipelineType::OnRecv;
-use rustdsp::pipeline::{PipelineBuilder, PipelineSettings};
-use rustdsp::prelude::print::Print;
-use rustdsp::prelude::wave_gen::WaveGen;
-use rustdsp::prelude::Pipeline;
 
 #[tokio::main]
 async fn main() {
