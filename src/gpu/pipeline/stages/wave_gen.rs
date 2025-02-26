@@ -6,8 +6,9 @@ use std::f32::consts::PI;
 use std::fmt::Debug;
 use vulkano::buffer::Subbuffer;
 use vulkano::descriptor_set::WriteDescriptorSet;
+use vulkano::half;
 use vulkano::pipeline::PipelineShaderStageCreateInfo;
-use crate::gpu::pipeline::SubBuffer::F32;
+use crate::gpu::pipeline::SubBuffer::{F16, F32};
 use crate::prelude::shaders::wave_gen;
 
 #[derive(Debug, Clone)]
@@ -65,7 +66,7 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
         // create buffer for wave gen taps
         let taps_buffer = create_standard_buffer_array(
             memory_allocator.clone(),
-            vec![0.0; data.num_taps.expect("num_taps not set")],
+            vec![half::f16::default(); data.num_taps.expect("num_taps not set")],
         );
 
         // create buffer for wave gen settings
@@ -74,7 +75,7 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
         // load the shader
         let shader = wave_gen::load(device.clone()).expect("failed to load shader");
 
-        self.buf = F32(taps_buffer.clone());
+        self.buf = F16(taps_buffer.clone());
 
         add_to_pipeline(
             shader,
@@ -83,7 +84,7 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
                 WriteDescriptorSet::buffer(0, settings_buffer),
                 WriteDescriptorSet::buffer(1, taps_buffer.clone()),
             ],
-            F32(taps_buffer),
+            F16(taps_buffer),
             [data.num_taps.unwrap() as u32, 1, 1],
         );
     }

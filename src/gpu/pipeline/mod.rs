@@ -7,7 +7,8 @@ use vulkano::command_buffer::allocator::StandardCommandBufferAllocator;
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage};
 use vulkano::descriptor_set::allocator::StandardDescriptorSetAllocator;
 use vulkano::descriptor_set::{DescriptorSet, WriteDescriptorSet};
-use vulkano::device::{Device, DeviceCreateInfo, Queue, QueueCreateInfo, QueueFlags};
+use vulkano::device::{Device, DeviceCreateInfo, DeviceExtensions, DeviceFeatures, Queue, QueueCreateInfo, QueueFlags};
+use vulkano::half;
 use vulkano::memory::allocator::StandardMemoryAllocator;
 use vulkano::pipeline::layout::PipelineDescriptorSetLayoutCreateInfo;
 use vulkano::pipeline::{ComputePipeline, PipelineBindPoint, PipelineLayout, PipelineShaderStageCreateInfo};
@@ -33,6 +34,7 @@ pub enum PipelineType {
 pub(crate) enum SubBuffer{
     F64(Subbuffer<[f64]>),
     F32(Subbuffer<[f32]>),
+    F16(Subbuffer<[half::f16]>),
     WaveGen(Subbuffer<[VulkanWaveGen]>),
     
     #[default]
@@ -50,6 +52,13 @@ pub fn get_f32_buffer(buffer: SubBuffer) -> Subbuffer<[f32]> {
     match buffer {
         SubBuffer::F32(x) => x,
         _ => panic!("Expected F32"),
+    }
+}
+
+pub fn get_f16_buffer(buffer: SubBuffer) -> Subbuffer<[half::f16]> {
+    match buffer {
+        SubBuffer::F16(x) => x,
+        _ => panic!("Expected F16"),
     }
 }
 
@@ -134,9 +143,24 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
         // create gpu device
         let gpu = settings.gpu.take().expect("No GPU selected");
 
+        gpu.physical_device.extension_properties()
+            .iter()
+            .enumerate()
+            .position( |(_i,properties)|{
+           println!("{}",properties.extension_name);
+
+            false
+        });
+
         let queue_family_index = gpu.physical_device.queue_family_properties().iter().enumerate().position(|(_i, properties)| {
             properties.queue_flags.contains(QueueFlags::COMPUTE)
         }).expect("No compute queue family found") as u32;
+
+
+        let features = DeviceFeatures {
+            storage_buffer16_bit_access: true,
+            ..DeviceFeatures::empty()
+        };
 
         let (device, mut queues) = Device::new(
             gpu.physical_device.clone(),
@@ -144,8 +168,12 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                 // here we pass the desired queue family to use by index
                 queue_create_infos: vec![QueueCreateInfo {
                     queue_family_index,
+
                     ..Default::default()
                 }],
+                
+                enabled_features: features,
+                
                 ..Default::default()
             },
         ).expect("failed to create device");

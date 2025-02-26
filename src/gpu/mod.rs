@@ -1,4 +1,5 @@
 use std::sync::Arc;
+use vulkano::device::{DeviceExtensions, DeviceFeatures};
 use vulkano::device::physical::{PhysicalDevice, PhysicalDeviceType};
 use vulkano::instance::{Instance, InstanceCreateFlags, InstanceCreateInfo};
 use vulkano::VulkanLibrary;
@@ -39,6 +40,7 @@ pub fn list_devices() -> Vec<GpuDevice> {
     let mut vec = Vec::new();
 
     let library = VulkanLibrary::new().expect("no local Vulkan library/DLL");
+
     let instance = Instance::new(
         library,
         InstanceCreateInfo {
@@ -47,9 +49,16 @@ pub fn list_devices() -> Vec<GpuDevice> {
         },
     ).expect("failed to create instance");
 
-    let physical_device = instance.enumerate_physical_devices().expect("could not enumerate devices");
 
-    for device in physical_device {
+    let device_extensions = DeviceExtensions {
+        khr_shader_float16_int8: true,
+        ..DeviceExtensions::empty()
+    };
+
+    let devices = instance.enumerate_physical_devices().expect("could not enumerate devices").filter(|p| p.supported_extensions().contains(&device_extensions));
+
+    for device in devices {
+        
         vec.push(GpuDevice {
             physical_device: device,
         });
