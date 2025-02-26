@@ -2,11 +2,15 @@ vulkano_shaders::shader! {
         ty: "compute",
         src: r"
         #version 450
+        
+        #define M_PI 3.1415926535897932384626433832795
 
         layout(set = 0, binding = 0) buffer Settings {
             float phi;
-            float phi_offset;
+            float time_offset;
+            float time;
             
+            uint sample_rate;
             uint taps;
         } settings;
 
@@ -16,12 +20,13 @@ vulkano_shaders::shader! {
 
         void main() {
             uint x = gl_GlobalInvocationID.x;
-            float phi = settings.phi * float(x) + settings.phi_offset;
-            taps.arr[x] = sin(phi);
+            float phi = settings.phi * (x + settings.time_offset) * settings.time;
+            
+            taps.arr[x] = cos(phi);
             
             if (x == settings.taps - 1) {
-                settings.phi_offset += phi;
-                settings.phi_offset = mod(settings.phi_offset, 2.0 * 3.14159265359);
+                settings.time_offset += settings.taps;
+                settings.time_offset = mod(settings.time_offset, settings.sample_rate);
             }
         }
         "

@@ -62,7 +62,7 @@ pub fn create_host_writeable_buffer_array<I: Pod + Send + Sync>(standard_memory_
             ..Default::default()
         },
         AllocationCreateInfo {
-            memory_type_filter: MemoryTypeFilter::PREFER_DEVICE | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE,
+            memory_type_filter: MemoryTypeFilter::PREFER_DEVICE | MemoryTypeFilter::HOST_SEQUENTIAL_WRITE | MemoryTypeFilter::HOST_RANDOM_ACCESS,
             ..Default::default()
         },
         data,

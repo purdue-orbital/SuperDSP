@@ -8,13 +8,13 @@ use rustdsp::prelude::wave_gen::WaveGen;
 #[tokio::main]
 async fn main() {
     let mut settings = PipelineSettings::default();
-    
+
     let devices = list_devices();
     let i = devices.iter().position(|x| x.get_type() == GpuType::Discrete).unwrap();
     let device = devices[i].clone();
 
     settings.set_frequency(1.0)
-        .set_sample_rate(2.0)
+        .set_sample_rate(16.0)
         .set_sps(8)
         .set_num_taps(8)
         .set_device(device)
@@ -27,6 +27,6 @@ async fn main() {
         .await;
 
     loop {
-        
+
     }
 }

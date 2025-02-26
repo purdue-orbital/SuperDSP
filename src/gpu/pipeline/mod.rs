@@ -242,8 +242,6 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
         // put first stage last stage into a new thread
         if pipeline_type == PipelineType::Loop {
             tokio::spawn(async move {
-                let future = vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap();
-
                 let not_used = Data::new(DataKind::Empty);
                 let mut not_used2 = Data::new(DataKind::Empty);
                 
@@ -252,7 +250,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                     first_stage.process(&not_used, &mut not_used2);
                     
                     // run gpu
-                    future.wait(None).unwrap();
+                    vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap().wait(None).unwrap();
                     
                     // run last stage cpu operation
                     last_stage.process(&not_used, &mut not_used2);
@@ -265,8 +263,6 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
             
             tokio::spawn(async move {
                 // Prepare thread
-                let future = vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap();
-
                 let not_used = Data::new(DataKind::Empty);
                 let mut not_used2 = Data::new(DataKind::Empty);
                 
@@ -276,7 +272,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                     first_stage.process(&data, &mut not_used2);
                     
                     // run the command buffer
-                    future.wait(None).unwrap();
+                    vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap().wait(None).unwrap();;
                     
                     // run the last stage cpu operation
                     last_stage.process(&not_used, &mut not_used2);
@@ -289,8 +285,6 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
             
             tokio::spawn(async move {
                 // Prepare thread
-                let future = vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap();
-
                 let not_used = Data::new(DataKind::Empty);
                 let mut not_used2 = Data::new(DataKind::Empty);
                 
@@ -301,7 +295,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                     first_stage.process(&not_used, &mut not_used2);
                     
                     // run gpu
-                    future.wait(None).unwrap();
+                    vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap().wait(None).unwrap();
                     
                     // run last stage cpu operation
                     last_stage.process(&not_used, &mut data);

@@ -21,7 +21,9 @@ pub struct WaveGen<I> {
 pub struct VulkanWaveGen {
     phi: f32,
     phi_offset: f32,
+    time: f32,
 
+    sample_rate: u32,
     taps: u32,
 }
 
@@ -53,10 +55,11 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
 
         // create wave gen settings
         let wave_gen = VulkanWaveGen {
-            phi: 2.0 * PI * data.frequency.expect("frequency not set") as f32
-                / data.sample_rate.expect("sample_rate not set") as f32,
+            phi: 2.0 * PI * data.frequency.expect("frequency not set") as f32,
             taps: data.num_taps.expect("num_taps not set") as u32,
+            time: 1f32 / data.sample_rate.expect("sample_rate not set") as f32,
             phi_offset: 0.0,
+            sample_rate: data.sample_rate.expect("sample_rate not set") as u32,
         };
 
         // create buffer for wave gen taps
@@ -64,15 +67,15 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
             memory_allocator.clone(),
             vec![0.0; data.num_taps.expect("num_taps not set")],
         );
-        
+
         // create buffer for wave gen settings
         let settings_buffer = create_standard_buffer(memory_allocator.clone(), wave_gen);
-        
+
         // load the shader
         let shader = wave_gen::load(device.clone()).expect("failed to load shader");
 
         self.buf = F32(taps_buffer.clone());
-        
+
         add_to_pipeline(
             shader,
             data,
