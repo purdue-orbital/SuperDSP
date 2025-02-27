@@ -1,4 +1,4 @@
-use crate::gpu::pipeline::stages::{Data, DataKind, FirstStage, Stage};
+use crate::gpu::pipeline::stages::{Data, DataKind, Stage};
 use crate::gpu::pipeline::{PipelineSettings, SubBuffer};
 use crate::prelude::etc::{create_standard_buffer, create_standard_buffer_array, add_to_pipeline};
 use bytemuck::{Pod, Zeroable};
@@ -8,10 +8,11 @@ use vulkano::buffer::Subbuffer;
 use vulkano::descriptor_set::WriteDescriptorSet;
 use vulkano::half;
 use vulkano::pipeline::PipelineShaderStageCreateInfo;
+use superdsp_macros::{FirstStageCrate};
 use crate::gpu::pipeline::SubBuffer::{F16, F32};
 use crate::prelude::shaders::wave_gen;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, FirstStageCrate)]
 pub struct WaveGen<I> {
     phantom: std::marker::PhantomData<I>,
     buf: SubBuffer,
@@ -43,7 +44,7 @@ impl<I: Clone> WaveGen<I> {
     }
 }
 
-impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
+impl<I: Clone + Debug + Send + Sync> Stage for WaveGen<I> {
     fn configure(&mut self, data: &mut PipelineSettings) {
         // make sure the required fields are present
         assert_eq!(data.prev_stage_output, SubBuffer::Empty);
@@ -99,5 +100,3 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for WaveGen<I> {
         DataKind::Empty
     }
 }
-
-impl<I: Clone + Debug + Send + Sync, O> FirstStage<I, O> for WaveGen<I> {}

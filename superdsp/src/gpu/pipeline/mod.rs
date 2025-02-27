@@ -16,7 +16,7 @@ use vulkano::pipeline::Pipeline as VulkanoPipeline;
 use vulkano::pipeline::compute::ComputePipelineCreateInfo;
 use vulkano::sync::GpuFuture;
 use crate::gpu::GpuDevice;
-use crate::prelude::{Data, DataKind, FirstStage, LastStage, Stage};
+use crate::prelude::{form, form_first_stage, form_last_stage, Data, DataKind, FirstStageTrait, LastStageTrait, Stage};
 use crate::prelude::wave_gen::VulkanWaveGen;
 
 pub mod stages;
@@ -115,27 +115,27 @@ impl PipelineSettings {
 
 #[derive(Default)]
 pub struct PipelineBuilder<I: Into<Data>, O: From<Data>> {
-    first_stage: Option<Box<dyn FirstStage<I, O>>>,
-    last_stage: Option<Box<dyn LastStage<I, O>>>,
-    stages: Vec<Option<Box<dyn Stage<I, O>>>>,
+    first_stage: Option<Box<dyn FirstStageTrait<I>>>,
+    last_stage: Option<Box<dyn LastStageTrait<O>>>,
+    stages: Vec<Option<Box<dyn Stage>>>,
 }
 
 
-impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I, O> {
-    pub fn add_stage(&mut self, stage: Box<dyn Stage<I, O>>) -> &mut Self {
-        self.stages.push(Some(stage));
+impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> PipelineBuilder<I, O> {
+    pub fn add_stage<S: Stage + Default + 'static>(&mut self) -> &mut Self {
+        self.stages.push(Some(Box::new(form::<S>())));
 
         self
     }
 
-    pub fn add_first_stage(&mut self, stage: Box<dyn FirstStage<I, O>>) -> &mut Self {
-        self.first_stage = Some(stage);
+    pub fn add_first_stage<S: FirstStageTrait<I> + 'static + Default>(&mut self) -> &mut Self {
+        self.first_stage = Some(Box::new(form_first_stage::<S>()));
         
         self
     }
 
-    pub fn add_last_stage(&mut self, stage: Box<dyn LastStage<I, O>>) -> &mut Self {
-        self.last_stage = Some(stage);
+    pub fn add_last_stage<S: LastStageTrait<O> + 'static + Default>(&mut self) -> &mut Self {
+        self.last_stage = Some(Box::new(form_last_stage::<S>()));
         self
     }
 

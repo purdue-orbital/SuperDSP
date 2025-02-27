@@ -1,9 +1,9 @@
-use rustdsp::gpu::{list_devices, GpuType};
-use rustdsp::gpu::pipeline::{Pipeline, PipelineSettings};
-use rustdsp::gpu::pipeline::PipelineType::{Loop};
-use rustdsp::prelude::PipelineBuilder;
-use rustdsp::prelude::print_debug::PrintDebug;
-use rustdsp::prelude::wave_gen::WaveGen;
+use superdsp::gpu::{list_devices, GpuType};
+use superdsp::gpu::pipeline::{Pipeline, PipelineSettings};
+use superdsp::gpu::pipeline::PipelineType::{Loop};
+use superdsp::prelude::PipelineBuilder;
+use superdsp::prelude::print_debug::PrintDebug;
+use superdsp::prelude::wave_gen::WaveGen;
 
 #[tokio::main]
 async fn main() {
@@ -21,8 +21,8 @@ async fn main() {
     ;
 
     let mut pipeline: Pipeline<Vec<()>, Vec<()>> = PipelineBuilder::default()
-        .add_first_stage(Box::new(WaveGen::new()))
-        .add_last_stage(Box::new(PrintDebug::default()))
+        .add_first_stage::<WaveGen<Vec<()>>>()
+        .add_last_stage::<PrintDebug<Vec<()>>>()
         .build(Loop, &mut settings)
         .await;
 

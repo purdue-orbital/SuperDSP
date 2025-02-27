@@ -7,8 +7,8 @@
 *.d
 /.vscode
 
-/examples/bladerf_waterfall/target/
-/examples/bladerf_waterfall/Cargo.lock
-/examples/wave_generator/target/
-/examples/wave_generator/Cargo.lock
-/examples/wave_generator/target/debug/
+/superdsp/examples/bladerf_waterfall/target/
+/superdsp/examples/bladerf_waterfall/Cargo.lock
+/superdsp/examples/wave_generator/target/
+/superdsp/examples/wave_generator/Cargo.lock
+/superdsp/examples/wave_generator/target/debug/

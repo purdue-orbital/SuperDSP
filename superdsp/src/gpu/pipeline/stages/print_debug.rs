@@ -1,18 +1,20 @@
 use std::fmt::Debug;
 use vulkano::descriptor_set::WriteDescriptorSet;
 use vulkano::half;
+use superdsp_macros::LastStageCrate;
 use crate::gpu::pipeline::{get_f16_buffer, PipelineSettings, SubBuffer};
-use crate::gpu::pipeline::SubBuffer::{F16};
-use crate::prelude::{Data, DataKind, LastStage, Stage};
+use crate::gpu::pipeline::SubBuffer::F16;
+use crate::prelude::{Data, DataKind, Stage};
 use crate::prelude::etc::{add_to_pipeline, create_host_readable_buffer_array};
 use crate::prelude::shaders::copy;
 
-#[derive(Debug, Clone, Default)]
-pub struct PrintDebug {
+#[derive(Debug, Clone, Default, LastStageCrate)]
+pub struct PrintDebug<O: Default + Clone> {
     target_buffer: SubBuffer,
+    phantom: std::marker::PhantomData<O>,
 }
 
-impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for PrintDebug{
+impl<O: std::marker::Send + std::marker::Sync + std::default::Default + std::clone::Clone> Stage for PrintDebug<O>{
     fn configure(&mut self, data: &mut PipelineSettings) {
         assert_ne!(data.prev_stage_output, SubBuffer::Empty);
         
@@ -43,5 +45,3 @@ impl<I: Clone + Debug + Send + Sync, O> Stage<I, O> for PrintDebug{
         todo!()
     }
 }
-
-impl<I: Clone + Send + Sync + Debug, O: Send + Sync> LastStage<I,O> for PrintDebug {}

@@ -3,6 +3,7 @@ pub mod print_debug;
 
 pub(crate) mod shaders;
 pub(crate) mod etc;
+pub mod matrix_multiplication;
 
 use fixed::{FixedI16, FixedI32};
 use fixed::types::{U16F16, U8F8};
@@ -123,13 +124,27 @@ impl Data {
 
 }
 
-pub trait Stage<I, O>: Send + Sync {
+pub trait Stage: Send + Sync {
     fn configure(&mut self, data: &mut PipelineSettings);
     fn process(&mut self, input: &Data, output: &mut Data);
     fn get_output_data_type(&self) -> DataKind;
     fn get_input_data_type(&self) -> DataKind;
 }
 
-pub trait FirstStage<I, O>: Stage<I, O> {}
+pub trait FirstStageTrait<I>: Stage {}
 
-pub trait LastStage<I, O: Send + Sync>: Stage<I, O> {}
+pub trait LastStageTrait<O>: Stage {}
+
+pub struct StageWrapper{}
+
+pub(crate) fn form<S: Default + Stage>() -> S {
+    S::default()
+}
+
+pub(crate) fn form_first_stage<S: Default + Stage>() -> S {
+    S::default()
+}
+
+pub(crate) fn form_last_stage<S: Default + Stage>() -> S {
+    S::default()
+}
