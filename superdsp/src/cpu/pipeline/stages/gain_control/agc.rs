@@ -1,10 +1,10 @@
+use libm::{exp2f, log2f, sqrtf};
 use num::Complex;
-use libm::{sqrtf, log2f, exp2f};
 
 /// # Automatic Gain Controller
 /// automatic gain control using basic algorithm found here:
 /// https://wirelesspi.com/how-automatic-gain-control-agc-works/
-/// 
+///
 /// # Examples
 ///
 /// TODO
@@ -18,13 +18,13 @@ pub struct AGC<const BLOCK_SIZE: usize> {
 }
 
 impl<const BLOCK_SIZE: usize> AGC<BLOCK_SIZE> {
-
     pub fn new(target: f32, step_size: f32) -> AGC<BLOCK_SIZE> {
         Self {
-            gain: 1f32, 
-            target: target, 
-            enable_switch: false, 
-            step_size: step_size}
+            gain: 1f32,
+            target: target,
+            enable_switch: false,
+            step_size: step_size,
+        }
     }
 
     pub fn set_target(&mut self, target: f32) {
@@ -56,14 +56,14 @@ impl<const BLOCK_SIZE: usize> AGC<BLOCK_SIZE> {
         } else {
             for n in 0..BLOCK_SIZE {
                 output_signal[n] = samples[n].scale(self.gain);
-                
+
                 let norm = sqrtf(output_signal[n].re * output_signal[n].re + output_signal[n].im * output_signal[n].im); // can use approximation |z[n]| = sqrt(z_i^2 + z_q^2) approx. = |z_i| + |z_q|
 
-                let error = self.target - norm; 
+                let error = self.target - norm;
                 self.gain += error * self.step_size;
             }
         }
-        output_signal   
+        output_signal
     }
 
     pub fn run_logorithmic(&mut self, samples: &[Complex<f32>; BLOCK_SIZE]) -> [Complex<f32>; BLOCK_SIZE] {
@@ -76,38 +76,35 @@ impl<const BLOCK_SIZE: usize> AGC<BLOCK_SIZE> {
         } else {
             for n in 0..BLOCK_SIZE {
                 output_signal[n] = samples[n].scale(exp2f(self.gain));
-                
+
                 let norm = sqrtf(output_signal[n].re * output_signal[n].re + output_signal[n].im * output_signal[n].im);
 
-                let error = log2f(self.target / norm); 
+                let error = log2f(self.target / norm);
                 self.gain += error * self.step_size;
             }
         }
-        output_signal   
+        output_signal
     }
-
 }
 
 #[cfg(test)]
 mod agc_tests {
     use super::*;
-    use libm::{cosf, sinf};
     use core::f32::consts::PI;
-    
+    use libm::{cosf, sinf};
+
     const ACCEPTED_DIFFERENCE: f32 = 0.01;
     const BLOCKS_BEFORE_CONVERGE: usize = 2;
 
     fn gen_samples<const BLOCK_SIZE: usize, const NUM_BLOCKS: usize>(
-        frequency: f32, 
-        amplitude: f32, 
+        frequency: f32,
+        amplitude: f32,
         sample_rate: f32,
     ) -> [[Complex<f32>; BLOCK_SIZE]; NUM_BLOCKS] {
-        
         let mut samples = [[Complex::new(0.0, 0.0); BLOCK_SIZE]; NUM_BLOCKS];
-        
+
         for i in 0..NUM_BLOCKS {
             for j in 0..BLOCK_SIZE {
-
                 let t = ((i as f32) * (BLOCK_SIZE as f32) + (j as f32)) / sample_rate;
                 let in_phase = amplitude * cosf(2.0 * PI * frequency * t);
                 let quad = amplitude * sinf(2.0 * PI * frequency * t);
@@ -120,11 +117,10 @@ mod agc_tests {
     }
 
     fn agc_amplify_samples<const BLOCK_SIZE: usize, const NUM_BLOCKS: usize>(
-        samples: &[[Complex<f32>; BLOCK_SIZE]; NUM_BLOCKS], 
-        target: f32, 
+        samples: &[[Complex<f32>; BLOCK_SIZE]; NUM_BLOCKS],
+        target: f32,
         step_size: f32,
     ) -> [[Complex<f32>; BLOCK_SIZE]; NUM_BLOCKS] {
-
         let mut agc_obj: AGC<BLOCK_SIZE> = AGC::new(target, step_size);
         let mut amplified_samples = [[Complex::new(0.0, 0.0); BLOCK_SIZE]; NUM_BLOCKS];
 
@@ -170,7 +166,7 @@ mod agc_tests {
         let f = 100.0;
         let a = 10.0;
         let f_s = 1000.0;
-        let samples: [[Complex<f32>; 32]; 1024]  = gen_samples(f, a, f_s);
+        let samples: [[Complex<f32>; 32]; 1024] = gen_samples(f, a, f_s);
 
         // amplify signals
         let target = 1.0;
@@ -187,5 +183,4 @@ mod agc_tests {
             }
         }
     }
-
 }

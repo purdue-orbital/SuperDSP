@@ -1,12 +1,12 @@
-use std::fmt::Debug;
-use vulkano::descriptor_set::WriteDescriptorSet;
-use vulkano::half;
-use superdsp_macros::LastStageCrate;
-use crate::gpu::pipeline::{get_f16_buffer, PipelineSettings, SubBuffer};
 use crate::gpu::pipeline::SubBuffer::F16;
-use crate::prelude::{Data, DataKind, Stage};
+use crate::gpu::pipeline::{get_f16_buffer, PipelineSettings, SubBuffer};
 use crate::prelude::etc::{add_to_pipeline, create_host_readable_buffer_array};
 use crate::prelude::shaders::copy;
+use crate::prelude::{Data, DataKind, Stage};
+use std::fmt::Debug;
+use superdsp_macros::LastStageCrate;
+use vulkano::descriptor_set::WriteDescriptorSet;
+use vulkano::half;
 
 #[derive(Debug, Clone, Default, LastStageCrate)]
 pub struct PrintDebug<O: Default + Clone> {
@@ -14,26 +14,26 @@ pub struct PrintDebug<O: Default + Clone> {
     phantom: std::marker::PhantomData<O>,
 }
 
-impl<O: std::marker::Send + std::marker::Sync + std::default::Default + std::clone::Clone> Stage for PrintDebug<O>{
+impl<O: std::marker::Send + std::marker::Sync + std::default::Default + std::clone::Clone> Stage for PrintDebug<O> {
     fn configure(&mut self, data: &mut PipelineSettings) {
         assert_ne!(data.prev_stage_output, SubBuffer::Empty);
-        
+
         let device = data.device.clone().expect("Expected device");
         let memory_allocator = data
             .memory_allocator
             .clone()
             .expect("Expected memory allocator");
-        
-        
+
+
         self.target_buffer = F16(create_host_readable_buffer_array(memory_allocator, vec![half::f16::default(); data.num_taps.expect("num_taps not set")]));
-        
+
         add_to_pipeline(copy::load(device.clone()).expect("Failed to compile copy shader"), data, vec![WriteDescriptorSet::buffer(0, get_f16_buffer(data.prev_stage_output.clone())), WriteDescriptorSet::buffer(1, get_f16_buffer(self.target_buffer.clone()))], self.target_buffer.clone(), [data.num_taps.unwrap() as u32, 1, 1]);
     }
 
     fn process(&mut self, input: &Data, output: &mut Data) {
         let buf = get_f16_buffer(self.target_buffer.clone());
         let d = buf.read().expect("Failed to read buffer");
-        
+
         println!("{:?}", d.iter().as_slice());
     }
 

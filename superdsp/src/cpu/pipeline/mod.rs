@@ -1,11 +1,11 @@
 pub mod stages;
 
+use crate::cpu::pipeline::stages::{Data, DataKind, FirstStage, LastStage, Stage};
 use crate::prelude::*;
 use std::fmt::Debug;
 use std::marker::PhantomData;
-use tokio::task::spawn;
 use tokio::sync::mpsc::{Receiver, Sender};
-use crate::cpu::pipeline::stages::{Data, DataKind, FirstStage, LastStage, Stage};
+use tokio::task::spawn;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum PipelineType {
@@ -95,7 +95,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                 out_tx.send(out).await.unwrap();
             }
         });
-        
+
         let mut prev_out = out_rx;
 
         for x in self.stages.iter_mut() {
@@ -117,7 +117,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                     out_tx.send(out).await.unwrap();
                 }
             });
-            
+
             prev_out = out_rx;
         }
 
@@ -171,7 +171,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static> PipelineBuilder<I
                         out_rx.recv().await.unwrap();
                     }
                 });
-                
+
                 // Only send is usable
                 Pipeline {
                     first_stage_in: Some(first_in_tx),

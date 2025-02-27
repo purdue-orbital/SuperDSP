@@ -1,3 +1,6 @@
+use crate::gpu::GpuDevice;
+use crate::prelude::wave_gen::VulkanWaveGen;
+use crate::prelude::{form, form_first_stage, form_last_stage, Data, DataKind, FirstStageTrait, LastStageTrait, Stage};
 use std::fmt::Debug;
 use std::marker::PhantomData;
 use std::sync::Arc;
@@ -7,17 +10,14 @@ use vulkano::command_buffer::allocator::StandardCommandBufferAllocator;
 use vulkano::command_buffer::{AutoCommandBufferBuilder, CommandBufferUsage};
 use vulkano::descriptor_set::allocator::StandardDescriptorSetAllocator;
 use vulkano::descriptor_set::{DescriptorSet, WriteDescriptorSet};
-use vulkano::device::{Device, DeviceCreateInfo, DeviceExtensions, DeviceFeatures, Queue, QueueCreateInfo, QueueFlags};
+use vulkano::device::{Device, DeviceCreateInfo, DeviceFeatures, Queue, QueueCreateInfo, QueueFlags};
 use vulkano::half;
 use vulkano::memory::allocator::StandardMemoryAllocator;
-use vulkano::pipeline::layout::PipelineDescriptorSetLayoutCreateInfo;
-use vulkano::pipeline::{ComputePipeline, PipelineBindPoint, PipelineLayout, PipelineShaderStageCreateInfo};
-use vulkano::pipeline::Pipeline as VulkanoPipeline;
 use vulkano::pipeline::compute::ComputePipelineCreateInfo;
+use vulkano::pipeline::layout::PipelineDescriptorSetLayoutCreateInfo;
+use vulkano::pipeline::Pipeline as VulkanoPipeline;
+use vulkano::pipeline::{ComputePipeline, PipelineBindPoint, PipelineLayout, PipelineShaderStageCreateInfo};
 use vulkano::sync::GpuFuture;
-use crate::gpu::GpuDevice;
-use crate::prelude::{form, form_first_stage, form_last_stage, Data, DataKind, FirstStageTrait, LastStageTrait, Stage};
-use crate::prelude::wave_gen::VulkanWaveGen;
 
 pub mod stages;
 
@@ -31,12 +31,12 @@ pub enum PipelineType {
 #[derive(Default, Clone)]
 #[derive(Debug)]
 #[derive(PartialEq)]
-pub(crate) enum SubBuffer{
+pub(crate) enum SubBuffer {
     F64(Subbuffer<[f64]>),
     F32(Subbuffer<[f32]>),
     F16(Subbuffer<[half::f16]>),
     WaveGen(Subbuffer<[VulkanWaveGen]>),
-    
+
     #[default]
     Empty,
 }
@@ -72,17 +72,17 @@ pub struct PipelineSettings {
     num_taps: Option<usize>,
 
     pub prev_stage_output: SubBuffer,
-    
+
     pub stages: Vec<PipelineShaderStageCreateInfo>,
     pub stages_work_groups: Vec<[u32; 3]>,
 
     pub(crate) gpu: Option<GpuDevice>,
-    
+
     pub(crate) queue: Option<Arc<Queue>>,
     pub(crate) memory_allocator: Option<Arc<StandardMemoryAllocator>>,
     pub(crate) prev_stage_output_buffer: Option<Buffer>,
     pub(crate) device: Option<Arc<Device>>,
-    pub(crate) pipeline_buffers: Vec<Vec<WriteDescriptorSet>>
+    pub(crate) pipeline_buffers: Vec<Vec<WriteDescriptorSet>>,
 }
 
 impl PipelineSettings {
@@ -130,7 +130,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
 
     pub fn add_first_stage<S: FirstStageTrait<I> + 'static + Default>(&mut self) -> &mut Self {
         self.first_stage = Some(Box::new(form_first_stage::<S>()));
-        
+
         self
     }
 
@@ -146,11 +146,11 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
         gpu.physical_device.extension_properties()
             .iter()
             .enumerate()
-            .position( |(_i,properties)|{
-           println!("{}",properties.extension_name);
+            .position(|(_i, properties)| {
+                println!("{}", properties.extension_name);
 
-            false
-        });
+                false
+            });
 
         let queue_family_index = gpu.physical_device.queue_family_properties().iter().enumerate().position(|(_i, properties)| {
             properties.queue_flags.contains(QueueFlags::COMPUTE)
@@ -171,24 +171,24 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
 
                     ..Default::default()
                 }],
-                
+
                 enabled_features: features,
-                
+
                 ..Default::default()
             },
         ).expect("failed to create device");
-        
+
         // set device
         settings.device = Some(device.clone());
 
         // we only need one queue
         let queue = queues.next().unwrap();
         settings.queue = Some(queue.clone());
-        
+
         // create memory allocator
         let memory_allocator = Arc::new(StandardMemoryAllocator::new_default(device.clone()));
         settings.memory_allocator = Some(memory_allocator.clone());
-        
+
         // first stage
         let mut first_stage = self.first_stage.take().expect("Expected first stage");
         first_stage.configure(settings);
@@ -199,11 +199,11 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
 
             stage.configure(settings);
         }
-        
+
         // last stage
         let mut last_stage = self.last_stage.take().expect("Expected last stage");
         last_stage.configure(settings);
-        
+
         // create command buffer allocator
         let command_buffer_allocator = Arc::new(StandardCommandBufferAllocator::new(
             device.clone(),
@@ -211,13 +211,13 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
         ));
 
         // create command buffer
-        let mut command_buffer_builder = AutoCommandBufferBuilder::primary (
+        let mut command_buffer_builder = AutoCommandBufferBuilder::primary(
             command_buffer_allocator,
             settings.queue.clone().expect("Expected queue").queue_family_index(),
             CommandBufferUsage::MultipleSubmit,
         ).unwrap();
-        
-        
+
+
         // create pipeline from stages
         let layout = PipelineLayout::new(
             device.clone(),
@@ -225,9 +225,9 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
                 .into_pipeline_layout_create_info(device.clone())
                 .unwrap(),
         ).unwrap();
-        
+
         // create compute pipelines
-        for (index,x) in settings.stages.iter().enumerate() {
+        for (index, x) in settings.stages.iter().enumerate() {
             let compute_pipeline = ComputePipeline::new(
                 device.clone(),
                 None,
@@ -249,7 +249,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
                 settings.pipeline_buffers[index].clone(),
                 [],
             ).unwrap();
-            
+
             command_buffer_builder.bind_pipeline_compute(compute_pipeline.clone()).unwrap()
                 .bind_descriptor_sets(
                     PipelineBindPoint::Compute,
@@ -257,77 +257,77 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
                     0,
                     descriptor_set.clone(),
                 ).unwrap();
-            
+
             unsafe { command_buffer_builder.dispatch(settings.stages_work_groups[index]).unwrap(); }
         }
-        
+
         // build command buffer
         let command_buffer = command_buffer_builder.build().unwrap();
-        
+
         let mut first_stage_sender = None;
         let mut last_stage_reader = None;
-        
+
         // put first stage last stage into a new thread
         if pipeline_type == PipelineType::Loop {
             tokio::spawn(async move {
                 let not_used = Data::new(DataKind::Empty);
                 let mut not_used2 = Data::new(DataKind::Empty);
-                
+
                 loop {
                     // run first stage cpu operation
                     first_stage.process(&not_used, &mut not_used2);
-                    
+
                     // run gpu
                     vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap().wait(None).unwrap();
-                    
+
                     // run last stage cpu operation
                     last_stage.process(&not_used, &mut not_used2);
                 }
             });
-        }else if pipeline_type == PipelineType::OnSend {
+        } else if pipeline_type == PipelineType::OnSend {
             let (first_stage_in, mut first_stage_out) = tokio::sync::mpsc::channel(100);
-            
+
             first_stage_sender = Some(first_stage_in);
-            
+
             tokio::spawn(async move {
                 // Prepare thread
                 let not_used = Data::new(DataKind::Empty);
                 let mut not_used2 = Data::new(DataKind::Empty);
-                
+
                 // Process data that is sent to the first stage
                 while let Some(data) = first_stage_out.recv().await {
                     // Process data (this is primarily just sending data to the GPU)
                     first_stage.process(&data, &mut not_used2);
-                    
+
                     // run the command buffer
                     vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap().wait(None).unwrap();;
-                    
+
                     // run the last stage cpu operation
                     last_stage.process(&not_used, &mut not_used2);
                 }
             });
-        }else {
+        } else {
             let (last_stage_in, last_stage_out) = tokio::sync::mpsc::channel(100);
-            
+
             last_stage_reader = Some(last_stage_out);
-            
+
             tokio::spawn(async move {
                 // Prepare thread
                 let not_used = Data::new(DataKind::Empty);
                 let mut not_used2 = Data::new(DataKind::Empty);
-                
+
                 let mut data = Data::new(DataKind::Empty);
-                
-                loop{
+
+                loop {
                     // run first stage cpu operation
                     first_stage.process(&not_used, &mut not_used2);
-                    
+
                     // run gpu
                     vulkano::sync::now(device.clone()).then_execute(queue.clone(), command_buffer.clone()).unwrap().then_signal_fence_and_flush().unwrap().wait(None).unwrap();
-                    
+
                     // run last stage cpu operation
                     last_stage.process(&not_used, &mut data);
-                    
+
                     // send data out to main program
                     last_stage_in.send(data.clone()).await.unwrap();
                 }
@@ -350,7 +350,7 @@ impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> Pip
 pub struct Pipeline<I, O> {
     first_stage_in: Option<Sender<Data>>,
     last_stage_out: Option<Receiver<Data>>,
-    
+
     phantom: PhantomData<(I, O)>,
 
     pipeline_type: PipelineType,

@@ -1,7 +1,7 @@
+use crate::cpu::pipeline::stages::{Data, DataKind, FirstStage, Stage};
+use crate::cpu::pipeline::PipelineSettings;
 use std::f64::consts::PI;
 use std::fmt::Debug;
-use crate::cpu::pipeline::PipelineSettings;
-use crate::cpu::pipeline::stages::{Data, DataKind, FirstStage, Stage};
 
 pub struct WaveGen<I> {
     phi: f64,
@@ -48,7 +48,7 @@ impl<I: Clone + Debug + Send, O> Stage<I, O> for WaveGen<I> {
 
         self.phi = 2.0 * PI * freq;
         self.sample_rate = sample_rate;
-        
+
         data.prev_stage_output = DataKind::F64;
     }
 
@@ -61,7 +61,7 @@ impl<I: Clone + Debug + Send, O> Stage<I, O> for WaveGen<I> {
             self.time += 1.0 / self.sample_rate;
             self.time %= 1.0;
         }
-        
+
         output.set_f64_data(data);
     }
 

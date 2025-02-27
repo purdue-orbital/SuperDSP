@@ -1,4 +1,4 @@
-pub fn nrz(data: &[u8]) -> Vec<f32>{
+pub fn nrz(data: &[u8]) -> Vec<f32> {
     let mut output = Vec::new();
     for byte in data {
         for i in 0..8 {
@@ -9,7 +9,7 @@ pub fn nrz(data: &[u8]) -> Vec<f32>{
     output
 }
 
-pub fn nrz_i8(data: &[u8]) -> Vec<i8>{
+pub fn nrz_i8(data: &[u8]) -> Vec<i8> {
     let mut output = Vec::new();
     for byte in data {
         for i in 0..8 {
@@ -20,7 +20,7 @@ pub fn nrz_i8(data: &[u8]) -> Vec<i8>{
     output
 }
 
-pub fn nrz_inv(data: &[f32]) -> Vec<u8>{
+pub fn nrz_inv(data: &[f32]) -> Vec<u8> {
     let mut output = Vec::new();
     let mut byte = 0u8;
     let mut i = 0;
@@ -38,7 +38,7 @@ pub fn nrz_inv(data: &[f32]) -> Vec<u8>{
     output
 }
 
-pub fn nrz_inv_i8(data: &[i8]) -> Vec<u8>{
+pub fn nrz_inv_i8(data: &[i8]) -> Vec<u8> {
     let mut output = Vec::new();
     let mut byte = 0u8;
     let mut i = 0;

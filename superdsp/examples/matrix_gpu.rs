@@ -1,9 +1,9 @@
-use rustdsp::gpu::{list_devices, GpuType};
-use rustdsp::gpu::pipeline::{Pipeline, PipelineSettings};
 use rustdsp::gpu::pipeline::PipelineType::Loop;
+use rustdsp::gpu::pipeline::{Pipeline, PipelineSettings};
+use rustdsp::gpu::{list_devices, GpuType};
 use rustdsp::prelude::matrix_multiplication::MatrixMultiplication;
-use rustdsp::prelude::PipelineBuilder;
 use rustdsp::prelude::wave_gen::WaveGen;
+use rustdsp::prelude::PipelineBuilder;
 
 #[tokio::main]
 async fn main() {
@@ -26,7 +26,5 @@ async fn main() {
         .build(Loop, &mut settings)
         .await;
 
-    loop {
-        
-    }
+    loop {}
 }

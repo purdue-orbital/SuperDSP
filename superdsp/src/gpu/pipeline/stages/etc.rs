@@ -1,13 +1,11 @@
-use std::sync::Arc;
+use crate::gpu::pipeline::{PipelineSettings, SubBuffer};
 use bytemuck::Pod;
-use vulkano::buffer::{Buffer, BufferContents, BufferCreateInfo, BufferUsage, Subbuffer};
+use std::sync::Arc;
+use vulkano::buffer::{Buffer, BufferCreateInfo, BufferUsage, Subbuffer};
 use vulkano::descriptor_set::WriteDescriptorSet;
-use vulkano::device::Device;
 use vulkano::memory::allocator::{AllocationCreateInfo, MemoryTypeFilter, StandardMemoryAllocator};
 use vulkano::pipeline::PipelineShaderStageCreateInfo;
 use vulkano::shader::ShaderModule;
-use crate::gpu::pipeline::{PipelineSettings, SubBuffer};
-use crate::gpu::pipeline::SubBuffer::F64;
 
 pub fn create_standard_buffer<I: Pod + Send + Sync>(standard_memory_allocator: Arc<StandardMemoryAllocator>, data: I) -> Subbuffer<I> {
     Buffer::from_data(

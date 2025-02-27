@@ -1,6 +1,6 @@
-use std::ops::{Add, Sub};
 use num::Zero;
 use num_complex::Complex;
+use std::ops::{Add, Sub};
 pub fn rising_edge_detector<T: Sub<Output=T> + Add<Output=T> + Zero + Copy + PartialOrd>(input: &[Complex<T>]) -> Vec<bool> {
     let mut output = Vec::new();
     let mut last = *input.first().unwrap_or(&Complex::new(T::zero(), T::zero()));
@@ -19,7 +19,7 @@ pub fn falling_edge_detector<T: Sub<Output=T> + Add<Output=T> + Zero + Copy + Pa
     let mut output = Vec::new();
     let mut last = *input.first().unwrap_or(&Complex::new(T::zero(), T::zero()));
     for &sample in input {
-        if  (last.re + last.im) - (sample.re + sample.im) > T::zero() {
+        if (last.re + last.im) - (sample.re + sample.im) > T::zero() {
             output.push(true);
         } else {
             output.push(false);

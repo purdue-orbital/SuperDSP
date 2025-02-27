@@ -5,9 +5,9 @@ pub(crate) mod shaders;
 pub(crate) mod etc;
 pub mod matrix_multiplication;
 
-use fixed::{FixedI16, FixedI32};
-use fixed::types::{U16F16, U8F8};
 use crate::gpu::pipeline::PipelineSettings;
+use fixed::types::{U16F16, U8F8};
+use fixed::{FixedI16, FixedI32};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum DataKind {
@@ -121,7 +121,6 @@ impl Data {
     pub fn is_fixed_point(&self) -> bool {
         self.kind == DataKind::FixedPoint
     }
-
 }
 
 pub trait Stage: Send + Sync {
@@ -135,7 +134,7 @@ pub trait FirstStageTrait<I>: Stage {}
 
 pub trait LastStageTrait<O>: Stage {}
 
-pub struct StageWrapper{}
+pub struct StageWrapper {}
 
 pub(crate) fn form<S: Default + Stage>() -> S {
     S::default()

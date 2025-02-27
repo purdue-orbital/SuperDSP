@@ -1,16 +1,14 @@
 use crate::gpu::pipeline::stages::{Data, DataKind, Stage};
+use crate::gpu::pipeline::SubBuffer::F16;
 use crate::gpu::pipeline::{PipelineSettings, SubBuffer};
-use crate::prelude::etc::{create_standard_buffer, create_standard_buffer_array, add_to_pipeline};
+use crate::prelude::etc::{add_to_pipeline, create_standard_buffer, create_standard_buffer_array};
+use crate::prelude::shaders::wave_gen;
 use bytemuck::{Pod, Zeroable};
 use std::f32::consts::PI;
 use std::fmt::Debug;
-use vulkano::buffer::Subbuffer;
+use superdsp_macros::FirstStageCrate;
 use vulkano::descriptor_set::WriteDescriptorSet;
 use vulkano::half;
-use vulkano::pipeline::PipelineShaderStageCreateInfo;
-use superdsp_macros::{FirstStageCrate};
-use crate::gpu::pipeline::SubBuffer::{F16, F32};
-use crate::prelude::shaders::wave_gen;
 
 #[derive(Debug, Clone, FirstStageCrate)]
 pub struct WaveGen<I> {

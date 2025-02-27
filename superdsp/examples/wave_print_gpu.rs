@@ -1,9 +1,9 @@
-use superdsp::gpu::{list_devices, GpuType};
+use superdsp::gpu::pipeline::PipelineType::Loop;
 use superdsp::gpu::pipeline::{Pipeline, PipelineSettings};
-use superdsp::gpu::pipeline::PipelineType::{Loop};
-use superdsp::prelude::PipelineBuilder;
+use superdsp::gpu::{list_devices, GpuType};
 use superdsp::prelude::print_debug::PrintDebug;
 use superdsp::prelude::wave_gen::WaveGen;
+use superdsp::prelude::PipelineBuilder;
 
 #[tokio::main]
 async fn main() {
@@ -26,7 +26,5 @@ async fn main() {
         .build(Loop, &mut settings)
         .await;
 
-    loop {
-
-    }
+    loop {}
 }

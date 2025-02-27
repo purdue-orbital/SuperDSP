@@ -1,4 +1,3 @@
-
 #[tokio::main]
 async fn main() {
     let mut settings = PipelineSettings::default();

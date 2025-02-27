@@ -9,7 +9,7 @@ pub fn test_duplicator() {
 }
 
 #[test]
-pub fn test_unduplicator(){
+pub fn test_unduplicator() {
     let test = vec![1.0, 1.0, 2.0, 2.0, 3.0, 3.0];
     let expected = vec![1.0, 2.0, 3.0];
 
@@ -36,7 +36,7 @@ pub fn test_duplicator_i8() {
 }
 
 #[test]
-pub fn test_unduplicator_i8(){
+pub fn test_unduplicator_i8() {
     let test: Vec<i8> = vec![1, 1, 2, 2, 3, 3];
     let expected: Vec<i8> = vec![1, 2, 3];
 
@@ -63,7 +63,7 @@ pub fn test_duplicator_u8() {
 }
 
 #[test]
-pub fn test_unduplicator_u8(){
+pub fn test_unduplicator_u8() {
     let test: Vec<u8> = vec![1, 1, 2, 2, 3, 3];
     let expected: Vec<u8> = vec![1, 2, 3];
 
@@ -92,7 +92,7 @@ pub fn test_duplicator_complex() {
 }
 
 #[test]
-pub fn test_unduplicator_complex(){
+pub fn test_unduplicator_complex() {
     use num_complex::Complex;
 
     let test = vec![Complex::new(1.0, 1.0), Complex::new(1.0, 1.0), Complex::new(2.0, 2.0), Complex::new(2.0, 2.0), Complex::new(3.0, 3.0), Complex::new(3.0, 3.0)];

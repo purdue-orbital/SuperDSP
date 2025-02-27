@@ -1,6 +1,6 @@
 use std::sync::Arc;
-use vulkano::device::{DeviceExtensions, DeviceFeatures};
 use vulkano::device::physical::{PhysicalDevice, PhysicalDeviceType};
+use vulkano::device::DeviceExtensions;
 use vulkano::instance::{Instance, InstanceCreateFlags, InstanceCreateInfo};
 use vulkano::VulkanLibrary;
 
@@ -58,7 +58,6 @@ pub fn list_devices() -> Vec<GpuDevice> {
     let devices = instance.enumerate_physical_devices().expect("could not enumerate devices").filter(|p| p.supported_extensions().contains(&device_extensions));
 
     for device in devices {
-        
         vec.push(GpuDevice {
             physical_device: device,
         });

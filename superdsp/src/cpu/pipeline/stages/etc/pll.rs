@@ -1,5 +1,5 @@
-use libm::{cosf, sinf};
 use core::f32::consts::PI;
+use libm::{cosf, sinf};
 use num::Complex;
 
 /// Still need to replace f32 with fixed point
@@ -27,8 +27,7 @@ pub struct PLL<const BLOCK_SIZE: usize = 8> {
     state: PLLState,
 }
 
-impl <const BLOCK_SIZE: usize> PLL<BLOCK_SIZE> {
-    
+impl<const BLOCK_SIZE: usize> PLL<BLOCK_SIZE> {
     /// Make new pll by specifying frequency, amplitude, sample rate, and the proportional + integral low pass filter constants
     pub fn new_with_gain_consts(freq: f32, amplitude: f32, sample_rate: f32, gain_prop: f32, gain_int: f32) -> PLL<BLOCK_SIZE> {
         PLL {
@@ -68,31 +67,31 @@ impl <const BLOCK_SIZE: usize> PLL<BLOCK_SIZE> {
     }
 
     /// tune the gain constants with desired damping factor and effective noise bandwidth
-    /// 
+    ///
     /// ```
     /// use superdsp::modulation::pll::PLL;
-    /// 
+    ///
     /// let mut pll: PLL<32> = PLL::new_with_gain_consts(100.0, 1.0, 500.0, 0.0, 0.0);
     /// pll.tune(1.0, 25.0);
-    /// 
+    ///
     /// let (gain_prop, gain_int) = pll.gain_consts();
-    /// 
+    ///
     /// assert!((gain_prop - 0.16).abs() < f32::EPSILON);
     /// assert!((gain_int - 0.0064).abs() < f32::EPSILON);
     /// ```
-    /// 
+    ///
     /// Usual values for parameters
     /// * damping factor: between 0.5 and 2.0
     /// * noise bandwidth: between 1% and 5% of the sample rate
-    /// 
+    ///
     /// for more details on these gain constants and their derivation, see https://wirelesspi.com/phase-locked-loop-pll-in-a-software-defined-radio-sdr/
     pub fn tune(&mut self, damping_factor: f32, noise_bandwidth: f32) {
-        self.gain_prop = 4.0 * damping_factor * noise_bandwidth / 
+        self.gain_prop = 4.0 * damping_factor * noise_bandwidth /
             (self.sample_rate * (damping_factor + 0.25 / damping_factor));
         self.gain_int = 4.0 * noise_bandwidth * noise_bandwidth /
-            ( self.sample_rate * (damping_factor + 0.25 / damping_factor) * 
-            self.sample_rate * (damping_factor + 0.25 / damping_factor));
-    } 
+            (self.sample_rate * (damping_factor + 0.25 / damping_factor) *
+                self.sample_rate * (damping_factor + 0.25 / damping_factor));
+    }
 
     pub fn set_gain_consts(&mut self, gain_prop: f32, gain_int: f32) {
         self.gain_prop = gain_prop;
@@ -145,11 +144,11 @@ impl <const BLOCK_SIZE: usize> PLL<BLOCK_SIZE> {
         let mut output_samples = [Complex::new(0.0, 0.0); BLOCK_SIZE];
 
         for n in 0..BLOCK_SIZE {
-            
+
             // generate output samples
             let theta = self.current_phase + self.phase_err_estimate;
             output_samples[n] = Complex::new(cosf(theta), -sinf(theta)).scale(self.amplitude);
-            
+
             // error detection
             let raw_error = (input_samples[n] * output_samples[n]).scale(self.error_detector_gain_inverse);
 
@@ -168,7 +167,7 @@ impl <const BLOCK_SIZE: usize> PLL<BLOCK_SIZE> {
             self.integrated_err = self.integrated_err.clamp(-3.0, 3.0);
 
             self.phase_err_estimate += self.gain_prop * error_signal + self.gain_int * self.integrated_err;
-            
+
             // update output_signal phase
             self.current_phase += self.angular_freq;
         }
@@ -187,10 +186,9 @@ impl <const BLOCK_SIZE: usize> PLL<BLOCK_SIZE> {
 
 #[cfg(test)]
 mod pll_tests {
-
     use super::*;
-    use libm::{cosf, sinf, atanf};
     use core::f32::consts::PI;
+    use libm::{atanf, cosf, sinf};
     use rand::random;
 
     const TEST_BLOCK_SIZE: usize = 32;
@@ -199,62 +197,58 @@ mod pll_tests {
     const BLOCKS_BEFORE_LOCK: usize = 1;
 
     fn gen_samples<const BLOCK_SIZE: usize, const NUM_BLOCKS: usize>(
-        frequency: f32, 
+        frequency: f32,
         amplitude: f32,
-        initial_phase: f32, 
+        initial_phase: f32,
         sample_rate: f32,
     ) -> [[C32; BLOCK_SIZE]; NUM_BLOCKS] {
-        
         let mut samples = [[Complex::new(0.0, 0.0); BLOCK_SIZE]; NUM_BLOCKS];
-    
+
         for i in 0..NUM_BLOCKS {
             for j in 0..BLOCK_SIZE {
-    
                 let t = ((i as f32) * (BLOCK_SIZE as f32) + (j as f32)) / sample_rate;
                 let in_phase = amplitude * cosf(2.0 * PI * frequency * t + initial_phase);
                 let quad = amplitude * sinf(2.0 * PI * frequency * t + initial_phase);
-    
+
                 samples[i][j] = Complex::new(in_phase, quad);
             }
         }
-    
+
         samples
     }
-    
+
     fn gen_samples_freq_noise<const BLOCK_SIZE: usize, const NUM_BLOCKS: usize>(
-        frequency: f32, 
+        frequency: f32,
         amplitude: f32,
-        initial_phase: f32, 
+        initial_phase: f32,
         sample_rate: f32,
-        noise_bandwidth: f32
+        noise_bandwidth: f32,
     ) -> [[C32; BLOCK_SIZE]; NUM_BLOCKS] {
-        
         let mut samples = [[Complex::new(0.0, 0.0); BLOCK_SIZE]; NUM_BLOCKS];
         let mut phase = initial_phase;
-    
+
         for i in 0..NUM_BLOCKS {
             for j in 0..BLOCK_SIZE {
-    
                 let in_phase = amplitude * cosf(phase);
                 let quad = amplitude * sinf(phase);
-    
+
                 samples[i][j] = Complex::new(in_phase, quad);
-    
+
                 let noisy_freq: f32 = frequency * (1.0 + noise_bandwidth / 2.0 - noise_bandwidth * random::<f32>());
-    
+
                 phase += 2.0 * PI * noisy_freq / sample_rate;
             }
         }
-    
+
         samples
     }
-    
+
     fn pll_run_capture<const BLOCK_SIZE: usize, const NUM_BLOCKS: usize>(
-        mut pll: PLL<BLOCK_SIZE>, 
+        mut pll: PLL<BLOCK_SIZE>,
         samples: &[[C32; BLOCK_SIZE]; NUM_BLOCKS],
     ) -> [[C32; BLOCK_SIZE]; NUM_BLOCKS] {
         let mut pll_output = [[Complex::new(0.0, 0.0); BLOCK_SIZE]; NUM_BLOCKS];
-        
+
         pll.set_capture();
 
         for i in 0..NUM_BLOCKS {
@@ -265,7 +259,6 @@ mod pll_tests {
     }
 
     fn lock_from(f: f32, a: f32, f_s: f32, phase: f32) {
-
         let locked_sample_ideal: [[C32; TEST_BLOCK_SIZE]; TEST_NUM_BLOCKS] = gen_samples(f, a, phase, f_s);
 
         let pll_obj: PLL<TEST_BLOCK_SIZE> = PLL::new(f, a, f_s, 0.707, f_s * 0.05);
@@ -288,12 +281,11 @@ mod pll_tests {
     }
 
     fn lock_from_noisy(f: f32, a: f32, f_s: f32, phase: f32, pll_damping_factor: f32, pll_noise_bandwidth: f32, noisiness: f32) {
-
         let locked_sample_ideal: [[C32; TEST_BLOCK_SIZE]; TEST_NUM_BLOCKS] = gen_samples_freq_noise(f, a, phase, f_s, noisiness);
 
         let pll_obj: PLL<TEST_BLOCK_SIZE> = PLL::new(f, a, f_s, pll_damping_factor, pll_noise_bandwidth);
         let samples = pll_run_capture(pll_obj, &locked_sample_ideal);
-        
+
         for i in 0..TEST_NUM_BLOCKS {
             for j in 0..TEST_BLOCK_SIZE {
                 let err_complex = samples[i][j] * locked_sample_ideal[i][j];
@@ -352,5 +344,4 @@ mod pll_tests {
     fn lock_from_neg135_noisy() {
         lock_from_noisy(1000.0, 1.0, 4000.0, -0.75 * PI, 1.5, 0.05 * 4000.0, 0.05);
     }
-
 }

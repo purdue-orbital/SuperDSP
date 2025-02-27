@@ -23,7 +23,7 @@ pub fn test_wave_gen() {
         Complex::new(0.38268346, -0.9238795),
         Complex::new(0.70710677, -0.70710677),
         Complex::new(0.9238795, -0.38268346)];
-    
+
     for (a, b) in wave_gen(frequency, taps, sample_rate).iter().zip(expected.iter()) {
         assert!((a.re - b.re).abs() < 0.0001);
         assert!((a.im - b.im).abs() < 0.0001);
