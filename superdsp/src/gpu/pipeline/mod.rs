@@ -18,6 +18,7 @@ use vulkano::pipeline::layout::PipelineDescriptorSetLayoutCreateInfo;
 use vulkano::pipeline::Pipeline as VulkanoPipeline;
 use vulkano::pipeline::{ComputePipeline, PipelineBindPoint, PipelineLayout, PipelineShaderStageCreateInfo};
 use vulkano::sync::GpuFuture;
+use crate::PipelineSettings;
 
 pub mod stages;
 
@@ -63,67 +64,16 @@ pub fn get_f16_buffer(buffer: SubBuffer) -> Subbuffer<[half::f16]> {
 }
 
 #[derive(Default)]
-pub struct PipelineSettings {
-    frequency: Option<f64>,
-    sample_rate: Option<f64>,
-
-    sps: Option<usize>,
-
-    num_taps: Option<usize>,
-
-    pub prev_stage_output: SubBuffer,
-
-    pub stages: Vec<PipelineShaderStageCreateInfo>,
-    pub stages_work_groups: Vec<[u32; 3]>,
-
-    pub(crate) gpu: Option<GpuDevice>,
-
-    pub(crate) queue: Option<Arc<Queue>>,
-    pub(crate) memory_allocator: Option<Arc<StandardMemoryAllocator>>,
-    pub(crate) prev_stage_output_buffer: Option<Buffer>,
-    pub(crate) device: Option<Arc<Device>>,
-    pub(crate) pipeline_buffers: Vec<Vec<WriteDescriptorSet>>,
-}
-
-impl PipelineSettings {
-    pub fn set_frequency(&mut self, freq: f64) -> &mut Self {
-        self.frequency = Some(freq);
-        self
-    }
-
-    pub fn set_sample_rate(&mut self, sample_rate: f64) -> &mut Self {
-        self.sample_rate = Some(sample_rate);
-        self
-    }
-
-    pub fn set_sps(&mut self, sps: usize) -> &mut Self {
-        self.sps = Some(sps);
-        self
-    }
-
-    pub fn set_num_taps(&mut self, num_taps: usize) -> &mut Self {
-        self.num_taps = Some(num_taps);
-        self
-    }
-
-    pub fn set_device(&mut self, gpu: GpuDevice) -> &mut Self {
-        self.gpu = Some(gpu);
-
-        self
-    }
-}
-
-#[derive(Default)]
 pub struct PipelineBuilder<I: Into<Data>, O: From<Data>> {
-    first_stage: Option<Box<dyn FirstStageTrait<I>>>,
+    first_stage: Option<impl FirstStageTrait>,
     last_stage: Option<Box<dyn LastStageTrait<O>>>,
-    stages: Vec<Option<Box<dyn Stage>>>,
+    stages: Vec<Box<dyn Stage>>,
 }
 
 
 impl<I: Clone + Into<Data> + 'static, O: From<Data> + 'static + Send + Sync> PipelineBuilder<I, O> {
-    pub fn add_stage<S: Stage + Default + 'static>(&mut self) -> &mut Self {
-        self.stages.push(Some(Box::new(form::<S>())));
+    pub fn add_stage(&mut self, stage: impl Stage) -> &mut Self {
+        self.stages.push(Box::new(stage));
 
         self
     }

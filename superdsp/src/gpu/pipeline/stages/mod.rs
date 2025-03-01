@@ -123,12 +123,12 @@ impl Data {
     }
 }
 
-pub trait Stage: Send + Sync {
-    fn configure(&mut self, data: &mut PipelineSettings);
-    fn process(&mut self, input: &Data, output: &mut Data);
-    fn get_output_data_type(&self) -> DataKind;
-    fn get_input_data_type(&self) -> DataKind;
-}
+// pub trait Stage: Send + Sync + Default {
+//     fn configure(&mut self, data: &mut PipelineSettings);
+//     fn process(&mut self, input: &Data, output: &mut Data);
+//     fn get_output_data_type(&self) -> DataKind;
+//     fn get_input_data_type(&self) -> DataKind;
+// }
 
 pub trait FirstStageTrait<I>: Stage {}
 

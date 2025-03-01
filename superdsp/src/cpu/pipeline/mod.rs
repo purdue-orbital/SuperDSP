@@ -6,46 +6,13 @@ use std::fmt::Debug;
 use std::marker::PhantomData;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::task::spawn;
+use crate::PipelineSettings;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
 pub enum PipelineType {
     Loop,
     OnSend,
     OnRecv,
-}
-
-#[derive(Default)]
-pub struct PipelineSettings {
-    pub(crate) frequency: Option<f64>,
-    pub(crate) sample_rate: Option<f64>,
-
-    pub(crate) sps: Option<usize>,
-
-    pub(crate) num_taps: Option<usize>,
-
-    pub prev_stage_output: DataKind,
-}
-
-impl PipelineSettings {
-    pub fn set_frequency(&mut self, freq: f64) -> &mut Self {
-        self.frequency = Some(freq);
-        self
-    }
-
-    pub fn set_sample_rate(&mut self, sample_rate: f64) -> &mut Self {
-        self.sample_rate = Some(sample_rate);
-        self
-    }
-
-    pub fn set_sps(&mut self, sps: usize) -> &mut Self {
-        self.sps = Some(sps);
-        self
-    }
-
-    pub fn set_num_taps(&mut self, num_taps: usize) -> &mut Self {
-        self.num_taps = Some(num_taps);
-        self
-    }
 }
 
 #[derive(Default)]

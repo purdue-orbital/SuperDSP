@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-    "superdsp",
+    "superdsp", "superdsp-bladerf",
     "superdsp-macros",
 ]
