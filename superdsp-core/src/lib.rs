@@ -87,7 +87,7 @@ macro_rules! impl_stage {
     ($($params:ident),*) => {
         #[allow(unused_variables)]
         #[allow(non_snake_case)]
-        impl<F: FnMut($($params),*), $($params: StageParam),*> Stage for FunctionStage<($($params,)*), F>
+        impl<F: FnMut($($params),*), $($params: StageParam),*> Stage for FunctionStage<($($params),*), F>
         where
             for<'a, 'b> &'a mut F:
                 FnMut($($params),*) +
@@ -130,7 +130,7 @@ macro_rules! impl_stage {
 }
 
 impl_stage!();
-//impl_stage!(A);
+impl_stage!(A);
 impl_stage!(A, B);
 impl_stage!(A, B, C);
 impl_stage!(A, B, C, D);
