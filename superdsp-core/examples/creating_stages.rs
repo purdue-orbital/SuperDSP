@@ -1,34 +1,36 @@
 use std::ops::Deref;
 use std::sync::{Arc, Mutex};
-use superdsp_core::{Frequency, Gain, Res, ResMut, Scheduler, Stage};
+use superdsp_core::{RadioCore, RadioInformation, Res, ResMut, Scheduler, Stage};
+use superdsp_core::Schedule::{Startup, Update};
 
-pub struct Test{
-    pub frequency: f32,
-    pub gain: f32,
-}
-
-fn example1() {
+fn hello_world_stage() {
     println!("Hello, world!");
 }
 
-fn example2(test: Res<Test>) {
-    let f = test.frequency;
-    let gain = test.gain;
+fn get_information_stage_example(radio_information: Res<RadioInformation>) {
+    let f = radio_information.frequency;
+    let gain = radio_information.gain;
     
     
     println!("Frequency: {}, Gain: {}", f, gain);
 }
 
+fn set_information_stage_example(mut radio_information: ResMut<RadioInformation>) {
+    radio_information.gain = 10.0;
+    radio_information.frequency = 440.0;
+    radio_information.taps = 10;
+}
+
 fn main() {
     let mut s = Scheduler::new();
     
-    s.add_resource(Test{
-        frequency: 300.0,
-        gain: 1.0,
-    });
+    s.add_plugin(RadioCore);
     
-    s.add_stage(example1);
-    s.add_stage(example2);
+    s.add_stage(Update, hello_world_stage);
+    s.add_stage(Update, get_information_stage_example);
+    s.add_stage(Startup, set_information_stage_example);
+    
+    s.setup();
     
     loop{
         s.run();

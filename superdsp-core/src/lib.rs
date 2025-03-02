@@ -16,6 +16,12 @@ use core::cell::{Ref, RefCell, RefMut};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
 
+#[derive(Copy, Clone, Eq, PartialEq)]
+pub enum Schedule{
+    Startup,
+    Update,
+}
+
 pub trait Stage {
     fn invoke(&mut self, args: &mut BTreeMap<TypeId, RefCell<Box<dyn Any>>>);
 }
@@ -148,28 +154,48 @@ impl_stage!(A, B, C, D, E, G, H, I, J, K, L, M, N, O, P);
 impl_stage!(A, B, C, D, E, G, H, I, J, K, L, M, N, O, P, R);
 
 pub struct Scheduler {
-    stages: Vec<StoredStage>,
+    startup_stages: Vec<StoredStage>,
+    update_stages: Vec<StoredStage>,
+    
     resources: BTreeMap<TypeId, RefCell<Box<dyn Any>>>,
 }
 
 impl Scheduler {
     pub fn new() -> Self {
         Scheduler{
-            stages: vec![],
+            startup_stages: vec![],
+            update_stages: vec![],
             resources: BTreeMap::new(),
         }
     }
     
-    pub fn add_stage<I, S: Stage + 'static>(&mut self, stage: impl IntoStage<I, Stage = S>) {
-        self.stages.push(Box::new(stage.into_stage()));
+    pub fn add_stage<I, S: Stage + 'static>(&mut self, schedule: Schedule, stage: impl IntoStage<I, Stage = S>) {
+        match schedule {
+            Schedule::Startup => {
+                self.startup_stages.push(Box::new(stage.into_stage()));
+            }
+            Schedule::Update => {
+                self.update_stages.push(Box::new(stage.into_stage()));
+            }
+        }
+    }
+    
+    pub fn add_plugin(&mut self, plugin: impl Fn(&mut Scheduler)){
+        plugin(self);
     }
     
     pub fn add_resource<R: 'static>(&mut self, resource: R) {
         self.resources.insert(TypeId::of::<R>(), RefCell::new(Box::new(resource)));
     }
     
+    pub fn setup(&mut self) {
+        for stage in self.startup_stages.iter_mut() {
+            stage.invoke(&mut self.resources);
+        }
+    }
+    
     pub fn run(&mut self) {
-        for stage in self.stages.iter_mut() {
+        for stage in self.update_stages.iter_mut() {
             stage.invoke(&mut self.resources);
         }
     }
@@ -180,10 +206,22 @@ pub struct FunctionStage<Input, F>{
     marker: PhantomData<fn() -> Input>,
 }
 
-pub type Frequency = f32;
-pub type CarrierFrequency = Frequency;
-pub type Gain = u32;
-pub type SampleRate = f32;
-pub type SamplesPerSymbol = usize;
-pub type NumberOfTaps = usize;
+
+#[derive(Default)]
+pub struct RadioInformation {
+    pub frequency: f32,
+    
+    pub sample_rate: f32,
+    
+    pub gain: f32,
+    
+    pub taps: usize,
+}
+
+pub fn RadioCore(scheduler: &mut Scheduler) {
+    scheduler.add_resource(RadioInformation{
+        ..Default::default()
+    })
+}
+
 
