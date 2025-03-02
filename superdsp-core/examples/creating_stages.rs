@@ -1,23 +1,28 @@
+use std::ops::Deref;
 use std::sync::{Arc, Mutex};
-use superdsp_core::{Frequency, Gain, Stage};
+use superdsp_core::{Frequency, Gain, Res, ResMut, Scheduler, Stage};
 
-fn example1(){
+fn example1() {
     println!("Hello, world!");
 }
 
-fn example2(frequency: Frequency, gain: Arc<Mutex<Gain>>){
-    *gain.lock().unwrap() += 1;
-    println!("Frequency: {}, Gain: {}", frequency, gain.lock().unwrap());
+fn example2(frequency: Res<Frequency>, mut gain: ResMut<Gain>) {
+    *gain += 1;
+    
+    println!("Frequency: {}, Gain: {}", *frequency, *gain);
 }
 
 fn main() {
-    let mut p = (440.0, Arc::new(Mutex::new(3)));
     
-    example1.invoke(());
+    let mut s = Scheduler::new();
     
-    example2.invoke(p.clone());
-    example2.invoke(p.clone());
-    example2.invoke(p.clone());
-    example2.invoke(p.clone());
-    example2.invoke(p);
+    s.add_resource(0.0f32);
+    s.add_resource(32u32);
+    
+    s.add_stage(example1);
+    s.add_stage(example2);
+    
+    loop{
+        s.run();
+    }
 }
