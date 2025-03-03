@@ -3,5 +3,6 @@ resolver = "2"
 members = [
     "superdsp-bladerf",
     "superdsp-core",
-    "superdsp-macros", "superdsp-pipeline", "superdsp-pipeline-gpu",
+    "superdsp-std",
+    "superdsp-unstable",
 ]

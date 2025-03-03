@@ -1,7 +1,8 @@
 [package]
-name = "superdsp-pipeline"
+name = "superdsp-unstable"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 superdsp-core = { path = "../superdsp-core" }
+libm = "0.2.11"
