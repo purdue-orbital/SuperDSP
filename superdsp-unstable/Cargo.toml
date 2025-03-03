@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 superdsp-core = { path = "../superdsp-core" }
 libm = "0.2.11"
+num = { version = "0.4.3", default-features = false }

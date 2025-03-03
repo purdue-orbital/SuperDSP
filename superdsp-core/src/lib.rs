@@ -1,6 +1,6 @@
 #![no_std]
 
-mod stages;
+pub mod stages;
 
 extern crate core;
 
@@ -13,9 +13,11 @@ use alloc::vec;
 use alloc::vec::Vec;
 use core::any::{Any, TypeId};
 use core::cell::{Ref, RefCell, RefMut};
+use core::f32::consts::PI;
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
 use num::Complex;
+use crate::stages::wave_gen::WaveGenInformation;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Schedule{
@@ -209,9 +211,9 @@ pub struct FunctionStage<Input, F>{
 
 
 #[derive(Default)]
-pub struct RadioInformation {
-    pub frequency: f32,
-    
+pub struct DspInformation {
+    pub carrier_frequency: f32,
+
     pub sample_rate: f32,
     
     pub gain: f32,
@@ -219,8 +221,17 @@ pub struct RadioInformation {
     pub taps: usize,
 }
 
-pub fn RadioCore(scheduler: &mut Scheduler) {
-    scheduler.add_resource(RadioInformation {
+impl DspInformation {
+    pub fn create_wave_gen_settings(&self) -> WaveGenInformation {
+        WaveGenInformation{
+            c_radians: 0.0,
+            radians_a_sample: 2.0 * PI * self.carrier_frequency / self.sample_rate,
+        }
+    }
+}
+
+pub fn DSPCore(scheduler: &mut Scheduler) {
+    scheduler.add_resource(DspInformation {
         ..Default::default()
     });
 }
