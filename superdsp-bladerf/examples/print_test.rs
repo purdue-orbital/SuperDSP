@@ -1,6 +1,6 @@
 use num::Complex;
 use superdsp_bladerf::{configure_radio, radio_source, BladeRfPlugin, RxSettings, TxSettings};
-use superdsp_core::{RadioCore, Res, ResMut, Scheduler};
+use superdsp_core::{DSPCore, Res, ResMut, Scheduler};
 use superdsp_core::Schedule::{Startup, Update};
 
 
@@ -29,7 +29,7 @@ fn print_wave(buffer: Res<Vec<Complex<i16>>>) {
 fn main() {
     let mut s = Scheduler::new();
 
-    s.add_plugin(RadioCore);
+    s.add_plugin(DSPCore);
     s.add_plugin(BladeRfPlugin);
     
     // set the radio settings

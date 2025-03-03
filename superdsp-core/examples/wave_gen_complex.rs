@@ -15,7 +15,7 @@ fn configure(mut wave_gen_information: ResMut<WaveGenInformation>, mut dsp_infor
 
 fn print_wav_gen(arr: Res<Vec<Complex<f32>>>){
     for x in arr.iter(){
-        println!("{:.2} ", x);
+        println!("{} ", x);
     }
 }
 
