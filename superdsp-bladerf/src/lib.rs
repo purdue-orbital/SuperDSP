@@ -1,5 +1,5 @@
 mod bladerf;
-mod type_conversions;
+pub mod type_conversions;
 
 use num::Complex;
 use superdsp_core::{Res, ResMut, Scheduler};
