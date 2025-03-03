@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 bladerf-bindings = { version = "0.0.13" }
 superdsp-core = { path = "../superdsp-core" }
+num = { version = "0.4.3", default-features = false, features = ["libm"] }

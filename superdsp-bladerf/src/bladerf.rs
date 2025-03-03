@@ -1,6 +1,7 @@
 use std::ffi::{c_uint, c_void};
 use std::mem;
 use bladerf::{bladerf_channel, bladerf_channel_layout_BLADERF_RX_X1, bladerf_channel_layout_BLADERF_TX_X1, bladerf_devinfo, bladerf_enable_module, bladerf_format_BLADERF_FORMAT_SC16_Q11, bladerf_init_devinfo, bladerf_open_with_devinfo, bladerf_set_bandwidth, bladerf_set_frequency, bladerf_set_gain, bladerf_set_sample_rate, bladerf_sync_config, bladerf_sync_rx};
+use num::Complex;
 
 #[derive(PartialEq, Copy, Clone, Eq)]
 pub enum Channel{
@@ -78,13 +79,13 @@ impl BladeRf{
         }
     }
     
-    pub fn sync_rx(&self, buffer: &mut [i16]){
+    pub fn sync_rx(&self, buffer: &mut [Complex<i16>]){
         unsafe {
             bladerf_sync_rx(self.dev, buffer.as_mut_ptr() as *mut c_void, buffer.len() as c_uint, std::ptr::null_mut(), 1000);
         }
     }
     
-    pub fn sync_tx(&self, buffer: &[i16]){
+    pub fn sync_tx(&self, buffer: &[Complex<i16>]){
         unsafe {
             bladerf_sync_rx(self.dev, buffer.as_ptr() as *mut c_void, buffer.len() as c_uint, std::ptr::null_mut(), 1000);
         }

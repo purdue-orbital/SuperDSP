@@ -15,6 +15,7 @@ use core::any::{Any, TypeId};
 use core::cell::{Ref, RefCell, RefMut};
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
+use num::Complex;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
 pub enum Schedule{
@@ -219,9 +220,7 @@ pub struct RadioInformation {
 }
 
 pub fn RadioCore(scheduler: &mut Scheduler) {
-    scheduler.add_resource(RadioInformation{
+    scheduler.add_resource(RadioInformation {
         ..Default::default()
-    })
+    });
 }
-
-

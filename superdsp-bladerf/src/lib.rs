@@ -1,5 +1,6 @@
 mod bladerf;
 
+use num::Complex;
 use superdsp_core::{Res, ResMut, Scheduler};
 use crate::bladerf::BladeRf;
 
@@ -39,8 +40,8 @@ pub fn BladeRfPlugin(s: &mut Scheduler){
         
         enabled: false,
     });
-    
-    s.add_resource(vec![0.0 as i16; 1]);
+
+    s.add_resource(vec![Complex::new(0i16, 0i16); 1]);
     
     s.add_resource(BladeRf::new());
 }
@@ -65,10 +66,10 @@ pub fn configure_radio(radio: ResMut<BladeRf>, tx_settings: Res<TxSettings>, rx_
     }
 }
 
-pub fn radio_source(radio: Res<BladeRf>, mut buffer: ResMut<Vec<i16>>){
+pub fn radio_source(radio: Res<BladeRf>, mut buffer: ResMut<Vec<Complex<i16>>>){
     radio.sync_rx(&mut buffer[..]);
 }
 
-pub fn radio_sink(radio: Res<BladeRf>, buffer: Res<Vec<i16>>){
+pub fn radio_sink(radio: Res<BladeRf>, buffer: Res<Vec<Complex<i16>>>){
     radio.sync_tx(&buffer[..]);
 }
