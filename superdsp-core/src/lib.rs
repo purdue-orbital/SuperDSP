@@ -17,6 +17,7 @@ use core::f32::consts::PI;
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
 use num::Complex;
+use crate::stages::fsk::FSKSettings;
 use crate::stages::wave_gen::WaveGenInformation;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -226,6 +227,19 @@ impl DspInformation {
         WaveGenInformation{
             c_radians: 0.0,
             radians_a_sample: 2.0 * PI * self.carrier_frequency / self.sample_rate,
+        }
+    }
+    
+    pub fn create_fsk_settings(&self) -> FSKSettings{
+        FSKSettings{
+            channel_0: self.taps - ((self.taps as f32 / self.sample_rate) * self.carrier_frequency) as usize,
+            channel_1: ((self.taps as f32 / self.sample_rate) * self.carrier_frequency) as usize,
+            
+            radians_a_sample_c0: -2.0 * PI * self.carrier_frequency / self.sample_rate,
+            radians_a_sample_c1: 2.0 * PI * self.carrier_frequency / self.sample_rate,
+            
+            c_radian_c0: 0.0,
+            c_radian_c1: 0.0,
         }
     }
 }
