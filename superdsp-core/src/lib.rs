@@ -16,8 +16,10 @@ use core::cell::{Ref, RefCell, RefMut};
 use core::f32::consts::PI;
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
+use nalgebra::SMatrix;
 use num::Complex;
 use crate::stages::fsk::FSKSettings;
+use crate::stages::packet_detection::PacketDetectionSettingsF32;
 use crate::stages::wave_gen::WaveGenInformation;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
@@ -244,8 +246,26 @@ impl DspInformation {
     }
 }
 
-pub fn DSPCore(scheduler: &mut Scheduler) {
+pub fn DSPCore<const LEN: usize>(scheduler: &mut Scheduler) {
     scheduler.add_resource(DspInformation {
+        ..Default::default()
+    });
+    
+    scheduler.add_resource(Vec::new() as Vec<Complex<f32>>);
+    scheduler.add_resource(Vec::new() as Vec<u8>);
+    scheduler.add_resource(Vec::new() as Vec<f32>);
+    scheduler.add_resource(0u8);
+    scheduler.add_resource(0isize);
+    scheduler.add_resource(0usize);
+    scheduler.add_resource(0f32);
+    
+    scheduler.add_resource(PacketDetectionSettingsF32::<LEN>{
+        matrix: SMatrix::zeros(),
+        threshold: Default::default(),
+        buffer: SMatrix::zeros(),
+    });
+    
+    scheduler.add_resource(FSKSettings{
         ..Default::default()
     });
 }

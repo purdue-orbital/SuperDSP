@@ -21,7 +21,7 @@ fn print_wav_gen(arr: Res<Vec<f32>>){
 fn main() {
     let mut s = Scheduler::new();
     
-    s.add_plugin(DSPCore);
+    s.add_plugin(DSPCore::<16>);
     s.add_resource(WaveGenInformation::default());
     s.add_resource(vec![1.0 as f32]);
     

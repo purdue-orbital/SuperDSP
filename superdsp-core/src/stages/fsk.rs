@@ -5,7 +5,7 @@ use nalgebra::{SMatrix, SVector};
 use num::Complex;
 use crate::{Res, ResMut};
 use crate::stages::packet_detection::PacketDetectionSettingsF32;
-use crate::stages::packing::__unpack_f32__;
+use crate::stages::packing::__unpack__;
 
 /// .0 is equal to n and .1 is n-1
 pub fn intermediate_sequence_f32(x: &[Complex<f32>], n: isize, radians_a_sample: f32) -> (Complex<f32>, Complex<f32>){
@@ -51,7 +51,7 @@ impl FSKSettings {
         
         for x in preamble.iter(){
             for _ in 0..sps{
-                temp.extend_from_slice(__unpack_f32__(*x,1).as_slice());
+                temp.extend_from_slice(__unpack__(*x,1).as_slice());
             }
         }
         

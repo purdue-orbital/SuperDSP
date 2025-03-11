@@ -30,7 +30,7 @@ pub struct ResourceExample{
 fn main() {
     let mut s = Scheduler::new();
     
-    s.add_plugin(DSPCore);
+    s.add_plugin(DSPCore::<16>);
     
     s.add_resource(ResourceExample{
         name: String::from("Hello, world"),
