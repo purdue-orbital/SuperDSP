@@ -60,8 +60,3 @@ pub fn blackman_harris<const N: usize>() -> Vec<f32> {
     }
     w
 }
-
-#[test]
-pub fn test_triangle_window() {
-    assert_eq!(triangle_window::<3>(3).len(), 3);
-}

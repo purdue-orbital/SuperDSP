@@ -31,7 +31,7 @@ fn print_bits(x: Res<u8>) {
 fn main() {
     let mut s = Scheduler::new();
 
-    s.add_plugin(DSPCore::<16>);
+    s.add_plugin(DSPCore);
     s.add_resource(0u8);
     s.add_resource(FSKSettings::default());
     s.add_resource(WaveGenInformation::default());

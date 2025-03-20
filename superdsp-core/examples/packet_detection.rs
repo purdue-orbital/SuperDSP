@@ -35,7 +35,7 @@ pub fn signal_print(signal: Res<Complex<f32>>) {
 fn main() {
     let mut s = Scheduler::new();
 
-    s.add_plugin(DSPCore::<LEN>);
+    s.add_plugin(DSPCore);
 
     s.add_stage(Startup, setup);
 

@@ -296,7 +296,7 @@ impl DspInformation {
     }
 }
 
-pub fn DSPCore<const LEN: usize>(scheduler: &mut Scheduler) {
+pub fn DSPCore(scheduler: &mut Scheduler) {
     scheduler.add_resource(DspInformation {
         ..Default::default()
     });
