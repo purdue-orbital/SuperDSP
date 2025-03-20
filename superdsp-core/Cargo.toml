@@ -6,7 +6,7 @@ edition = "2024"
 [dependencies]
 libm = { version = "0.2.11", default-features = false }
 num = { version = "0.4.3", default-features = false, features = ["libm"] }
-nalgebra = { version = "0.33.2", default-features = false, features = ["libm"] }
+nalgebra = { version = "0.33.2", default-features = false, features = ["libm","alloc"] }
 
 [dev-dependencies]
 

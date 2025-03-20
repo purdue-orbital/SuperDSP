@@ -7,6 +7,9 @@ extern crate core;
 // TODO: Get rid of alloc. I want this to work on microcontrollers
 extern crate alloc;
 
+use crate::stages::fsk::FSKSettings;
+use crate::stages::packet_detection::PacketDetectionSettingsF32;
+use crate::stages::wave_gen::WaveGenInformation;
 use alloc::boxed::Box;
 use alloc::collections::BTreeMap;
 use alloc::vec;
@@ -16,14 +19,11 @@ use core::cell::{Ref, RefCell, RefMut};
 use core::f32::consts::PI;
 use core::marker::PhantomData;
 use core::ops::{Deref, DerefMut};
-use nalgebra::SMatrix;
+use nalgebra::DMatrix;
 use num::Complex;
-use crate::stages::fsk::FSKSettings;
-use crate::stages::packet_detection::PacketDetectionSettingsF32;
-use crate::stages::wave_gen::WaveGenInformation;
 
 #[derive(Copy, Clone, Eq, PartialEq)]
-pub enum Schedule{
+pub enum Schedule {
     Startup,
     Update,
 }
@@ -34,7 +34,7 @@ pub trait Stage {
 
 pub type StoredStage = Box<dyn Stage>;
 
-trait IntoStage<Input>{
+trait IntoStage<Input> {
     type Stage: Stage;
     fn into_stage(self) -> Self::Stage;
 }
@@ -56,7 +56,7 @@ pub struct ResMut<'a, T: 'static> {
 
 impl<T> Deref for Res<'_, T> {
     type Target = T;
-    
+
     fn deref(&self) -> &T {
         self.value.downcast_ref().unwrap()
     }
@@ -80,14 +80,19 @@ impl<'res, T: 'static> StageParam for Res<'res, T> {
     type Item<'new> = Res<'new, T>;
 
     fn retrieve<'r>(resources: &'r BTreeMap<TypeId, RefCell<Box<dyn Any>>>) -> Self::Item<'r> {
-        Res { value: resources.get(&TypeId::of::<T>()).unwrap().borrow(), _marker: PhantomData }
+        Res {
+            value: resources.get(&TypeId::of::<T>()).unwrap().borrow(),
+            _marker: PhantomData,
+        }
     }
 }
 
 impl<'res, T: 'static> StageParam for ResMut<'res, T> {
     type Item<'new> = ResMut<'new, T>;
 
-    fn retrieve<'r>(resources: &'r BTreeMap<TypeId,RefCell<Box<(dyn Any + 'static)>>>) -> Self::Item<'r> {
+    fn retrieve<'r>(
+        resources: &'r BTreeMap<TypeId, RefCell<Box<(dyn Any + 'static)>>>,
+    ) -> Self::Item<'r> {
         ResMut {
             value: resources.get(&TypeId::of::<T>()).unwrap().borrow_mut(),
             _marker: PhantomData,
@@ -122,7 +127,7 @@ macro_rules! impl_stage {
                 call_inner(&mut self.f, $($params),*)
             }
         }
-        
+
         impl<F: FnMut($($params),*), $($params: StageParam),*> IntoStage<($($params,)*)> for F
         where
             for<'a, 'b> &'a mut F:
@@ -130,7 +135,7 @@ macro_rules! impl_stage {
                 FnMut($(<$params as StageParam>::Item<'b>),*)
         {
             type Stage = FunctionStage<($($params),*), Self>;
-            
+
             fn into_stage(self) -> Self::Stage {
                 FunctionStage{
                     f: self,
@@ -160,86 +165,131 @@ impl_stage!(A, B, C, D, E, G, H, I, J, K, L, M, N, O, P);
 impl_stage!(A, B, C, D, E, G, H, I, J, K, L, M, N, O, P, R);
 
 pub struct Scheduler {
-    startup_stages: Vec<StoredStage>,
-    update_stages: Vec<StoredStage>,
-    
-    resources: BTreeMap<TypeId, RefCell<Box<dyn Any>>>,
+    startup_stages: Option<Vec<StoredStage>>,
+    update_stages: Option<Vec<StoredStage>>,
+
+    resources: Option<BTreeMap<TypeId, RefCell<Box<dyn Any>>>>,
 }
 
 impl Scheduler {
     pub fn new() -> Self {
-        Scheduler{
-            startup_stages: vec![],
-            update_stages: vec![],
-            resources: BTreeMap::new(),
+        Scheduler {
+            startup_stages: Some(vec![]),
+            update_stages: Some(vec![]),
+            resources: Some(BTreeMap::new()),
         }
     }
-    
-    pub fn add_stage<I, S: Stage + 'static>(&mut self, schedule: Schedule, stage: impl IntoStage<I, Stage = S>) {
+
+    /// Adds a stage to the scheduler based on the specified schedule.
+    ///
+    /// # Arguments
+    ///
+    /// * `schedule` - A `Schedule` enum indicating whether the stage should be added to the startup or update stages.
+    /// * `stage` - An implementation of `IntoStage<I, Stage = S>` that can be converted into a `Stage`.
+    pub fn add_stage<I, S: Stage + 'static>(
+        &mut self,
+        schedule: Schedule,
+        stage: impl IntoStage<I, Stage = S>,
+    ) {
         match schedule {
             Schedule::Startup => {
-                self.startup_stages.push(Box::new(stage.into_stage()));
+                self.startup_stages
+                    .as_mut()
+                    .unwrap()
+                    .push(Box::new(stage.into_stage()));
             }
             Schedule::Update => {
-                self.update_stages.push(Box::new(stage.into_stage()));
+                self.update_stages
+                    .as_mut()
+                    .unwrap()
+                    .push(Box::new(stage.into_stage()));
             }
         }
     }
-    
-    pub fn add_plugin(&mut self, plugin: impl Fn(&mut Scheduler)){
+
+    /// Adds a plugin to the scheduler.
+    ///
+    /// # Arguments
+    ///
+    /// * `plugin` - A closure that takes a mutable reference to the Scheduler and performs some operations on it.
+    pub fn add_plugin(&mut self, plugin: impl Fn(&mut Scheduler)) {
         plugin(self);
     }
-    
+
+    /// Adds a resource to the scheduler.
+    ///
+    /// # Arguments
+    ///
+    /// * `resource` - The resource to be added, which must have a static lifetime.
     pub fn add_resource<R: 'static>(&mut self, resource: R) {
-        self.resources.insert(TypeId::of::<R>(), RefCell::new(Box::new(resource)));
+        self.resources
+            .as_mut()
+            .unwrap()
+            .insert(TypeId::of::<R>(), RefCell::new(Box::new(resource)));
     }
-    
-    pub fn setup(&mut self) {
-        for stage in self.startup_stages.iter_mut() {
-            stage.invoke(&mut self.resources);
+
+    pub fn build(&mut self) -> Runner {
+        let mut s_stages = self.startup_stages.take().unwrap();
+
+        for stage in s_stages.iter_mut() {
+            stage.invoke(&mut self.resources.as_mut().unwrap());
         }
-    }
-    
-    pub fn run(&mut self) {
-        for stage in self.update_stages.iter_mut() {
-            stage.invoke(&mut self.resources);
+
+        Runner {
+            stages: self.update_stages.take().unwrap(),
+            resources: self.resources.take().unwrap(),
         }
     }
 }
 
-pub struct FunctionStage<Input, F>{
+pub struct Runner {
+    stages: Vec<StoredStage>,
+    resources: BTreeMap<TypeId, RefCell<Box<dyn Any>>>,
+}
+
+impl Runner {
+    pub fn run(&mut self) {
+        loop {
+            for stage in self.stages.iter_mut() {
+                stage.invoke(&mut self.resources);
+            }
+        }
+    }
+}
+
+pub struct FunctionStage<Input, F> {
     f: F,
     marker: PhantomData<fn() -> Input>,
 }
-
 
 #[derive(Default)]
 pub struct DspInformation {
     pub carrier_frequency: f32,
 
     pub sample_rate: f32,
-    
+
     pub gain: f32,
-    
+
     pub taps: usize,
 }
 
 impl DspInformation {
     pub fn create_wave_gen_settings(&self) -> WaveGenInformation {
-        WaveGenInformation{
+        WaveGenInformation {
             c_radians: 0.0,
             radians_a_sample: 2.0 * PI * self.carrier_frequency / self.sample_rate,
         }
     }
-    
-    pub fn create_fsk_settings(&self) -> FSKSettings{
-        FSKSettings{
-            channel_0: self.taps - ((self.taps as f32 / self.sample_rate) * self.carrier_frequency) as usize,
+
+    pub fn create_fsk_settings(&self) -> FSKSettings {
+        FSKSettings {
+            channel_0: self.taps
+                - ((self.taps as f32 / self.sample_rate) * self.carrier_frequency) as usize,
             channel_1: ((self.taps as f32 / self.sample_rate) * self.carrier_frequency) as usize,
-            
+
             radians_a_sample_c0: -2.0 * PI * self.carrier_frequency / self.sample_rate,
             radians_a_sample_c1: 2.0 * PI * self.carrier_frequency / self.sample_rate,
-            
+
             c_radian_c0: 0.0,
             c_radian_c1: 0.0,
         }
@@ -250,7 +300,7 @@ pub fn DSPCore<const LEN: usize>(scheduler: &mut Scheduler) {
     scheduler.add_resource(DspInformation {
         ..Default::default()
     });
-    
+
     scheduler.add_resource(Vec::new() as Vec<Complex<f32>>);
     scheduler.add_resource(Vec::new() as Vec<u8>);
     scheduler.add_resource(Vec::new() as Vec<f32>);
@@ -258,14 +308,15 @@ pub fn DSPCore<const LEN: usize>(scheduler: &mut Scheduler) {
     scheduler.add_resource(0isize);
     scheduler.add_resource(0usize);
     scheduler.add_resource(0f32);
-    
-    scheduler.add_resource(PacketDetectionSettingsF32::<LEN>{
-        matrix: SMatrix::zeros(),
+    scheduler.add_resource(Complex::<f32>::default());
+
+    scheduler.add_resource(PacketDetectionSettingsF32 {
+        matrix: DMatrix::zeros(1, 1),
         threshold: Default::default(),
-        buffer: SMatrix::zeros(),
+        buffer: DMatrix::zeros(1, 1),
     });
-    
-    scheduler.add_resource(FSKSettings{
+
+    scheduler.add_resource(FSKSettings {
         ..Default::default()
     });
 }
