@@ -2,7 +2,8 @@ name: Generate Documentation
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,7 +13,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -37,6 +37,6 @@ jobs:
           git config --global user.name "Nicholas Ball"
           git config --global user.email "Nicholas-Ball@users.noreply.github.com"
           git add .
-          git commit -m "Updating Doc" 
+          git commit -m "Updating Doc"
           git fetch
           git push -f origin HEAD:docs

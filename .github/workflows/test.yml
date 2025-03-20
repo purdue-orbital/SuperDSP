@@ -2,7 +2,8 @@ name: Crate Test
 
 on:
   push:
-    branches: ["main", "experimental"]
+    branches:
+      - "*"
 
 env:
   CARGO_TERM_COLOR: always
