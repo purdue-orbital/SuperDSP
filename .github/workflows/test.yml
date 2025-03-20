@@ -18,5 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install bladerf
+        run: sudo apt-get install libusb-1.0-0-dev libusb-1.0-0 build-essential cmake libncurses5-dev libtecla1 libtecla-dev pkg-config git wget && git clone https://github.com/MartinHerren/bladeRF.git ./bladerf && cd ./bladeRF && git switch fix_gcc14_compile_error && git pull && cd host/ && mkdir build && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DINSTALL_UDEV_RULES=ON ../ && make && sudo make install && sudo ldconfig
+
       - name: test
         run: cargo +nightly test --verbose
